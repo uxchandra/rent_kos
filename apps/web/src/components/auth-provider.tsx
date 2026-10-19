@@ -1,0 +1,45 @@
+"use client";
+
+import { createContext, use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { api } from "@/lib/client-api";
+import type { CurrentUser, Role } from "@/lib/types";
+
+const AuthContext = createContext<{ user: CurrentUser; logout: () => Promise<void> } | null>(null);
+
+/** Memuat user yang sedang login; arahkan ke /login bila belum login atau role tidak sesuai. */
+export function AuthProvider({ roles, children }: { roles: Role[]; children: React.ReactNode }) {
+  const router = useRouter();
+  const [user, setUser] = useState<CurrentUser | null>(null);
+
+  useEffect(() => {
+    api<{ user: CurrentUser }>("/auth/me")
+      .then(({ user }) => {
+        if (roles.includes(user.role)) setUser(user);
+        else router.replace(user.role === "TENANT" ? "/penghuni" : "/admin");
+      })
+      .catch(() => router.replace("/login"));
+  }, [roles, router]);
+
+  async function logout() {
+    await api("/auth/logout", { method: "POST" });
+    router.replace("/login");
+  }
+
+  if (!user) {
+    return (
+      <div className="grid flex-1 place-items-center">
+        <Loader2 className="size-8 animate-spin text-brand-500" />
+      </div>
+    );
+  }
+
+  return <AuthContext value={{ user, logout }}>{children}</AuthContext>;
+}
+
+export function useAuth() {
+  const ctx = use(AuthContext);
+  if (!ctx) throw new Error("useAuth harus dipakai di dalam AuthProvider");
+  return ctx;
+}

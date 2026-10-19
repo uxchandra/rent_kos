@@ -1,0 +1,29 @@
+import Link from "next/link";
+import { Photo } from "./photo";
+import { genderBadge, genderShort, price } from "@/lib/format";
+import type { KosSummary } from "@/lib/types";
+
+export function KosCard({ kos }: { kos: KosSummary }) {
+  return (
+    <Link href={`/${kos.slug}`} className="group block">
+      <div className="overflow-hidden rounded-xl">
+        <Photo src={kos.coverImage} alt={kos.name} className="aspect-4/3 w-full transition duration-500 group-hover:scale-105" />
+      </div>
+      <div className="mt-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-semibold">{kos.name}</h3>
+          <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${genderBadge[kos.gender]}`}>
+            {genderShort[kos.gender]}
+          </span>
+        </div>
+        <p className="text-sm text-muted">
+          {kos.city} · {kos.availableRooms > 0 ? `${kos.availableRooms} kamar kosong` : "Penuh"}
+        </p>
+        <p className="mt-1 text-sm">
+          Mulai <span className="font-bold">{kos.minPrice ? price(kos.minPrice) : "-"}</span>
+          <span className="text-muted"> / bulan</span>
+        </p>
+      </div>
+    </Link>
+  );
+}

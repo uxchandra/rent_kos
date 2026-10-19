@@ -1,0 +1,68 @@
+import {
+  Bath,
+  Bed,
+  Bike,
+  Building2,
+  Car,
+  Cctv,
+  Check,
+  CookingPot,
+  Droplets,
+  Fan,
+  Flame,
+  Hospital,
+  KeyRound,
+  LampDesk,
+  MapPin,
+  Refrigerator,
+  School,
+  Shirt,
+  ShoppingBag,
+  Sofa,
+  Snowflake,
+  Sparkles,
+  TrainFront,
+  Trees,
+  Tv,
+  UserRound,
+  WashingMachine,
+  Wifi,
+  type LucideIcon,
+} from "lucide-react";
+
+const facilityIcons: [RegExp, LucideIcon][] = [
+  [/wifi/i, Wifi],
+  [/dapur|pantry/i, CookingPot],
+  [/parkir mobil|mobil/i, Car],
+  [/parkir/i, Bike],
+  [/cctv/i, Cctv],
+  [/mesin cuci|laundry/i, WashingMachine],
+  [/jemuran/i, Shirt],
+  [/\bac\b/i, Snowflake],
+  [/kipas/i, Fan],
+  [/water heater/i, Flame],
+  [/kamar mandi/i, Bath],
+  [/tv/i, Tv],
+  [/kasur/i, Bed],
+  [/meja/i, LampDesk],
+  [/kulkas/i, Refrigerator],
+  [/ruang|lounge|sofa/i, Sofa],
+  [/akses|kunci/i, KeyRound],
+  [/housekeeping/i, Sparkles],
+  [/air|galon/i, Droplets],
+  [/penjaga|resepsionis/i, UserRound],
+  [/balkon|taman/i, Trees],
+  [/lift/i, Building2],
+];
+
+export const facilityIcon = (name: string): LucideIcon => facilityIcons.find(([re]) => re.test(name))?.[1] ?? Check;
+
+const placeIcons: [RegExp, LucideIcon][] = [
+  [/universitas|institut|unpad|kampus|sekolah/i, School],
+  [/mrt|stasiun|halte|krl/i, TrainFront],
+  [/\brs\b|rumah sakit|klinik/i, Hospital],
+  [/plaza|mall|indomaret|alfamart|superindo|pasar|blok m/i, ShoppingBag],
+  [/taman/i, Trees],
+];
+
+export const placeIcon = (name: string): LucideIcon => placeIcons.find(([re]) => re.test(name))?.[1] ?? MapPin;

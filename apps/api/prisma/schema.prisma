@@ -1,0 +1,337 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ============ USERS ============
+
+enum Role {
+  OWNER
+  ADMIN
+  TENANT
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(150)
+  phone        String?  @db.VarChar(20)
+  passwordHash String   @map("password_hash")
+  role         Role
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  managedKos       KosAdmin[]
+  tenancies        Tenancy[]
+  handledBookings  Booking[]  @relation("BookingHandler")
+  verifiedPayments Payment[]  @relation("PaymentVerifier")
+
+  @@map("users")
+}
+
+// ============ KOS ============
+
+enum KosGender {
+  PUTRA
+  PUTRI
+  CAMPUR
+}
+
+model Kos {
+  id             Int       @id @default(autoincrement())
+  slug           String    @unique @db.VarChar(60) // smartkos.com/{slug}
+  name           String    @db.VarChar(100)
+  tagline        String?   @db.VarChar(200)
+  description    String?   @db.Text
+  address        String    @db.VarChar(255)
+  city           String    @db.VarChar(80)
+  province       String?   @db.VarChar(80)
+  latitude       Decimal?  @db.Decimal(10, 7)
+  longitude      Decimal?  @db.Decimal(10, 7)
+  gender         KosGender @default(CAMPUR)
+  facilities     Json? // string[] fasilitas umum
+  rules          String?   @db.Text
+  nearby         Json? // [{ name, distance }] tempat terdekat
+  whatsapp       String?   @db.VarChar(20)
+  coverImage     String?   @map("cover_image")
+  defaultDeposit Int       @default(0) @map("default_deposit")
+  billingDueDays Int       @default(7) @map("billing_due_days") // jatuh tempo X hari setelah tagihan terbit
+  isPublished    Boolean   @default(false) @map("is_published")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  photos       KosPhoto[]
+  admins       KosAdmin[]
+  roomTypes    RoomType[]
+  bookings     Booking[]
+  bankAccounts BankAccount[]
+
+  @@map("kos")
+}
+
+model KosPhoto {
+  id        Int     @id @default(autoincrement())
+  kosId     Int     @map("kos_id")
+  url       String
+  caption   String? @db.VarChar(150)
+  sortOrder Int     @default(0) @map("sort_order")
+
+  kos Kos @relation(fields: [kosId], references: [id], onDelete: Cascade)
+
+  @@index([kosId])
+  @@map("kos_photos")
+}
+
+model KosAdmin {
+  userId Int @map("user_id")
+  kosId  Int @map("kos_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kos  Kos  @relation(fields: [kosId], references: [id], onDelete: Cascade)
+
+  @@id([userId, kosId])
+  @@map("kos_admins")
+}
+
+// ============ KAMAR ============
+
+model RoomType {
+  id           Int      @id @default(autoincrement())
+  kosId        Int      @map("kos_id")
+  name         String   @db.VarChar(80) // misal: "Tipe A - AC + KM Dalam"
+  description  String?  @db.Text
+  monthlyPrice Int      @map("monthly_price")
+  size         String?  @db.VarChar(30) // misal: "3x4 m"
+  facilities   Json? // string[]
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  kos      Kos             @relation(fields: [kosId], references: [id], onDelete: Cascade)
+  photos   RoomTypePhoto[]
+  rooms    Room[]
+  bookings Booking[]
+
+  @@index([kosId])
+  @@map("room_types")
+}
+
+model RoomTypePhoto {
+  id         Int    @id @default(autoincrement())
+  roomTypeId Int    @map("room_type_id")
+  url        String
+  sortOrder  Int    @default(0) @map("sort_order")
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  @@index([roomTypeId])
+  @@map("room_type_photos")
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+}
+
+model Room {
+  id         Int        @id @default(autoincrement())
+  roomTypeId Int        @map("room_type_id")
+  number     String     @db.VarChar(20)
+  floor      Int?
+  status     RoomStatus @default(AVAILABLE)
+  notes      String?    @db.VarChar(255)
+
+  roomType  RoomType  @relation(fields: [roomTypeId], references: [id], onDelete: Restrict)
+  tenancies Tenancy[]
+
+  @@unique([roomTypeId, number])
+  @@map("rooms")
+}
+
+// ============ BOOKING & SEWA ============
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Booking {
+  id           Int           @id @default(autoincrement())
+  code         String        @unique @db.VarChar(20)
+  kosId        Int           @map("kos_id")
+  roomTypeId   Int           @map("room_type_id")
+  name         String        @db.VarChar(100)
+  email        String        @db.VarChar(150)
+  phone        String        @db.VarChar(20)
+  occupation   String?       @db.VarChar(100)
+  moveInDate   DateTime      @map("move_in_date") @db.Date
+  message      String?       @db.Text
+  status       BookingStatus @default(PENDING)
+  rejectReason String?       @map("reject_reason") @db.VarChar(255)
+  handledById  Int?          @map("handled_by_id")
+  handledAt    DateTime?     @map("handled_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  kos       Kos      @relation(fields: [kosId], references: [id], onDelete: Cascade)
+  roomType  RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Restrict)
+  handledBy User?    @relation("BookingHandler", fields: [handledById], references: [id], onDelete: SetNull)
+  tenancy   Tenancy?
+
+  @@index([kosId, status])
+  @@map("bookings")
+}
+
+enum TenancyStatus {
+  ACTIVE
+  ENDED
+}
+
+enum DepositStatus {
+  NONE // tidak ada deposit
+  UNPAID
+  HELD // sudah dibayar, ditahan
+  REFUNDED // dikembalikan penuh
+  PARTIAL_REFUNDED // dikembalikan sebagian (potong kerusakan, dll)
+  FORFEITED // hangus
+}
+
+model Tenancy {
+  id                  Int           @id @default(autoincrement())
+  roomId              Int           @map("room_id")
+  tenantId            Int           @map("tenant_id")
+  bookingId           Int?          @unique @map("booking_id")
+  startDate           DateTime      @map("start_date") @db.Date
+  endDate             DateTime?     @map("end_date") @db.Date
+  monthlyPrice        Int           @map("monthly_price")
+  billingDay          Int           @map("billing_day") // tanggal tagihan tiap bulan (1-28)
+  depositAmount       Int           @default(0) @map("deposit_amount")
+  depositStatus       DepositStatus @default(NONE) @map("deposit_status")
+  depositRefundAmount Int?          @map("deposit_refund_amount")
+  depositNote         String?       @map("deposit_note") @db.VarChar(255)
+  status              TenancyStatus @default(ACTIVE)
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+
+  room     Room      @relation(fields: [roomId], references: [id], onDelete: Restrict)
+  tenant   User      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  booking  Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  invoices Invoice[]
+
+  @@index([roomId, status])
+  @@index([tenantId])
+  @@map("tenancies")
+}
+
+// ============ TAGIHAN & PEMBAYARAN ============
+
+enum InvoiceType {
+  RENT
+  DEPOSIT
+}
+
+enum InvoiceStatus {
+  UNPAID
+  WAITING_VERIFICATION
+  PAID
+  CANCELLED
+}
+
+model Invoice {
+  id             Int           @id @default(autoincrement())
+  number         String        @unique @db.VarChar(30)
+  tenancyId      Int           @map("tenancy_id")
+  type           InvoiceType
+  periodYear     Int?          @map("period_year")
+  periodMonth    Int?          @map("period_month") // 1-12, null untuk deposit
+  amount         Int
+  dueDate        DateTime      @map("due_date") @db.Date
+  status         InvoiceStatus @default(UNPAID)
+  paidAt         DateTime?     @map("paid_at")
+  reminderSentAt DateTime?     @map("reminder_sent_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  tenancy  Tenancy   @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@unique([tenancyId, type, periodYear, periodMonth])
+  @@index([status, dueDate])
+  @@map("invoices")
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  invoiceId     Int           @map("invoice_id")
+  bankAccountId Int?          @map("bank_account_id")
+  amount        Int
+  proofUrl      String        @map("proof_url")
+  senderName    String        @map("sender_name") @db.VarChar(100)
+  transferDate  DateTime      @map("transfer_date") @db.Date
+  status        PaymentStatus @default(PENDING)
+  note          String?       @db.VarChar(255) // alasan tolak / catatan admin
+  verifiedById  Int?          @map("verified_by_id")
+  verifiedAt    DateTime?     @map("verified_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  invoice     Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  bankAccount BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  verifiedBy  User?        @relation("PaymentVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([status])
+  @@map("payments")
+}
+
+model BankAccount {
+  id            Int     @id @default(autoincrement())
+  kosId         Int?    @map("kos_id") // null = berlaku untuk semua kos
+  bankName      String  @map("bank_name") @db.VarChar(50)
+  accountNumber String  @map("account_number") @db.VarChar(40)
+  accountName   String  @map("account_name") @db.VarChar(100)
+  isActive      Boolean @default(true) @map("is_active")
+
+  kos      Kos?      @relation(fields: [kosId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@map("bank_accounts")
+}
+
+// ============ NOTIFIKASI ============
+
+enum NotificationChannel {
+  WHATSAPP
+  EMAIL
+}
+
+enum NotificationStatus {
+  SENT
+  FAILED
+}
+
+model NotificationLog {
+  id        Int                 @id @default(autoincrement())
+  channel   NotificationChannel
+  recipient String              @db.VarChar(150)
+  subject   String?             @db.VarChar(200)
+  message   String              @db.Text
+  status    NotificationStatus
+  error     String?             @db.Text
+  createdAt DateTime            @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("notification_logs")
+}

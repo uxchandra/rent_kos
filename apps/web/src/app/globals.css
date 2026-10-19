@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  /* Ungu identitas SmartKos */
+  --color-brand-50: #f6f3ff;
+  --color-brand-100: #ede7ff;
+  --color-brand-200: #dcd1ff;
+  --color-brand-300: #c2aefd;
+  --color-brand-400: #a283fa;
+  --color-brand-500: #8657f3;
+  --color-brand-600: #7539e6;
+  --color-brand-700: #6429c9;
+  --color-brand-800: #5323a5;
+  --color-brand-900: #451f86;
+  --color-brand-950: #2a115b;
+
+  --color-accent: #ffb547;
+  --color-surface: #ffffff;
+  --color-subtle: #f7f7f8;
+  --color-line: #e8e8ec;
+  --color-ink: #1d1b22;
+  --color-muted: #6b6875;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}

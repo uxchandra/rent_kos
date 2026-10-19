@@ -1,0 +1,14 @@
+import "dotenv/config";
+import { z } from "zod";
+
+const schema = z.object({
+  DATABASE_URL: z.string().min(1),
+  PORT: z.coerce.number().default(4000),
+  WEB_URL: z.string().default("http://localhost:3000"),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET minimal 32 karakter"),
+  JWT_EXPIRES_IN: z.string().default("7d"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+});
+
+export const env = schema.parse(process.env);
+export const isProd = env.NODE_ENV === "production";
