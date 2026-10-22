@@ -15,6 +15,8 @@ const adapter = new PrismaMariaDb({
   database: url.pathname.slice(1),
   ssl: useSsl ? { rejectUnauthorized: true } : undefined,
   connectionLimit: 5,
+  // Default driver hanya 1 detik; handshake TLS dari serverless (cold start) bisa lebih lama.
+  connectTimeout: 10_000,
 });
 
 export const prisma = new PrismaClient({ adapter });
