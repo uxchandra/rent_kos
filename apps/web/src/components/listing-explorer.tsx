@@ -1,111 +1,214 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Bath, Flame, LayoutGrid, Snowflake, Tv, Users, Venus, Mars, Wallet, type LucideIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { SlidersHorizontal } from "lucide-react";
 import { RoomCard } from "./room-card";
-import type { RoomListing } from "@/lib/types";
-
-type Chip = { id: string; label: string; icon: LucideIcon; test: (r: RoomListing) => boolean };
+import { BottomSheet } from "./bottom-sheet";
+import { tierOf, tiers } from "@/lib/tiers";
+import type { KosGender, RoomListing } from "@/lib/types";
 
 const has = (r: RoomListing, re: RegExp) => r.facilities?.some((f) => re.test(f)) ?? false;
 
-const chips: Chip[] = [
-  { id: "all", label: "Semua", icon: LayoutGrid, test: () => true },
-  { id: "putri", label: "Putri", icon: Venus, test: (r) => r.kos.gender === "PUTRI" },
-  { id: "putra", label: "Putra", icon: Mars, test: (r) => r.kos.gender === "PUTRA" },
-  { id: "campur", label: "Campur", icon: Users, test: (r) => r.kos.gender === "CAMPUR" },
-  { id: "ac", label: "AC", icon: Snowflake, test: (r) => has(r, /\bac\b/i) },
-  { id: "km", label: "K. Mandi Dalam", icon: Bath, test: (r) => has(r, /kamar mandi dalam/i) },
-  { id: "heater", label: "Water Heater", icon: Flame, test: (r) => has(r, /water heater/i) },
-  { id: "tv", label: "Smart TV", icon: Tv, test: (r) => has(r, /tv/i) },
-  { id: "hemat", label: "< Rp1,5 jt", icon: Wallet, test: (r) => r.monthlyPrice < 1_500_000 },
+const features = [
+  { id: "ac", label: "AC", test: (r: RoomListing) => has(r, /\bac\b/i) },
+  { id: "km", label: "Kamar mandi dalam", test: (r: RoomListing) => has(r, /kamar mandi dalam/i) },
+  { id: "heater", label: "Water heater", test: (r: RoomListing) => has(r, /water heater/i) },
+  { id: "tv", label: "Smart TV", test: (r: RoomListing) => has(r, /tv/i) },
+];
+
+const genders: { id: KosGender; label: string }[] = [
+  { id: "PUTRI", label: "Putri" },
+  { id: "PUTRA", label: "Putra" },
+  { id: "CAMPUR", label: "Campur" },
 ];
 
 const sorts = {
-  rekomendasi: { label: "Rekomendasi", fn: (a: RoomListing, b: RoomListing) => b.availableRooms - a.availableRooms },
+  tersedia: { label: "Paling banyak tersedia", fn: (a: RoomListing, b: RoomListing) => b.availableRooms - a.availableRooms },
   murah: { label: "Harga termurah", fn: (a: RoomListing, b: RoomListing) => a.monthlyPrice - b.monthlyPrice },
   mahal: { label: "Harga tertinggi", fn: (a: RoomListing, b: RoomListing) => b.monthlyPrice - a.monthlyPrice },
 };
 
+function Pill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${
+        active ? "border-brand-600 bg-brand-600 font-semibold text-white" : "border-line bg-white hover:border-brand-600"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function ListingExplorer({ rooms }: { rooms: RoomListing[] }) {
+  const params = useSearchParams();
   const cities = useMemo(() => [...new Set(rooms.map((r) => r.kos.city))], [rooms]);
-  const [city, setCity] = useState<string | null>(null);
-  const [chip, setChip] = useState("all");
-  const [sort, setSort] = useState<keyof typeof sorts>("rekomendasi");
+  const [city, setCity] = useState<string | null>(params.get("kota"));
+  const [tier, setTier] = useState<string | null>(params.get("tier"));
+  const [gender, setGender] = useState<KosGender | null>(genders.find((g) => g.id === params.get("khusus")?.toUpperCase())?.id ?? null);
+  const [feature, setFeature] = useState<string | null>(null);
+  const [sort, setSort] = useState<keyof typeof sorts>("tersedia");
+  const maxPrice = Number(params.get("maks")) || Infinity;
 
   const result = useMemo(() => {
-    const test = chips.find((c) => c.id === chip)!.test;
-    return rooms.filter((r) => (!city || r.kos.city === city) && test(r)).sort(sorts[sort].fn);
-  }, [rooms, city, chip, sort]);
+    const test = features.find((f) => f.id === feature)?.test ?? (() => true);
+    return rooms
+      .filter(
+        (r) =>
+          (!city || r.kos.city === city) &&
+          (!tier || tierOf(r.monthlyPrice).id === tier) &&
+          (!gender || r.kos.gender === gender) &&
+          r.monthlyPrice <= maxPrice &&
+          test(r),
+      )
+      .sort(sorts[sort].fn);
+  }, [rooms, city, tier, gender, feature, sort, maxPrice]);
+
+  const toggle = <T,>(set: (v: T | null) => void, current: T | null, v: T) => set(current === v ? null : v);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const activeCount = [tier, gender, feature].filter(Boolean).length;
+
+  const cityPills = (
+    <>
+      <Pill active={!city} onClick={() => setCity(null)}>
+        Semua
+      </Pill>
+      {cities.map((c) => (
+        <Pill key={c} active={city === c} onClick={() => toggle(setCity, city, c)}>
+          {c}
+        </Pill>
+      ))}
+    </>
+  );
+
+  const otherFilters = (
+    <>
+      <FilterGroup title="Tipe">
+          {tiers.map((t) => (
+            <Pill key={t.id} active={tier === t.id} onClick={() => toggle(setTier, tier, t.id)}>
+              {t.label}
+            </Pill>
+          ))}
+        </FilterGroup>
+        <FilterGroup title="Khusus">
+          {genders.map((g) => (
+            <Pill key={g.id} active={gender === g.id} onClick={() => toggle(setGender, gender, g.id)}>
+              {g.label}
+            </Pill>
+          ))}
+        </FilterGroup>
+        <FilterGroup title="Fasilitas">
+          {features.map((f) => (
+            <Pill key={f.id} active={feature === f.id} onClick={() => toggle(setFeature, feature, f.id)}>
+              {f.label}
+            </Pill>
+          ))}
+        </FilterGroup>
+    </>
+  );
 
   return (
-    <div>
-      {/* Bar kategori ala Airbnb */}
-      <div className="sticky top-20 z-30 border-b border-line bg-white">
-        <div className="mx-auto flex max-w-350 gap-8 overflow-x-auto px-4 pt-4 [scrollbar-width:none] sm:px-6">
-          {chips.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setChip(id)}
-              className={`flex shrink-0 flex-col items-center gap-1.5 border-b-2 pb-3 text-xs font-semibold transition ${
-                chip === id ? "border-ink text-ink" : "border-transparent text-muted hover:border-line hover:text-ink"
-              }`}
-            >
-              <Icon className="size-6" strokeWidth={1.5} />
-              {label}
-            </button>
-          ))}
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[260px_1fr]">
+      {/* Desktop: filter di samping */}
+      <aside className="hidden space-y-7 lg:sticky lg:top-24 lg:block lg:self-start">
+        <FilterGroup title="Kota">{cityPills}</FilterGroup>
+        {otherFilters}
+      </aside>
+
+      {/* HP: chip kota yang bisa digeser + tombol filter */}
+      <div className="sticky top-16 z-30 -mx-4 -mt-6 border-b border-line bg-white px-4 py-3 lg:hidden">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSheetOpen(true)}
+            className="flex shrink-0 items-center gap-2 rounded-full border border-ink px-4 py-1.5 text-sm font-semibold"
+          >
+            <SlidersHorizontal className="size-4" /> Filter
+            {activeCount > 0 && (
+              <span className="grid size-5 place-items-center rounded-full bg-brand-600 text-[11px] text-white">{activeCount}</span>
+            )}
+          </button>
+          <span className="h-6 w-px shrink-0 bg-line" />
+          <div className="no-scrollbar -mr-4 flex gap-2 overflow-x-auto pr-4">{cityPills}</div>
         </div>
       </div>
-
-      <div className="mx-auto max-w-350 px-4 py-6 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            {[null, ...cities].map((c) => (
-              <button
-                key={c ?? "semua"}
-                onClick={() => setCity(c)}
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                  city === c ? "border-ink bg-ink text-white" : "border-line hover:border-ink"
-                }`}
-              >
-                {c ?? "Semua kota"}
-              </button>
-            ))}
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-muted">Urutkan</span>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as keyof typeof sorts)}
-              className="rounded-lg border border-line bg-white px-3 py-2 font-medium outline-none focus:border-ink"
+      <BottomSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title="Filter kamar"
+        footer={
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setTier(null);
+                setGender(null);
+                setFeature(null);
+              }}
+              className="px-2 py-3 text-sm font-semibold underline underline-offset-4"
             >
-              {Object.entries(sorts).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              Reset
+            </button>
+            <button onClick={() => setSheetOpen(false)} className="flex-1 rounded-full bg-brand-600 py-3.5 font-semibold text-white">
+              Tampilkan {result.length} kamar
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-7">
+          {otherFilters}
+          <FilterGroup title="Urutkan">
+            {Object.entries(sorts).map(([k, v]) => (
+              <Pill key={k} active={sort === k} onClick={() => setSort(k as keyof typeof sorts)}>
+                {v.label}
+              </Pill>
+            ))}
+          </FilterGroup>
+        </div>
+      </BottomSheet>
+
+      <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted">
+            <span className="font-semibold text-ink">{result.length}</span> tipe kamar
+            {city && ` di ${city}`}
+            {Number.isFinite(maxPrice) && ` · maks. Rp${(maxPrice / 1_000_000).toLocaleString("id-ID")} jt`}
+          </p>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as keyof typeof sorts)}
+            className="hidden rounded-full border border-line bg-white px-4 py-2 text-sm outline-none focus:border-brand-600 lg:block"
+          >
+            {Object.entries(sorts).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <p className="mt-6 text-sm text-muted">
-          {result.length} tipe kamar{city ? ` di ${city}` : ""}
-        </p>
-
         {result.length === 0 ? (
-          <div className="py-24 text-center">
-            <p className="font-semibold">Belum ada kamar yang cocok</p>
-            <p className="mt-1 text-sm text-muted">Coba ubah filter atau pilih kota lain.</p>
+          <div className="mt-6 rounded-2xl bg-cream px-6 py-20 text-center">
+            <p className="text-lg font-bold">Belum ada kamar yang cocok</p>
+            <p className="mt-1 text-sm text-muted">Coba longgarkan filter atau pilih kota lain.</p>
           </div>
         ) : (
-          <div className="mt-4 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {result.map((r) => (
               <RoomCard key={r.id} room={r} />
             ))}
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">{title}</p>
+      <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
 }

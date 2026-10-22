@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -7,15 +7,27 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
+const serif = Instrument_Serif({
+  variable: "--font-instrument",
+  weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: { default: "SmartKos — Kos Nyaman di Berbagai Kota", template: "%s | SmartKos" },
-  description: "Temukan kos bersih, nyaman, dan strategis di berbagai kota bersama SmartKos.",
+  description: "Kos bulanan siap huni di Yogyakarta, Jakarta, dan Bandung. Kamar bersih, harga jelas, bayar dari HP.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#7539e6",
+  viewportFit: "cover", // agar env(safe-area-inset-*) berlaku di HP berponi
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${jakarta.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+    <html lang="id" className={`${jakarta.variable} ${serif.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>
   );
 }

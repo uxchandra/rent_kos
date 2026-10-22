@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
 
   /* Ungu identitas SmartKos */
   --color-brand-50: #f6f3ff;
@@ -19,6 +20,10 @@
   --color-accent: #ffb547;
   --color-surface: #ffffff;
   --color-subtle: #f7f7f8;
+  --color-cream: #faf2e8;
+  --color-lavender: #efe9ff;
+  --color-mint: #dff5ee;
+  --color-mint-ink: #157a63;
   --color-line: #e8e8ec;
   --color-ink: #1d1b22;
   --color-muted: #6b6875;
@@ -32,3 +37,11 @@ body {
 summary::-webkit-details-marker {
   display: none;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+

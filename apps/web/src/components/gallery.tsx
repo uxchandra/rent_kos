@@ -57,16 +57,34 @@ function Lightbox({ photos, index, onClose }: { photos: GalleryPhoto[]; index: n
 /** Galeri utama halaman cabang: 1 foto besar + 4 foto kecil. */
 export function GalleryGrid({ photos, name }: { photos: GalleryPhoto[]; name: string }) {
   const [open, setOpen] = useState<number | null>(null);
+  const [current, setCurrent] = useState(0);
   const [main, ...rest] = photos;
 
   return (
     <>
-      <div className="relative grid h-[260px] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:h-[440px]">
-        <button onClick={() => setOpen(0)} className="col-span-4 row-span-2 sm:col-span-2">
+      {/* HP: geser foto layar penuh */}
+      <div className="relative -mx-4 sm:hidden">
+        <div
+          onScroll={(e) => setCurrent(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
+          className="no-scrollbar flex aspect-4/3 snap-x snap-mandatory overflow-x-auto"
+        >
+          {photos.map((p, i) => (
+            <button key={p.url + i} onClick={() => setOpen(i)} className="size-full shrink-0 snap-center">
+              <Photo src={p.url} alt={p.caption ?? name} className="size-full" />
+            </button>
+          ))}
+        </div>
+        <span className="pointer-events-none absolute bottom-3 right-4 rounded-md bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
+          {current + 1} / {photos.length}
+        </span>
+      </div>
+
+      <div className="relative hidden h-110 grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-xl sm:grid">
+        <button onClick={() => setOpen(0)} className="col-span-2 row-span-2">
           <Photo src={main?.url} alt={main?.caption ?? name} className="size-full transition hover:brightness-90" />
         </button>
         {rest.slice(0, 4).map((p, i) => (
-          <button key={p.url} onClick={() => setOpen(i + 1)} className="hidden sm:block">
+          <button key={p.url} onClick={() => setOpen(i + 1)}>
             <Photo src={p.url} alt={p.caption ?? name} className="size-full transition hover:brightness-90" />
           </button>
         ))}

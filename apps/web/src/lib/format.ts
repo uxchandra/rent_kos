@@ -16,3 +16,7 @@ export const price = (n: number) => `Rp${new Intl.NumberFormat("id-ID").format(n
 
 export const waLink = (phone: string, text: string) =>
   `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
+
+/** Rp14,7 jt — untuk angka besar di kartu statistik yang sempit. */
+export const priceCompact = (n: number) =>
+  n >= 1_000_000 ? `Rp${(n / 1_000_000).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt` : price(n);

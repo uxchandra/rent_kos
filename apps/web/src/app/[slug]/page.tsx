@@ -5,13 +5,15 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, CreditCard, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { WhatsAppFab } from "@/components/whatsapp-fab";
 import { KosCard } from "@/components/kos-card";
 import { GalleryGrid } from "@/components/gallery";
 import { PhotoCarousel } from "@/components/photo-carousel";
-import { BookingCard } from "@/components/booking-card";
+import { BookingCard, MobileBookingBar } from "@/components/booking-card";
 import { getKosBySlug, getKosList } from "@/lib/public-api";
 import { genderLabel, price, waLink } from "@/lib/format";
 import { facilityIcon, placeIcon } from "@/lib/icons";
+import { tierOf } from "@/lib/tiers";
 
 export async function generateMetadata({ params }: PageProps<"/[slug]">): Promise<Metadata> {
   const kos = await getKosBySlug((await params).slug);
@@ -39,17 +41,18 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
 
   return (
     <>
-      <SiteHeader wide={false} searchLabel={`Kos di ${kos.city}`} />
+      <SiteHeader />
 
       <main className="flex-1 pb-24 lg:pb-0">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Link href="/" className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-ink">
             <ChevronLeft className="size-4" /> Semua kos
           </Link>
-          <h1 className="mt-2 text-2xl font-semibold sm:text-[1.7rem]">
-            {kos.name} — {kos.tagline}
+          <h1 className="mt-3 text-3xl tracking-tight sm:text-[2.4rem]">
+            <span className="font-bold">{kos.name}</span>
           </h1>
-          <p className="mb-6 mt-1 flex items-center gap-1 text-sm text-muted">
+          {kos.tagline && <p className="mt-1 text-lg text-muted">{kos.tagline}</p>}
+          <p className="mb-6 mt-2 flex items-center gap-1 text-sm text-muted">
             <MapPin className="size-4" /> {kos.address}
           </p>
 
@@ -59,7 +62,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
             <div className="min-w-0">
               {/* Ringkasan */}
               <div className="border-b border-line py-8">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-2xl font-bold">
                   {genderLabel[kos.gender]} di {district}
                 </h2>
                 <p className="mt-1 text-muted">
@@ -70,13 +73,24 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               {/* Pengelola */}
               {kos.managerName && (
                 <div className="flex items-center gap-4 border-b border-line py-6">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand-600 text-lg font-semibold text-white">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-lavender text-lg font-bold text-brand-700">
                     {kos.managerName[0]}
                   </span>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="font-semibold">Dikelola oleh {kos.managerName}</p>
                     <p className="text-sm text-muted">Pengelola {kos.name} · Tim SmartKos</p>
                   </div>
+                  {kos.whatsapp && (
+                    <a
+                      href={waLink(kos.whatsapp, `Halo, saya mau tanya tentang ${kos.name}.`)}
+                      target="_blank"
+                      rel="noopener"
+                      aria-label="Chat pengelola"
+                      className="grid size-11 shrink-0 place-items-center rounded-full border border-line lg:hidden"
+                    >
+                      <MessageCircle className="size-5" />
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -84,7 +98,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               <ul className="space-y-6 border-b border-line py-8">
                 {nearest && (
                   <li className="flex gap-5">
-                    <MapPin className="size-6 shrink-0" strokeWidth={1.5} />
+                    <MapPin className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} />
                     <div>
                       <p className="font-semibold">Dekat {nearest.name}</p>
                       <p className="text-sm text-muted">Sekitar {nearest.distance} dari kos.</p>
@@ -93,7 +107,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                 )}
                 {kos.defaultDeposit > 0 && (
                   <li className="flex gap-5">
-                    <ShieldCheck className="size-6 shrink-0" strokeWidth={1.5} />
+                    <ShieldCheck className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} />
                     <div>
                       <p className="font-semibold">Deposit {price(kos.defaultDeposit)}, bisa kembali utuh</p>
                       <p className="text-sm text-muted">Dikembalikan saat selesai sewa jika tidak ada kerusakan atau tunggakan.</p>
@@ -101,7 +115,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                   </li>
                 )}
                 <li className="flex gap-5">
-                  <CreditCard className="size-6 shrink-0" strokeWidth={1.5} />
+                  <CreditCard className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} />
                   <div>
                     <p className="font-semibold">Bayar bulanan, tanpa ribet</p>
                     <p className="text-sm text-muted">Tagihan muncul di akun penghuni, cukup transfer dan upload bukti.</p>
@@ -119,11 +133,16 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
 
               {/* Tipe kamar */}
               <section id="kamar" className="scroll-mt-24 border-b border-line py-8">
-                <h2 className="text-xl font-semibold">Pilih tipe kamar</h2>
+                <h2 className="text-2xl font-bold">Pilih tipe kamar</h2>
                 <div className="mt-6 grid gap-6 sm:grid-cols-2">
                   {kos.roomTypes.map((type) => (
                     <div key={type.id}>
-                      <PhotoCarousel photos={type.photos.map((p) => p.url)} alt={`Kamar ${type.name}`} className="aspect-4/3 rounded-xl" />
+                      <div className="relative">
+                        <PhotoCarousel photos={type.photos.map((p) => p.url)} alt={`Kamar ${type.name}`} className="aspect-4/3 rounded-2xl" />
+                        <span className={`absolute bottom-3 left-3 rounded-md px-2 py-0.5 text-[11px] font-bold ${tierOf(type.monthlyPrice).tag}`}>
+                          SmartKos {tierOf(type.monthlyPrice).label}
+                        </span>
+                      </div>
                       <div className="mt-3 flex items-start justify-between gap-2">
                         <div>
                           <h3 className="font-semibold">Kamar {type.name}</h3>
@@ -146,7 +165,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                         <span className={`text-sm font-semibold ${type.availableRooms === 0 ? "text-muted" : type.availableRooms <= 2 ? "text-red-600" : "text-brand-700"}`}>
                           {type.availableRooms === 0 ? "Penuh" : `Sisa ${type.availableRooms} dari ${type.totalRooms} kamar`}
                         </span>
-                        <Link href={`?tipe=${type.id}#booking`} scroll={false} className="text-sm font-semibold underline underline-offset-4">
+                        <Link href={`?tipe=${type.id}#booking`} scroll={false} className="rounded-full border border-brand-600 px-4 py-1.5 text-sm font-semibold text-brand-600 hover:bg-brand-600 hover:text-white">
                           Pilih kamar ini
                         </Link>
                       </div>
@@ -158,13 +177,13 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               {/* Fasilitas */}
               {kos.facilities && kos.facilities.length > 0 && (
                 <section className="border-b border-line py-8">
-                  <h2 className="text-xl font-semibold">Fasilitas bersama</h2>
+                  <h2 className="text-2xl font-bold">Fasilitas bersama</h2>
                   <ul className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
                     {kos.facilities.map((f) => {
                       const Icon = facilityIcon(f);
                       return (
                         <li key={f} className="flex items-center gap-4">
-                          <Icon className="size-6 shrink-0" strokeWidth={1.5} /> {f}
+                          <Icon className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} /> {f}
                         </li>
                       );
                     })}
@@ -174,7 +193,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
 
               {/* Lokasi */}
               <section id="lokasi" className="scroll-mt-24 border-b border-line py-8">
-                <h2 className="text-xl font-semibold">Lokasi</h2>
+                <h2 className="text-2xl font-bold">Lokasi</h2>
                 <p className="mt-1 text-muted">{kos.address}</p>
                 {hasCoords && (
                   <iframe
@@ -207,7 +226,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               {/* Peraturan */}
               {rules.length > 0 && (
                 <section className="py-8">
-                  <h2 className="text-xl font-semibold">Hal yang perlu diketahui</h2>
+                  <h2 className="text-2xl font-bold">Hal yang perlu diketahui</h2>
                   <ul className="mt-5 space-y-3">
                     {rules.map((r) => (
                       <li key={r} className="flex gap-3">
@@ -220,7 +239,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
             </div>
 
             {/* Kartu pemesanan */}
-            <aside className="pb-10 pt-8">
+            <aside className="hidden pb-10 pt-8 lg:block">
               <div className="sticky top-28 space-y-4">
                 <Suspense fallback={<div className="h-96 rounded-xl border border-line" />}>
                   <BookingCard roomTypes={kos.roomTypes} deposit={kos.defaultDeposit} whatsapp={kos.whatsapp} kosName={kos.name} />
@@ -230,7 +249,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                     href={waLink(kos.whatsapp, `Halo, saya mau tanya tentang ${kos.name}.`)}
                     target="_blank"
                     rel="noopener"
-                    className="flex items-center justify-center gap-2 rounded-xl border border-line py-3 text-sm font-semibold hover:bg-subtle"
+                    className="flex items-center justify-center gap-2 rounded-full border border-line py-3 text-sm font-semibold hover:border-brand-600"
                   >
                     <MessageCircle className="size-4" /> Tanya pengelola dulu
                   </a>
@@ -243,7 +262,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
         {others.length > 0 && (
           <section className="border-t border-line">
             <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-              <h2 className="text-xl font-semibold">Cabang SmartKos lainnya</h2>
+              <h2 className="text-2xl font-bold">Cabang SmartKos lainnya</h2>
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {others.map((k) => (
                   <KosCard key={k.id} kos={k} />
@@ -254,19 +273,18 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
         )}
       </main>
 
-      {/* Bar bawah untuk mobile */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-line bg-white px-4 py-3 lg:hidden">
-        <p>
-          <span className="font-bold">{minPrice ? price(minPrice) : "-"}</span>
-          <span className="text-sm text-muted"> / bulan</span>
-          <span className="block text-xs text-muted">harga mulai</span>
-        </p>
-        <a href="#booking" className="rounded-lg bg-linear-to-r from-brand-500 to-brand-700 px-6 py-3 text-sm font-semibold text-white">
-          Ajukan sewa
-        </a>
-      </div>
+      <Suspense>
+        <MobileBookingBar
+          roomTypes={kos.roomTypes}
+          deposit={kos.defaultDeposit}
+          whatsapp={kos.whatsapp}
+          kosName={kos.name}
+          minPrice={minPrice}
+        />
+      </Suspense>
 
       <SiteFooter />
+      <WhatsAppFab phone={kos.whatsapp ?? undefined} message={"Halo, saya mau tanya tentang " + kos.name + "."} raised />
     </>
   );
 }

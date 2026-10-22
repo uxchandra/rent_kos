@@ -7,6 +7,7 @@ const schema = z.object({
   WEB_URL: z.string().default("http://localhost:3000"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET minimal 32 karakter"),
   JWT_EXPIRES_IN: z.string().default("7d"),
+  REVALIDATE_SECRET: z.string().min(16, "REVALIDATE_SECRET minimal 16 karakter"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
