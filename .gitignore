@@ -4,4 +4,3 @@ dist
 .next
 apps/api/uploads/*
 !apps/api/uploads/.gitkeep
-!apps/api/uploads/seed/

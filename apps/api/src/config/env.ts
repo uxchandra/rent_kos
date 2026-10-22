@@ -8,6 +8,8 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32, "JWT_SECRET minimal 32 karakter"),
   JWT_EXPIRES_IN: z.string().default("7d"),
   REVALIDATE_SECRET: z.string().min(16, "REVALIDATE_SECRET minimal 16 karakter"),
+  // Diisi otomatis oleh Vercel saat Blob store dihubungkan; kosong = simpan foto di folder lokal.
+  BLOB_READ_WRITE_TOKEN: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 

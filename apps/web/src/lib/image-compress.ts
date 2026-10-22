@@ -22,12 +22,32 @@ export async function compressImage(file: File): Promise<File> {
   }
 }
 
-/** Upload beberapa foto sekaligus (maks. 10 per request) ke endpoint multipart. */
+// Vercel menolak body request > 4,5 MB, jadi kiriman dipecah di bawah batas itu.
+const MAX_BATCH_BYTES = 4 * 1024 * 1024;
+const MAX_BATCH_FILES = 10;
+
+/** Upload beberapa foto (maks. 10 file & ~4 MB per request) ke endpoint multipart. */
 export async function uploadPhotos(path: string, files: File[], field = "photos") {
   const compressed = await Promise.all(files.map(compressImage));
-  for (let i = 0; i < compressed.length; i += 10) {
+  const tooBig = compressed.find((f) => f.size > MAX_BATCH_BYTES);
+  if (tooBig) throw new Error(`Foto "${tooBig.name}" terlalu besar (maks. 4 MB). Coba simpan ulang sebagai JPG.`);
+
+  const batches: File[][] = [];
+  let size = 0;
+  for (const f of compressed) {
+    const last = batches.at(-1);
+    if (!last || last.length >= MAX_BATCH_FILES || size + f.size > MAX_BATCH_BYTES) {
+      batches.push([f]);
+      size = f.size;
+    } else {
+      last.push(f);
+      size += f.size;
+    }
+  }
+
+  for (const batch of batches) {
     const form = new FormData();
-    compressed.slice(i, i + 10).forEach((f) => form.append(field, f));
+    batch.forEach((f) => form.append(field, f));
     const res = await fetch(`/api${path}`, { method: "POST", body: form, credentials: "include" });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.message ?? "Upload gagal");

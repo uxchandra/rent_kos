@@ -1,8 +1,10 @@
 import multer from "multer";
 import sharp from "sharp";
 import { randomUUID } from "node:crypto";
-import { mkdir, unlink } from "node:fs/promises";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { put, del } from "@vercel/blob";
+import { env } from "../config/env.ts";
 import { badRequest } from "./http-error.ts";
 
 const UPLOAD_ROOT = path.resolve("uploads");
@@ -39,26 +41,43 @@ export function uploadedFiles(req: Express.Request): Express.Multer.File[] {
 
 /**
  * Kecilkan foto ke maks. 1600px lalu simpan sebagai WebP.
- * Mengembalikan URL publik, misal `/uploads/kos/3/abc.webp`.
+ * Production (ada BLOB_READ_WRITE_TOKEN): disimpan di Vercel Blob, mengembalikan URL https lengkap.
+ * Lokal: disimpan di folder uploads, mengembalikan URL misal `/uploads/kos/3/abc.webp`.
  */
 export async function saveImage(file: Express.Multer.File, folder: string): Promise<string> {
-  const dir = path.join(UPLOAD_ROOT, folder);
-  await mkdir(dir, { recursive: true });
-  const name = `${randomUUID()}.webp`;
+  let webp: Buffer;
   try {
-    await sharp(file.buffer)
+    webp = await sharp(file.buffer)
       .rotate() // ikuti orientasi EXIF dari kamera HP
       .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
       .webp({ quality: 80 })
-      .toFile(path.join(dir, name));
+      .toBuffer();
   } catch {
     throw badRequest(`File "${file.originalname}" rusak atau formatnya tidak didukung`);
   }
-  return `/uploads/${folder}/${name}`.replaceAll("\\", "/");
+
+  const key = `${folder}/${randomUUID()}.webp`.replaceAll("\\", "/");
+  if (env.BLOB_READ_WRITE_TOKEN) {
+    const blob = await put(key, webp, {
+      access: "public",
+      contentType: "image/webp",
+      cacheControlMaxAge: 60 * 60 * 24 * 30,
+    });
+    return blob.url;
+  }
+
+  const dest = path.join(UPLOAD_ROOT, key);
+  await mkdir(path.dirname(dest), { recursive: true });
+  await writeFile(dest, webp);
+  return `/uploads/${key}`;
 }
 
 /** Hapus file upload. Foto contoh di /uploads/seed tidak ikut dihapus. */
 export async function deleteImage(url: string | null | undefined) {
+  if (url && /^https:\/\/[^/]+\.blob\.vercel-storage\.com\//.test(url)) {
+    if (env.BLOB_READ_WRITE_TOKEN) await del(url).catch(() => {});
+    return;
+  }
   if (!url?.startsWith("/uploads/") || url.startsWith("/uploads/seed/")) return;
   const file = path.join(UPLOAD_ROOT, url.slice("/uploads/".length));
   if (!file.startsWith(UPLOAD_ROOT)) return;

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/prisma.ts";
 
-// Foto contoh dari Unsplash (lisensi bebas), disimpan di uploads/seed.
+// Foto contoh dari Unsplash (lisensi bebas), disimpan di apps/web/public/uploads/seed (disajikan Next.js).
 const img = (name: string) => `/uploads/seed/${name}.jpg`;
 
 type SeedRoomType = {
