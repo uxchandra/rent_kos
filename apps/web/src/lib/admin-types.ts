@@ -103,6 +103,7 @@ export type RoomBoard = {
   id: number;
   name: string;
   city: string;
+  defaultDeposit: number;
   roomTypes: {
     id: number;
     name: string;
@@ -119,4 +120,145 @@ export type AdminUser = {
   isActive: boolean;
   createdAt: string;
   kos: { id: number; name: string; city: string }[];
+};
+
+export type DepositStatus = "NONE" | "UNPAID" | "HELD" | "REFUNDED" | "PARTIAL_REFUNDED" | "FORFEITED";
+
+export const depositStatusLabel: Record<DepositStatus, string> = {
+  NONE: "Tanpa deposit",
+  UNPAID: "Belum dibayar",
+  HELD: "Ditahan",
+  REFUNDED: "Dikembalikan",
+  PARTIAL_REFUNDED: "Dikembalikan sebagian",
+  FORFEITED: "Hangus",
+};
+
+export type Tenancy = {
+  id: number;
+  startDate: string;
+  endDate: string | null;
+  monthlyPrice: number;
+  billingDay: number;
+  depositAmount: number;
+  depositStatus: DepositStatus;
+  depositRefundAmount: number | null;
+  depositNote: string | null;
+  status: "ACTIVE" | "ENDED";
+  tenant: { id: number; name: string; email: string; phone: string | null };
+  room: { id: number; number: string; floor: number | null; typeName: string };
+  kos: { id: number; name: string; city: string };
+  unpaidInvoices: number;
+};
+
+export type InvoiceStatus = "UNPAID" | "WAITING_VERIFICATION" | "PAID" | "CANCELLED";
+
+export const invoiceStatusLabel: Record<InvoiceStatus, string> = {
+  UNPAID: "Belum bayar",
+  WAITING_VERIFICATION: "Menunggu verifikasi",
+  PAID: "Lunas",
+  CANCELLED: "Dibatalkan",
+};
+
+export const invoiceStatusStyle: Record<InvoiceStatus, string> = {
+  UNPAID: "bg-amber-50 text-amber-700",
+  WAITING_VERIFICATION: "bg-sky-50 text-sky-700",
+  PAID: "bg-mint text-mint-ink",
+  CANCELLED: "bg-subtle text-muted",
+};
+
+export type Invoice = {
+  id: number;
+  number: string;
+  type: "RENT" | "DEPOSIT";
+  periodYear: number | null;
+  periodMonth: number | null;
+  amount: number;
+  dueDate: string;
+  status: InvoiceStatus;
+  paidAt: string | null;
+  reminderSentAt: string | null;
+  tenancyId: number;
+  tenancyEnded: boolean;
+  tenant: { id: number; name: string; phone: string | null };
+  roomNumber: string;
+  kos: { id: number; name: string };
+};
+
+export type InvoiceList = {
+  data: Invoice[];
+  meta: { year: number; month: number; today: string; unbilled: number };
+};
+
+export type PaymentStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export type BankAccount = { id: number; bankName: string; accountNumber: string; accountName: string };
+
+export type AdminBankAccount = BankAccount & { isActive: boolean; kos: { id: number; name: string } | null };
+
+export type AdminPayment = {
+  id: number;
+  amount: number;
+  proofUrl: string;
+  senderName: string;
+  transferDate: string;
+  status: PaymentStatus;
+  note: string | null;
+  verifiedAt: string | null;
+  createdAt: string;
+  bankAccount: { bankName: string; accountNumber: string; accountName: string } | null;
+  verifiedBy: { name: string } | null;
+  invoice: Pick<Invoice, "id" | "number" | "type" | "periodYear" | "periodMonth" | "amount" | "dueDate" | "status">;
+  tenant: { name: string; phone: string | null };
+  roomNumber: string;
+  kos: { id: number; name: string };
+};
+
+/** Data halaman /penghuni. */
+export type TenantOverview = {
+  tenancy: {
+    id: number;
+    startDate: string;
+    monthlyPrice: number;
+    billingDay: number;
+    depositAmount: number;
+    depositStatus: DepositStatus;
+    room: { number: string; typeName: string };
+    kos: { id: number; name: string; city: string; address: string; whatsapp: string | null };
+  } | null;
+  invoices: (Pick<Invoice, "id" | "number" | "type" | "periodYear" | "periodMonth" | "amount" | "dueDate" | "status" | "paidAt"> & {
+    lastPayment: { status: PaymentStatus; note: string | null; createdAt: string } | null;
+  })[];
+  bankAccounts: BankAccount[];
+  today: string;
+};
+
+export type BookingStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+
+export type AdminBooking = {
+  id: number;
+  code: string;
+  name: string;
+  email: string;
+  phone: string;
+  occupation: string | null;
+  moveInDate: string;
+  message: string | null;
+  status: BookingStatus;
+  rejectReason: string | null;
+  handledAt: string | null;
+  createdAt: string;
+  handledBy: { name: string } | null;
+  kos: { id: number; name: string };
+  roomType: { id: number; name: string; monthlyPrice: number; availableRooms: number };
+  tenancyId: number | null;
+};
+
+export type Report = {
+  year: number;
+  firstYear: number;
+  currentYear: number;
+  months: { month: number; billed: number; collected: number; cashRent: number; cashDeposit: number; moveIns: number; moveOuts: number }[];
+  kos: { id: number; name: string; totalRooms: number; occupied: number; billed: number; collected: number }[];
+  arrears: { tenancyId: number; name: string; phone: string | null; kosName: string; roomNumber: string; ended: boolean; count: number; amount: number; oldestDue: string }[];
+  snapshot: { activeTenants: number; depositsHeld: number; overdueAmount: number };
 };

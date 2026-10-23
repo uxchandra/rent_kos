@@ -10,6 +10,8 @@ const schema = z.object({
   REVALIDATE_SECRET: z.string().min(16, "REVALIDATE_SECRET minimal 16 karakter"),
   // Diisi otomatis oleh Vercel saat Blob store dihubungkan; kosong = simpan foto di folder lokal.
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
+  // Rahasia untuk endpoint /api/cron/*; Vercel mengirimnya otomatis sebagai Bearer token.
+  CRON_SECRET: z.string().min(16, "CRON_SECRET minimal 16 karakter").optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 

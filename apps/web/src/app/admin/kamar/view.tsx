@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import useSWR from "swr";
+import { ChevronRight, UserPlus } from "lucide-react";
 import { Button, Dialog, EmptyState, PageHeader, Spinner, useFeedback } from "@/components/admin/ui";
 import { api, ApiError } from "@/lib/client-api";
 import { price } from "@/lib/format";
@@ -123,8 +125,19 @@ export default function RoomBoardPage() {
               {selected.kosName} · Tipe {selected.typeName}
               {selected.floor !== null && ` · Lantai ${selected.floor}`}
             </p>
-            {selected.tenantName && (
-              <p className="mt-3 rounded-xl bg-lavender px-3 py-2 text-sm text-brand-800">Dihuni oleh {selected.tenantName}</p>
+            {selected.tenantName ? (
+              <Link href="/admin/penghuni" className="mt-3 flex items-center justify-between rounded-xl bg-lavender px-3 py-2 text-sm text-brand-800">
+                Dihuni oleh {selected.tenantName} <ChevronRight className="size-4" />
+              </Link>
+            ) : (
+              selected.status !== "MAINTENANCE" && (
+                <Link
+                  href={`/admin/penghuni?kamar=${selected.id}`}
+                  className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-600 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+                >
+                  <UserPlus className="size-4" /> Daftarkan penghuni
+                </Link>
+              )
             )}
             <p className="mb-3 mt-5 text-sm font-semibold">Ubah status</p>
             <div className="grid gap-2">

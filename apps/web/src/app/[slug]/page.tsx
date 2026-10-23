@@ -242,7 +242,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
             <aside className="hidden pb-10 pt-8 lg:block">
               <div className="sticky top-28 space-y-4">
                 <Suspense fallback={<div className="h-96 rounded-xl border border-line" />}>
-                  <BookingCard roomTypes={kos.roomTypes} deposit={kos.defaultDeposit} whatsapp={kos.whatsapp} kosName={kos.name} />
+                  <BookingCard roomTypes={kos.roomTypes} deposit={kos.defaultDeposit} whatsapp={kos.whatsapp} kosName={kos.name} slug={kos.slug} />
                 </Suspense>
                 {kos.whatsapp && (
                   <a
@@ -279,6 +279,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
           deposit={kos.defaultDeposit}
           whatsapp={kos.whatsapp}
           kosName={kos.name}
+          slug={kos.slug}
           minPrice={minPrice}
         />
       </Suspense>

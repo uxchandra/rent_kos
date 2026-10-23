@@ -56,6 +56,13 @@ async function loadRoom(user: Express.Request["user"], id: number) {
   return room;
 }
 
+/** Kamar yang sedang disewa hanya bisa dikosongkan lewat check-out penghuni. */
+async function assertStatusChangeAllowed(roomId: number, status: string) {
+  if (status === "OCCUPIED") return;
+  const active = await prisma.tenancy.count({ where: { roomId, status: "ACTIVE" } });
+  if (active) throw new HttpError(409, "Kamar ini masih dihuni. Akhiri sewanya dulu di menu Penghuni.");
+}
+
 function duplicateRoomError(err: unknown): never {
   if (typeof err === "object" && err && "code" in err && err.code === "P2002") {
     throw new HttpError(422, "Data tidak valid", { number: ["Nomor kamar sudah ada di tipe ini"] });
@@ -145,6 +152,7 @@ router.get("/rooms", async (req, res) => {
       id: true,
       name: true,
       city: true,
+      defaultDeposit: true,
       roomTypes: {
         orderBy: { monthlyPrice: "asc" },
         select: {
@@ -199,6 +207,7 @@ router.post("/room-types/:id/rooms", async (req, res) => {
 router.put("/rooms/:id", async (req, res) => {
   const room = await loadRoom(req.user, Number(req.params.id));
   const data = roomSchema.parse(req.body);
+  await assertStatusChangeAllowed(room.id, data.status);
   const updated = await prisma.room.update({ where: { id: room.id }, data }).catch(duplicateRoomError);
   revalidatePublic(room.roomType.kos.slug);
   res.json({ data: updated });
@@ -207,6 +216,7 @@ router.put("/rooms/:id", async (req, res) => {
 router.patch("/rooms/:id/status", async (req, res) => {
   const room = await loadRoom(req.user, Number(req.params.id));
   const { status } = z.object({ status: roomSchema.shape.status }).parse(req.body);
+  await assertStatusChangeAllowed(room.id, status);
   const updated = await prisma.room.update({ where: { id: room.id }, data: { status } });
   revalidatePublic(room.roomType.kos.slug);
   res.json({ data: updated });

@@ -34,3 +34,7 @@ Akun contoh (password `password123`):
 | owner@smartkos.id | Owner (semua cabang) |
 | admin.jogja@smartkos.id | Admin SmartKos Jogja |
 | admin.jakarta@smartkos.id | Admin SmartKos Jakarta |
+
+## Tagihan otomatis
+
+Vercel Cron memanggil `GET /api/cron/invoices` setiap hari pukul 00:05 WIB (`apps/api/vercel.json`) untuk menerbitkan tagihan sewa bulan berjalan. Atur env `CRON_SECRET` (min. 16 karakter) di project Vercel API; tanpa itu endpoint menolak dengan 503. Tagihan juga bisa diterbitkan manual dari menu **Tagihan**.

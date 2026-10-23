@@ -3,22 +3,15 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.ts";
 import { HttpError, badRequest, notFound } from "../../lib/http-error.ts";
+import { phoneSchema } from "../../lib/validation.ts";
 
 // Semua route di sini khusus Owner (dipasang dengan requireRole("OWNER") di app.ts).
 const router = Router();
 
-const phone = z
-  .string()
-  .trim()
-  .transform((v) => v.replace(/\D/g, "").replace(/^0/, "62"))
-  .refine((v) => !v || /^62\d{8,13}$/.test(v), "Nomor HP tidak valid (contoh: 081234567890)")
-  .transform((v) => v || null)
-  .nullish();
-
 const createSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
   email: z.email("Format email tidak valid").transform((v) => v.toLowerCase()),
-  phone,
+  phone: phoneSchema,
   password: z.string().min(8, "Password minimal 8 karakter"),
   kosIds: z.array(z.number().int()).default([]),
 });

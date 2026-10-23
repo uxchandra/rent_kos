@@ -4,5 +4,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "public",
   "regions": ["sin1"],
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
+  "crons": [{ "path": "/api/cron/invoices", "schedule": "5 17 * * *" }]
 }

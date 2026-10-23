@@ -2,6 +2,7 @@
 
 import { createContext, use, useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Loader2, X, XCircle } from "lucide-react";
+import { ApiError } from "@/lib/client-api";
 
 // ---------- Tombol ----------
 
@@ -288,4 +289,27 @@ export function useFeedback() {
   const ctx = use(FeedbackContext);
   if (!ctx) throw new Error("useFeedback harus di dalam FeedbackProvider");
   return ctx;
+}
+
+/** Simpan form: tangkap error validasi per field, selain itu tampilkan toast. */
+export function useSave() {
+  const { toast } = useFeedback();
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [saving, setSaving] = useState(false);
+  async function run(fn: () => Promise<unknown>, success: string) {
+    setSaving(true);
+    setErrors({});
+    try {
+      await fn();
+      toast(success);
+      return true;
+    } catch (err) {
+      if (err instanceof ApiError && err.errors) setErrors(err.errors);
+      else toast(err instanceof Error ? err.message : "Gagal menyimpan", "error");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+  return { errors, saving, run };
 }

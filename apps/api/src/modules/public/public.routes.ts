@@ -1,6 +1,10 @@
 import { Router } from "express";
+import { randomInt } from "node:crypto";
+import { z } from "zod";
 import { prisma } from "../../lib/prisma.ts";
-import { notFound } from "../../lib/http-error.ts";
+import { HttpError, notFound } from "../../lib/http-error.ts";
+import { dateSchema, phoneSchema } from "../../lib/validation.ts";
+import { todayWib } from "../../lib/billing.ts";
 
 const router = Router();
 
@@ -99,6 +103,67 @@ router.get("/kos/:slug", async (req, res) => {
       })),
     },
   });
+});
+
+const bookingSchema = z.object({
+  roomTypeId: z.number().int(),
+  name: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
+  email: z.email("Format email tidak valid").transform((v) => v.toLowerCase()),
+  phone: phoneSchema.refine((v) => !!v, "Nomor WhatsApp wajib diisi"),
+  occupation: z
+    .string()
+    .trim()
+    .max(100)
+    .transform((v) => v || null)
+    .nullish(),
+  moveInDate: dateSchema,
+  message: z
+    .string()
+    .trim()
+    .max(1000)
+    .transform((v) => v || null)
+    .nullish(),
+  // Honeypot: field tersembunyi yang hanya diisi bot.
+  website: z.string().optional(),
+});
+
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const bookingCode = () => `BK${Array.from({ length: 6 }, () => CODE_CHARS[randomInt(CODE_CHARS.length)]).join("")}`;
+const DAY = 24 * 60 * 60 * 1000;
+
+/** Pengajuan sewa dari website cabang. Pengelola memproses di menu Booking. */
+router.post("/kos/:slug/bookings", async (req, res) => {
+  const { website, ...data } = bookingSchema.parse(req.body);
+  const kos = await prisma.kos.findFirst({ where: { slug: req.params.slug, isPublished: true }, select: { id: true } });
+  if (!kos) throw notFound("Kos tidak ditemukan");
+  if (website) {
+    res.status(201).json({ data: { code: bookingCode() } });
+    return;
+  }
+
+  const type = await prisma.roomType.findFirst({ where: { id: data.roomTypeId, kosId: kos.id, isActive: true } });
+  if (!type) throw new HttpError(422, "Data tidak valid", { roomTypeId: ["Tipe kamar tidak tersedia"] });
+  const today = todayWib();
+  if (data.moveInDate < today || data.moveInDate.getTime() > today.getTime() + 180 * DAY) {
+    throw new HttpError(422, "Data tidak valid", { moveInDate: ["Pilih tanggal antara hari ini dan 6 bulan ke depan"] });
+  }
+
+  const duplicate = await prisma.booking.findFirst({
+    where: { kosId: kos.id, status: "PENDING", OR: [{ phone: data.phone! }, { email: data.email }] },
+    select: { code: true },
+  });
+  if (duplicate) throw new HttpError(409, `Anda sudah punya pengajuan yang sedang diproses (kode ${duplicate.code}). Pengelola akan segera menghubungi.`);
+
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const booking = await prisma.booking.create({ data: { ...data, phone: data.phone!, kosId: kos.id, code: bookingCode() }, select: { code: true } });
+      res.status(201).json({ data: booking });
+      return;
+    } catch (err) {
+      const clash = typeof err === "object" && err && "code" in err && err.code === "P2002";
+      if (!clash || attempt >= 4) throw err;
+    }
+  }
 });
 
 export default router;
