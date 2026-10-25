@@ -40,7 +40,7 @@ export async function SiteFooter() {
             </li>
             <li>
               <Link href="/login" className="hover:text-white">
-                Masuk akun
+                Login
               </Link>
             </li>
             <li>

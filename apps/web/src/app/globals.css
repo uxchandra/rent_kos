@@ -38,6 +38,63 @@
   --color-line: #e8e8ec;
   --color-ink: #1d1b22;
   --color-ink-soft: #6b6875;
+
+  /* Animasi landing page. Dipakai dengan motion-safe: agar mati saat "kurangi animasi" aktif. */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 8s ease-in-out infinite;
+  --animate-drift: drift 16s ease-in-out infinite alternate;
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-pop: pop 0.7s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+
+  @keyframes float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -12px;
+    }
+  }
+  @keyframes drift {
+    from {
+      translate: 0 0;
+      scale: 1;
+    }
+    to {
+      translate: -40px 30px;
+      scale: 1.15;
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      translate: 0 24px;
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+}
+
+/*
+ * Reveal saat di-scroll: elemen ber-[data-reveal] diberi [data-shown] oleh <RevealObserver />.
+ * Hanya disembunyikan bila JavaScript aktif & pengguna tidak memilih "kurangi animasi",
+ * jadi konten tetap terlihat kalau JS gagal dimuat.
+ */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+      translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal]:not([data-shown]) {
+    opacity: 0;
+    translate: 0 28px;
+  }
 }
 
 summary::-webkit-details-marker {

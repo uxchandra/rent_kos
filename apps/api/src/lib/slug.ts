@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Path yang sudah dipakai halaman lain di website, tidak boleh jadi slug cabang. */
-export const RESERVED_SLUGS = ["kamar", "admin", "penghuni", "login", "api", "uploads", "next-api", "_next", "favicon.ico"];
+export const RESERVED_SLUGS = ["kamar", "preview-terang", "preview-lavender","admin", "penghuni", "login", "api", "uploads", "next-api", "_next", "favicon.ico"];
 
 export const slugSchema = z
   .string()

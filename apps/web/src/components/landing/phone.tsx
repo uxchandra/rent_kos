@@ -47,9 +47,16 @@ export function TenantScreen({ room }: { room: RoomListing }) {
         <div className="flex items-center justify-between px-5 pt-2">
           <div>
             <p className="text-white/70">Halo,</p>
-            <p className="text-sm font-bold">Penghuni Kamar 201</p>
+            <p className="text-sm font-bold">Aditya</p>
           </div>
-          <Bell className="size-4" />
+          <span className="relative">
+            <Bell className="size-4" />
+            {/* Titik notifikasi berdenyut */}
+            <span className="absolute -right-0.5 -top-0.5 flex size-2">
+              <span className="absolute inline-flex size-full rounded-full bg-lime opacity-75 motion-safe:animate-ping" />
+              <span className="relative inline-flex size-2 rounded-full bg-lime" />
+            </span>
+          </span>
         </div>
       </div>
       <div className="-mt-7 space-y-2.5 px-4">

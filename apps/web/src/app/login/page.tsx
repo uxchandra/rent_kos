@@ -67,7 +67,7 @@ export default function LoginPage() {
             disabled={loading}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-700 py-3 font-semibold text-white transition hover:bg-brand-800 disabled:opacity-60"
           >
-            {loading && <Loader2 className="size-4 animate-spin" />} Masuk
+            {loading && <Loader2 className="size-4 animate-spin" />} Login
           </button>
         </form>
       </div>

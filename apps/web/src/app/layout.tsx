@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#7539e6",
   viewportFit: "cover", // agar env(safe-area-inset-*) berlaku di HP berponi
 };
 

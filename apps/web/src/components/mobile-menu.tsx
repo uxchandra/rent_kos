@@ -61,7 +61,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
               <MessageCircle className="size-5" /> Chat WhatsApp
             </a>
             <Link href="/login" className="block rounded-full bg-brand-600 py-3.5 text-center font-semibold text-white">
-              Masuk akun
+              Login
             </Link>
           </div>
         </div>
