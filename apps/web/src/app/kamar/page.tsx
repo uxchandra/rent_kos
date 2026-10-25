@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppFab } from "@/components/whatsapp-fab";
 import { ListingExplorer } from "@/components/listing-explorer";
 import { Ornament } from "@/components/landing/ornament";
+import { Glow } from "@/components/landing/glow";
 import { getRoomListings } from "@/lib/public-api";
 
 export const metadata: Metadata = { title: "Cari Kamar" };
@@ -19,7 +20,7 @@ export default async function KamarPage() {
       <main className="relative flex-1 overflow-x-clip">
         <section className="relative">
           <Ornament className="absolute -right-10 -top-4 w-52 rotate-12" />
-          <div className="pointer-events-none absolute -left-40 -top-24 size-[420px] rounded-full bg-brand-600/25 blur-3xl motion-safe:animate-drift" aria-hidden />
+          <Glow opacity={0.35} className="-left-56 -top-40 size-[560px] motion-safe:animate-drift" />
           <div className="relative mx-auto max-w-6xl px-4 py-12 text-center sm:px-6 lg:py-16 lg:text-left">
             <h1 className="text-balance text-[2.1rem] font-bold leading-[1.2] tracking-tight sm:text-5xl">
               Temukan kamar yang <span className="text-lime">pas buat kamu</span>

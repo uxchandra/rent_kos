@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2, LockKeyhole, Mail } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Ornament } from "@/components/landing/ornament";
+import { Glow } from "@/components/landing/glow";
 import { api, ApiError } from "@/lib/client-api";
 import type { Role } from "@/lib/types";
 
@@ -35,8 +36,8 @@ export default function LoginPage() {
     <main className="relative grid flex-1 place-items-center overflow-hidden bg-night px-4 py-16 text-white">
       <Ornament className="absolute -left-8 bottom-6 w-56 sm:w-64" />
       <Ornament className="absolute -right-10 top-6 w-48 rotate-12 sm:w-56" />
-      <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-brand-600/30 blur-3xl motion-safe:animate-drift" aria-hidden />
-      <div className="pointer-events-none absolute -bottom-40 -right-32 size-96 rounded-full bg-lime/10 blur-3xl motion-safe:animate-drift motion-safe:[animation-delay:-6s]" aria-hidden />
+      <Glow opacity={0.4} className="-left-48 -top-48 size-[520px] motion-safe:animate-drift" />
+      <Glow tone="lime" opacity={0.1} className="-bottom-56 -right-48 size-[520px] motion-safe:animate-drift motion-safe:[animation-delay:-6s]" />
 
       <div className="relative w-full max-w-sm">
         <div className="flex justify-center">

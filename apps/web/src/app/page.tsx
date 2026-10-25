@@ -20,6 +20,7 @@ import { WhatsAppFab } from "@/components/whatsapp-fab";
 import { Faq } from "@/components/faq";
 import { Phone, TenantScreen } from "@/components/landing/phone";
 import { Ornament } from "@/components/landing/ornament";
+import { Glow } from "@/components/landing/glow";
 import { HOUSE_CLIP, HouseBadge, HouseFrame } from "@/components/landing/house-frame";
 import { RevealObserver } from "@/components/landing/reveal-observer";
 import { getKosList, getRoomListings } from "@/lib/public-api";
@@ -69,7 +70,7 @@ export default async function HomePage() {
       <main className="flex-1 text-white">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="absolute -right-40 -top-20 size-[560px] rounded-full bg-brand-600/25 blur-3xl motion-safe:animate-drift" />
+          <Glow opacity={0.35} className="-right-56 -top-40 size-[680px] motion-safe:animate-drift" />
           <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:pb-20 lg:pt-10">
             <div className="text-center lg:text-left">
               <h1 data-reveal className="mt-4 text-balance text-[2.1rem] font-bold leading-[1.15] tracking-tight sm:text-5xl lg:mt-0 lg:text-[3.1rem] lg:leading-[1.12]">
@@ -99,7 +100,7 @@ export default async function HomePage() {
             </div>
 
             <div className="relative order-first mx-auto h-[330px] w-full max-w-[330px] sm:h-[520px] sm:max-w-[440px] lg:order-none lg:h-[470px] lg:max-w-[410px]">
-              <div className="absolute inset-[10%] rounded-full bg-lime/20 blur-3xl motion-safe:animate-drift motion-safe:[animation-delay:-6s] lg:bg-lime/10" aria-hidden />
+              <Glow tone="lime" opacity={0.14} className="-inset-[15%] motion-safe:animate-drift motion-safe:[animation-delay:-6s]" />
               <HouseFrame src={heroPhoto} alt="Cabang SmartKos" className="absolute left-0 top-0 h-[78%] w-[72%] motion-safe:animate-float-slow" />
               {showcase && (
                 <Phone className="absolute bottom-0 right-0 origin-bottom-right motion-safe:animate-float motion-safe:[animation-delay:-3s] scale-[0.64] sm:scale-[0.8] lg:scale-[0.74]">
@@ -116,7 +117,7 @@ export default async function HomePage() {
         {/* Cabang: kartu berbentuk rumah langsung di latar halaman */}
         <section id="cabang" className="relative scroll-mt-20 overflow-hidden">
           <Ornament className="absolute -right-8 top-4 hidden w-52 rotate-12 sm:block" />
-          <div className="pointer-events-none absolute -left-32 top-1/4 size-96 rounded-full bg-brand-600/20 blur-3xl motion-safe:animate-drift" aria-hidden />
+          <Glow opacity={0.25} className="-left-48 top-1/4 size-[520px] motion-safe:animate-drift" />
           <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
             <div data-reveal className="flex flex-col items-center gap-3 text-center md:flex-row md:items-end md:justify-between md:text-left">
               <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
@@ -209,7 +210,7 @@ export default async function HomePage() {
 
         {/* Fasilitas */}
         <section id="fasilitas" className="relative scroll-mt-20 overflow-hidden">
-          <div className="absolute -left-32 top-1/3 size-80 rounded-full bg-lime/10 blur-3xl motion-safe:animate-drift" aria-hidden />
+          <Glow tone="lime" opacity={0.1} className="-left-44 top-1/3 size-[440px] motion-safe:animate-drift" />
           <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
             <h2 data-reveal className="text-balance text-center text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-left">
               <Lime>Fasilitas</Lime>
@@ -261,7 +262,7 @@ export default async function HomePage() {
 
         {/* FAQ */}
         <section id="faq" className="relative scroll-mt-20 overflow-hidden">
-          <div className="absolute -right-32 top-10 size-80 rounded-full bg-brand-600/25 blur-3xl motion-safe:animate-drift motion-safe:[animation-delay:-4s]" aria-hidden />
+          <Glow opacity={0.3} className="-right-44 top-0 size-[440px] motion-safe:animate-drift motion-safe:[animation-delay:-4s]" />
           <div className="relative mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.6fr] lg:gap-10 lg:py-24">
             <div data-reveal className="text-center lg:text-left">
               <h2 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
