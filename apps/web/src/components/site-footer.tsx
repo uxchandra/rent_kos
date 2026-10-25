@@ -10,8 +10,9 @@ export async function SiteFooter() {
 
   return (
     <footer className="mt-auto border-t border-white/[0.06] bg-night text-sm text-white/70">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
-        <div>
+      {/* HP: rata tengah seperti landing page; sm ke atas: kolom rata kiri */}
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 text-center sm:grid-cols-2 sm:px-6 sm:text-left lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div className="flex flex-col items-center sm:items-start">
           <Logo light />
           <p className="mt-4 max-w-xs leading-relaxed">
             Kos bulanan di {[...new Set(kosList.map((k) => k.city))].join(", ")}, dikelola langsung oleh tim SmartKos.
