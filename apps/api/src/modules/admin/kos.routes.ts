@@ -133,6 +133,7 @@ router.post("/", requireRole("OWNER"), async (req, res) => {
   await assertSlugFree(data.slug);
   const kos = await prisma.kos.create({ data });
   revalidatePublic(kos.slug);
+  res.locals.activityTarget = kos.name;
   res.status(201).json({ data: kos });
 });
 

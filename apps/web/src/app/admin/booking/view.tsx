@@ -3,11 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
+import { useAuth } from "@/components/auth-provider";
 import { CalendarDays, Mail, MessageCircle, UserPlus } from "lucide-react";
 import { Button, Dialog, EmptyState, Field, PageHeader, Spinner, Textarea, useFeedback, useSave } from "@/components/admin/ui";
 import { api } from "@/lib/client-api";
 import { dateShort, price, waLink } from "@/lib/format";
 import type { AdminBooking } from "@/lib/admin-types";
+import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 type Tab = "PENDING" | "APPROVED" | "CLOSED";
 
@@ -78,12 +82,13 @@ function ReasonDialog({ booking, mode, onClose, onSaved }: { booking: AdminBooki
 }
 
 function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (action: "approve" | "reject" | "cancel") => void; approving: boolean }) {
+  const canManage = useAuth().can("bookings.manage");
   return (
     <div className="rounded-2xl border border-line bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-semibold">{b.name}</p>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-ink-soft">
             {b.kos.name} · {b.roomType.name} · {price(b.roomType.monthlyPrice)}
           </p>
         </div>
@@ -92,10 +97,10 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
 
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
         <span className="flex items-center gap-1.5">
-          <CalendarDays className="size-4 text-muted" /> Masuk {dateShort(b.moveInDate)}
+          <CalendarDays className="size-4 text-ink-soft" /> Masuk {dateShort(b.moveInDate)}
         </span>
-        {b.occupation && <span className="text-muted">{b.occupation}</span>}
-        {b.status === "PENDING" && (
+        {b.occupation && <span className="text-ink-soft">{b.occupation}</span>}
+        {canManage && b.status === "PENDING" && (
           <span className={b.roomType.availableRooms ? "text-mint-ink" : "font-semibold text-amber-700"}>
             {b.roomType.availableRooms ? `${b.roomType.availableRooms} kamar kosong di tipe ini` : "Tipe ini sedang penuh"}
           </span>
@@ -103,7 +108,7 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
       </div>
       {b.message && <p className="mt-3 rounded-xl bg-subtle px-3 py-2 text-sm">&ldquo;{b.message}&rdquo;</p>}
       {b.status !== "PENDING" && (
-        <p className="mt-3 text-xs text-muted">
+        <p className="mt-3 text-xs text-ink-soft">
           {b.status === "APPROVED" ? "Disetujui" : b.status === "REJECTED" ? "Ditolak" : "Dibatalkan"}
           {b.handledBy && ` oleh ${b.handledBy.name}`}
           {b.handledAt && `, ${sentAt(b.handledAt)}`}
@@ -115,11 +120,11 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
         <a href={waLink(b.phone, waText(b))} target="_blank" rel="noopener" className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-sm font-semibold hover:border-ink">
           <MessageCircle className="size-4" /> WhatsApp
         </a>
-        <a href={`mailto:${b.email}`} className="rounded-full p-2.5 text-muted hover:bg-subtle hover:text-ink" aria-label={`Email ${b.name}`} title={b.email}>
+        <a href={`mailto:${b.email}`} className="rounded-full p-2.5 text-ink-soft hover:bg-subtle hover:text-ink" aria-label={`Email ${b.name}`} title={b.email}>
           <Mail className="size-4" />
         </a>
-        <span className="ml-auto text-xs text-muted">Masuk {sentAt(b.createdAt)}</span>
-        {b.status === "PENDING" && (
+        <span className="ml-auto text-xs text-ink-soft">Masuk {sentAt(b.createdAt)}</span>
+        {canManage && b.status === "PENDING" && (
           <div className="flex w-full gap-2 sm:w-auto">
             <Button variant="secondary" onClick={() => onAction("reject")} className="flex-1 py-2! sm:flex-none">
               Tolak
@@ -129,7 +134,7 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
             </Button>
           </div>
         )}
-        {b.status === "APPROVED" && !b.tenancyId && (
+        {canManage && b.status === "APPROVED" && !b.tenancyId && (
           <div className="flex w-full gap-2 sm:w-auto">
             <Button variant="ghost" onClick={() => onAction("cancel")} className="flex-1 py-2! sm:flex-none">
               Batalkan
@@ -149,6 +154,7 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
 }
 
 export default function BookingPage() {
+  const canManage = useAuth().can("bookings.manage");
   const { toast } = useFeedback();
   const [tab, setTab] = useState<Tab>("PENDING");
   const { data, mutate } = useSWR<{ data: AdminBooking[] }>(`/admin/bookings?status=${tab}`);
@@ -176,7 +182,7 @@ export default function BookingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-6xl">
       <PageHeader title="Booking" description="Pengajuan sewa dari website. Hubungi calon penghuni, setujui, lalu daftarkan saat mereka masuk." />
       <div className="no-scrollbar -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {tabs.map((t) => (
@@ -201,11 +207,119 @@ export default function BookingPage() {
           text={tab === "PENDING" ? "Pengajuan dari halaman cabang di website akan muncul di sini." : undefined}
         />
       ) : (
-        <div className="space-y-3">
-          {data.data.map((b) => (
-            <BookingCard key={b.id} b={b} approving={approving === b.id} onAction={(a) => handle(b, a)} />
-          ))}
-        </div>
+        <>
+          <MobileList className="space-y-3">
+            {data.data.map((b) => (
+              <BookingCard key={b.id} b={b} approving={approving === b.id} onAction={(a) => handle(b, a)} />
+            ))}
+          </MobileList>
+          <DesktopTable>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Pemohon</TableHead>
+                <TableHead>Kamar</TableHead>
+                <TableHead>Rencana masuk</TableHead>
+                <TableHead>{tab === "PENDING" ? "Ketersediaan" : "Keterangan"}</TableHead>
+                <TableHead>Diajukan</TableHead>
+                <TableHead className="text-right">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.data.map((b) => (
+                <TableRow key={b.id}>
+                  <TableCell className="max-w-56">
+                    <CellStack
+                      title={b.name}
+                      sub={
+                        <>
+                          <span className="font-mono">{b.code}</span>
+                          {b.occupation && ` · ${b.occupation}`}
+                        </>
+                      }
+                    />
+                    {b.message && (
+                      <p className="mt-1 max-w-56 truncate text-xs italic text-muted-foreground" title={b.message}>
+                        &ldquo;{b.message}&rdquo;
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <CellStack title={`${b.kos.name} · ${b.roomType.name}`} sub={`${price(b.roomType.monthlyPrice)}/bulan`} />
+                  </TableCell>
+                  <TableCell>{dateShort(b.moveInDate)}</TableCell>
+                  <TableCell className="max-w-56">
+                    {b.status === "PENDING" ? (
+                      b.roomType.availableRooms ? (
+                        <Badge variant="secondary" className="bg-mint text-mint-ink">
+                          {b.roomType.availableRooms} kamar kosong
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="bg-amber-50 text-amber-700">
+                          Tipe ini penuh
+                        </Badge>
+                      )
+                    ) : b.tenancyId ? (
+                      <Badge variant="secondary" className="bg-mint text-mint-ink">
+                        Sudah jadi penghuni
+                      </Badge>
+                    ) : (
+                      <CellStack
+                        title={b.status === "APPROVED" ? "Disetujui" : b.status === "REJECTED" ? "Ditolak" : "Dibatalkan"}
+                        sub={[b.handledBy?.name, b.rejectReason].filter(Boolean).join(" · ") || undefined}
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{sentAt(b.createdAt)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      <a
+                        href={waLink(b.phone, waText(b))}
+                        target="_blank"
+                        rel="noopener"
+                        className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        aria-label={`WhatsApp ${b.name}`}
+                        title="WhatsApp"
+                      >
+                        <MessageCircle className="size-4" />
+                      </a>
+                      <a
+                        href={`mailto:${b.email}`}
+                        className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        aria-label={`Email ${b.name}`}
+                        title={b.email}
+                      >
+                        <Mail className="size-4" />
+                      </a>
+                      {canManage && b.status === "PENDING" && (
+                        <>
+                          <Button variant="secondary" onClick={() => handle(b, "reject")} className="ml-1 px-3.5! py-1.5!">
+                            Tolak
+                          </Button>
+                          <Button loading={approving === b.id} onClick={() => handle(b, "approve")} className="px-3.5! py-1.5!">
+                            Setujui
+                          </Button>
+                        </>
+                      )}
+                      {canManage && b.status === "APPROVED" && !b.tenancyId && (
+                        <>
+                          <Button variant="ghost" onClick={() => handle(b, "cancel")} className="px-3! py-1.5!">
+                            Batalkan
+                          </Button>
+                          <Link
+                            href={`/admin/penghuni?booking=${b.id}`}
+                            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-brand-700"
+                          >
+                            <UserPlus className="size-4" /> Daftarkan
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DesktopTable>
+        </>
       )}
 
       {dialog && <ReasonDialog booking={dialog.booking} mode={dialog.mode} onClose={() => setDialog(null)} onSaved={refresh} />}

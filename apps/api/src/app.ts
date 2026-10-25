@@ -16,9 +16,12 @@ import adminBookingRoutes from "./modules/admin/booking.routes.ts";
 import adminReportRoutes from "./modules/admin/report.routes.ts";
 import adminPaymentRoutes from "./modules/admin/payment.routes.ts";
 import adminBankAccountRoutes from "./modules/admin/bank-account.routes.ts";
+import adminRoleRoutes from "./modules/admin/roles.routes.ts";
+import adminActivityRoutes from "./modules/admin/activity.routes.ts";
 import tenantRoutes from "./modules/tenant/tenant.routes.ts";
 import cronRoutes from "./modules/cron/cron.routes.ts";
-import { requireAuth, requireRole } from "./middlewares/auth.ts";
+import { enforcePermissions, requireAuth, requireRole } from "./middlewares/auth.ts";
+import { activityLogger } from "./lib/activity.ts";
 import { errorHandler, notFoundHandler } from "./middlewares/error.ts";
 
 export const app = express();
@@ -37,7 +40,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/public", publicRoutes);
 
 const admin = express.Router();
-admin.use(requireAuth, requireRole("OWNER", "ADMIN"));
+// Urutan: login → staf saja → cek izin per endpoint → catat aksi yang mengubah data.
+admin.use(requireAuth, requireRole("OWNER", "ADMIN"), enforcePermissions, activityLogger);
 admin.use("/dashboard", adminDashboardRoutes);
 admin.use("/kos", adminKosRoutes);
 admin.use("/tenancies", adminTenancyRoutes);
@@ -47,6 +51,8 @@ admin.use("/reports", adminReportRoutes);
 admin.use("/payments", adminPaymentRoutes);
 admin.use("/bank-accounts", adminBankAccountRoutes);
 admin.use("/users", requireRole("OWNER"), adminUserRoutes);
+admin.use("/roles", requireRole("OWNER"), adminRoleRoutes);
+admin.use("/activity", requireRole("OWNER"), adminActivityRoutes);
 admin.use("/", adminRoomRoutes);
 app.use("/api/admin", admin);
 app.use("/api/tenant", requireAuth, requireRole("TENANT"), tenantRoutes);

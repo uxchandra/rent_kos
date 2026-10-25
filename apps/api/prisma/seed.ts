@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/prisma.ts";
+import { ALL_PERMISSIONS } from "../src/lib/permissions.ts";
 
 // Foto contoh dari Unsplash (lisensi bebas), disimpan di apps/web/public/uploads/seed (disajikan Next.js).
 const img = (name: string) => `/uploads/seed/${name}.jpg`;
@@ -205,6 +206,27 @@ const kosData = [
 async function main() {
   const hash = await bcrypt.hash("password123", 10);
 
+  // Peran bawaan untuk akun admin (lihat src/lib/permissions.ts).
+  const adminRole = await prisma.staffRole.upsert({
+    where: { name: "Admin Cabang" },
+    update: {},
+    create: { name: "Admin Cabang", description: "Mengelola semua operasional di cabang yang ditugaskan.", permissions: ALL_PERMISSIONS, isSystem: true },
+  });
+  await prisma.staffRole.upsert({
+    where: { name: "Keuangan" },
+    update: {},
+    create: {
+      name: "Keuangan",
+      description: "Mengurus tagihan, verifikasi pembayaran, dan laporan.",
+      permissions: ["dashboard.view", "tenants.view", "invoices.view", "invoices.manage", "payments.view", "payments.verify", "reports.view"],
+    },
+  });
+  await prisma.staffRole.upsert({
+    where: { name: "Staf Kamar" },
+    update: {},
+    create: { name: "Staf Kamar", description: "Memperbarui status kamar dan melihat booking.", permissions: ["dashboard.view", "rooms.view", "rooms.update", "bookings.view"] },
+  });
+
   const owner = await prisma.user.upsert({
     where: { email: "owner@smartkos.id" },
     update: {},
@@ -221,7 +243,7 @@ async function main() {
     const adminUser = await prisma.user.upsert({
       where: { email: admin.email },
       update: { name: admin.name },
-      create: { ...admin, passwordHash: hash, role: "ADMIN" },
+      create: { ...admin, passwordHash: hash, role: "ADMIN", staffRoleId: adminRole.id },
     });
     await prisma.kosAdmin.upsert({
       where: { userId_kosId: { userId: adminUser.id, kosId: kos.id } },

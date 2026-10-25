@@ -166,6 +166,7 @@ router.post("/", async (req, res) => {
   });
 
   revalidatePublic(room.roomType.kos.slug);
+  res.locals.activityTarget = `${name} · Kamar ${room.number}`;
   res.status(201).json({ data: shape(await findTenancy(tenancy.id)) });
 });
 

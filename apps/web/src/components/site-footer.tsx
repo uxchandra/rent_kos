@@ -9,12 +9,12 @@ export async function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto bg-brand-950 text-sm text-white/70">
+    <footer className="mt-auto border-t border-white/[0.06] bg-night text-sm text-white/70">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Logo light />
           <p className="mt-4 max-w-xs leading-relaxed">
-            Kos bulanan siap huni yang dikelola langsung, dengan standar yang sama di setiap cabang.
+            Kos bulanan di {[...new Set(kosList.map((k) => k.city))].join(", ")}, dikelola langsung oleh tim SmartKos.
           </p>
         </div>
         <div>

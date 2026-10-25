@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
+import { useAuth } from "@/components/auth-provider";
 import { ChevronRight, UserPlus } from "lucide-react";
 import { Button, Dialog, EmptyState, PageHeader, Spinner, useFeedback } from "@/components/admin/ui";
 import { api, ApiError } from "@/lib/client-api";
@@ -15,6 +16,8 @@ type Selected = Room & { kosName: string; typeName: string };
 const statuses: RoomStatus[] = ["AVAILABLE", "OCCUPIED", "MAINTENANCE"];
 
 export default function RoomBoardPage() {
+  const { can } = useAuth();
+  const canEdit = can("rooms.update", "kos.update");
   const { data, mutate } = useSWR<{ data: RoomBoard }>("/admin/rooms");
   const { toast } = useFeedback();
   const [kosFilter, setKosFilter] = useState<number | null>(null);
@@ -85,7 +88,7 @@ export default function RoomBoardPage() {
               .map((k) => (
                 <section key={k.id} className="rounded-2xl border border-line bg-white p-4 sm:p-5">
                   <h2 className="font-bold">
-                    {k.name} <span className="font-normal text-muted">· {k.city}</span>
+                    {k.name} <span className="font-normal text-ink-soft">· {k.city}</span>
                   </h2>
                   <div className="mt-4 space-y-5">
                     {k.roomTypes.map((t) => {
@@ -94,7 +97,7 @@ export default function RoomBoardPage() {
                       return (
                         <div key={t.id}>
                           <p className="mb-2 text-sm">
-                            <span className="font-semibold">{t.name}</span> <span className="text-muted">· {price(t.monthlyPrice)}</span>
+                            <span className="font-semibold">{t.name}</span> <span className="text-ink-soft">· {price(t.monthlyPrice)}</span>
                           </p>
                           <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
                             {rooms.map((r) => (
@@ -121,7 +124,7 @@ export default function RoomBoardPage() {
       <Dialog open={!!selected} onClose={() => setSelected(null)} title={selected ? `Kamar ${selected.number}` : ""}>
         {selected && (
           <>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-ink-soft">
               {selected.kosName} · Tipe {selected.typeName}
               {selected.floor !== null && ` · Lantai ${selected.floor}`}
             </p>
@@ -139,22 +142,28 @@ export default function RoomBoardPage() {
                 </Link>
               )
             )}
-            <p className="mb-3 mt-5 text-sm font-semibold">Ubah status</p>
-            <div className="grid gap-2">
-              {statuses.map((s) => (
-                <Button
-                  key={s}
-                  variant={selected.status === s ? "primary" : "secondary"}
-                  loading={saving === s}
-                  disabled={selected.status === s || saving !== null}
-                  onClick={() => setStatus(s)}
-                  className="justify-start rounded-xl! py-3"
-                >
-                  <span className={`size-3 rounded-full border ${roomStatusStyle[s]}`} /> {roomStatusLabel[s]}
-                  {selected.status === s && <span className="ml-auto text-xs font-normal">status saat ini</span>}
-                </Button>
-              ))}
-            </div>
+            {!canEdit ? (
+              <p className="mt-5 rounded-xl bg-subtle px-3 py-2 text-sm text-ink-soft">Peran Anda hanya bisa melihat status kamar.</p>
+            ) : (
+              <>
+                <p className="mb-3 mt-5 text-sm font-semibold">Ubah status</p>
+                <div className="grid gap-2">
+                  {statuses.map((s) => (
+                    <Button
+                      key={s}
+                      variant={selected.status === s ? "primary" : "secondary"}
+                      loading={saving === s}
+                      disabled={selected.status === s || saving !== null}
+                      onClick={() => setStatus(s)}
+                      className="justify-start rounded-xl! py-3"
+                    >
+                      <span className={`size-3 rounded-full border ${roomStatusStyle[s]}`} /> {roomStatusLabel[s]}
+                      {selected.status === s && <span className="ml-auto text-xs font-normal">status saat ini</span>}
+                    </Button>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </Dialog>

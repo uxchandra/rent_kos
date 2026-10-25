@@ -39,14 +39,14 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <h2 className="font-bold">Foto cover</h2>
-            <p className="text-sm text-muted">Foto utama di website dan kartu cabang. Disarankan foto bangunan dari depan.</p>
+            <p className="text-sm text-ink-soft">Foto utama di website dan kartu cabang. Disarankan foto bangunan dari depan.</p>
           </div>
         </div>
         <div className="relative overflow-hidden rounded-xl bg-subtle">
           {kos.coverImage ? (
             <img src={kos.coverImage} alt="Cover" className="aspect-video w-full object-cover" />
           ) : (
-            <div className="grid aspect-video place-items-center text-sm text-muted">Belum ada cover</div>
+            <div className="grid aspect-video place-items-center text-sm text-ink-soft">Belum ada cover</div>
           )}
           <Button
             variant="secondary"
@@ -64,7 +64,7 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-bold">Galeri</h2>
-            <p className="text-sm text-muted">Ruang bersama, dapur, kamar mandi, dan sudut lain. Urutan sesuai waktu upload.</p>
+            <p className="text-sm text-ink-soft">Ruang bersama, dapur, kamar mandi, dan sudut lain. Urutan sesuai waktu upload.</p>
           </div>
           <Button loading={busy === "gallery"} onClick={() => galleryInput.current?.click()}>
             <ImagePlus className="size-4" /> Tambah foto
@@ -75,7 +75,7 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         {kos.photos.length === 0 ? (
           <button
             onClick={() => galleryInput.current?.click()}
-            className="grid w-full place-items-center rounded-xl border-2 border-dashed border-line py-14 text-sm text-muted hover:border-brand-400"
+            className="grid w-full place-items-center rounded-xl border-2 border-dashed border-line py-14 text-sm text-ink-soft hover:border-brand-400"
           >
             <ImagePlus className="mb-2 size-8 text-brand-400" />
             Ketuk untuk menambah foto

@@ -3,11 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
+import { useAuth } from "@/components/auth-provider";
 import { AlertTriangle, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Button, Dialog, EmptyState, Field, Input, PageHeader, Spinner, useFeedback, useSave } from "@/components/admin/ui";
 import { api } from "@/lib/client-api";
 import { dateShort, invoiceTitle, monthName, price, priceCompact, todayInput, waLink } from "@/lib/format";
 import { invoiceStatusLabel, invoiceStatusStyle, type Invoice, type InvoiceList, type InvoiceStatus } from "@/lib/admin-types";
+import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type StatusFilter = InvoiceStatus | "OVERDUE" | null;
 
@@ -31,6 +34,7 @@ function shiftMonth(p: { year: number; month: number }, delta: number) {
 // ---------- Detail & aksi ----------
 
 function InvoiceDialog({ invoice, today, onClose, onSaved }: { invoice: Invoice; today: string; onClose: () => void; onSaved: () => Promise<unknown> }) {
+  const canManage = useAuth().can("invoices.manage");
   const { confirm } = useFeedback();
   const { errors, saving, run } = useSave();
   const [mode, setMode] = useState<"view" | "pay" | "edit">("view");
@@ -91,37 +95,37 @@ function InvoiceDialog({ invoice, today, onClose, onSaved }: { invoice: Invoice;
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-semibold">{invoice.tenant.name}</p>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-ink-soft">
             Kamar {invoice.roomNumber} · {invoice.kos.name}
           </p>
-          <p className="mt-1 font-mono text-xs text-muted">{invoice.number}</p>
+          <p className="mt-1 font-mono text-xs text-ink-soft">{invoice.number}</p>
         </div>
         <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-semibold ${invoiceStatusStyle[invoice.status]}`}>{invoiceStatusLabel[invoice.status]}</span>
       </div>
 
       <dl className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-subtle p-4 text-sm">
         <div>
-          <dt className="text-muted">Nominal</dt>
+          <dt className="text-ink-soft">Nominal</dt>
           <dd className="text-lg font-bold">{price(invoice.amount)}</dd>
         </div>
         <div>
-          <dt className="text-muted">Jatuh tempo</dt>
+          <dt className="text-ink-soft">Jatuh tempo</dt>
           <dd className={`font-semibold ${isOverdue(invoice, today) ? "text-red-600" : ""}`}>{dateShort(invoice.dueDate)}</dd>
         </div>
         {invoice.paidAt && (
           <div>
-            <dt className="text-muted">Dibayar</dt>
+            <dt className="text-ink-soft">Dibayar</dt>
             <dd className="font-semibold">{dateShort(invoice.paidAt)}</dd>
           </div>
         )}
         {invoice.reminderSentAt && (
           <div>
-            <dt className="text-muted">Pengingat terakhir</dt>
+            <dt className="text-ink-soft">Pengingat terakhir</dt>
             <dd className="font-semibold">{new Date(invoice.reminderSentAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}</dd>
           </div>
         )}
       </dl>
-      {invoice.tenancyEnded && <p className="mt-3 text-xs text-muted">Penghuni ini sudah tidak menyewa.</p>}
+      {invoice.tenancyEnded && <p className="mt-3 text-xs text-ink-soft">Penghuni ini sudah tidak menyewa.</p>}
       {invoice.status === "WAITING_VERIFICATION" && (
         <Link href="/admin/pembayaran" className="mt-3 flex items-center justify-between rounded-xl bg-sky-50 px-3 py-2 text-sm text-sky-800">
           Penghuni sudah mengirim bukti transfer. Periksa sekarang <ChevronRight className="size-4" />
@@ -145,7 +149,7 @@ function InvoiceDialog({ invoice, today, onClose, onSaved }: { invoice: Invoice;
         </div>
       )}
 
-      {mode === "view" && (
+      {mode === "view" && canManage && (
         <div className="mt-5 grid gap-2">
           {isOpen(invoice) && invoice.tenant.phone && (
             <Button variant="secondary" onClick={remind} className="rounded-xl! py-3">
@@ -181,6 +185,7 @@ function InvoiceDialog({ invoice, today, onClose, onSaved }: { invoice: Invoice;
 // ---------- Halaman ----------
 
 export default function TagihanPage() {
+  const canManage = useAuth().can("invoices.manage");
   const { toast } = useFeedback();
   const [view, setView] = useState<"period" | "outstanding">("period");
   const [period, setPeriod] = useState<{ year: number; month: number } | null>(null);
@@ -229,7 +234,7 @@ export default function TagihanPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-6xl">
       <PageHeader title="Tagihan" description="Tagihan sewa bulanan dan deposit penghuni." />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -241,7 +246,7 @@ export default function TagihanPage() {
                 setView(v);
                 setStatus(null);
               }}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${view === v ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${view === v ? "bg-ink text-white" : "text-ink-soft hover:text-ink"}`}
             >
               {v === "period" ? "Per bulan" : "Semua belum lunas"}
             </button>
@@ -264,7 +269,7 @@ export default function TagihanPage() {
         <Spinner />
       ) : (
         <>
-          {view === "period" && meta!.unbilled > 0 && (
+          {view === "period" && canManage && meta!.unbilled > 0 && (
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-lavender px-4 py-3">
               <p className="text-sm text-brand-800">
                 <span className="font-semibold">{meta!.unbilled} penghuni</span> belum ditagih untuk {monthName(meta!.year, meta!.month)}.
@@ -278,7 +283,7 @@ export default function TagihanPage() {
           <div className="mb-4 grid grid-cols-3 gap-2">
             <div className="rounded-xl border border-line bg-white px-3 py-2.5">
               <span className="block text-lg font-bold sm:text-xl">{priceCompact(sum(active))}</span>
-              <span className="text-xs text-muted">{active.length} tagihan</span>
+              <span className="text-xs text-ink-soft">{active.length} tagihan</span>
             </div>
             <div className="rounded-xl border border-mint-ink/20 bg-mint px-3 py-2.5 text-mint-ink">
               <span className="block text-lg font-bold sm:text-xl">{priceCompact(sum(paid))}</span>
@@ -328,13 +333,14 @@ export default function TagihanPage() {
               text={!rows.length && view === "period" && meta!.unbilled === 0 ? "Daftarkan penghuni di menu Penghuni agar tagihan bisa diterbitkan." : undefined}
             />
           ) : (
-            <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+            <>
+            <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
               {filtered.map((i) => (
                 <button key={i.id} onClick={() => setSelected(i)} className="flex w-full items-center gap-4 p-4 text-left hover:bg-subtle/60">
                   <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lavender text-sm font-bold text-brand-700">{i.roomNumber}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{i.tenant.name}</p>
-                    <p className="truncate text-sm text-muted">
+                    <p className="truncate text-sm text-ink-soft">
                       {invoiceTitle(i)} · {i.kos.name}
                     </p>
                   </div>
@@ -352,7 +358,47 @@ export default function TagihanPage() {
                   </div>
                 </button>
               ))}
-            </div>
+            </MobileList>
+            <DesktopTable>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Kamar</TableHead>
+                  <TableHead>Penghuni</TableHead>
+                  <TableHead>Tagihan</TableHead>
+                  <TableHead>Jatuh tempo</TableHead>
+                  <TableHead className="text-right">Jumlah</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((i) => {
+                  const late = isOverdue(i, today);
+                  return (
+                    <TableRow key={i.id} onClick={() => setSelected(i)} className="cursor-pointer">
+                      <TableCell>
+                        <span className="inline-grid min-w-10 place-items-center rounded-lg bg-lavender px-2 py-1 text-sm font-bold text-brand-700">{i.roomNumber}</span>
+                      </TableCell>
+                      <TableCell>
+                        <CellStack title={i.tenant.name} sub={i.kos.name} />
+                      </TableCell>
+                      <TableCell>{invoiceTitle(i)}</TableCell>
+                      <TableCell className={late ? "font-semibold text-red-600" : undefined}>{dateShort(i.dueDate)}</TableCell>
+                      <TableCell className="text-right font-medium tabular-nums">{price(i.amount)}</TableCell>
+                      <TableCell>
+                        {late ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-600">
+                            <AlertTriangle className="size-3" /> Telat
+                          </span>
+                        ) : (
+                          <span className={`inline-block rounded-md px-1.5 py-0.5 text-xs font-semibold ${invoiceStatusStyle[i.status]}`}>{invoiceStatusLabel[i.status]}</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </DesktopTable>
+            </>
           )}
         </>
       )}

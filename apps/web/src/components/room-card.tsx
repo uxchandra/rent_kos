@@ -22,7 +22,7 @@ export function RoomCard({ room, className = "" }: { room: RoomListing; classNam
         <PhotoCarousel photos={photos} alt={`${kos.name} ${room.name}`} className="aspect-4/3" />
         <span
           className={`absolute left-0 top-3 rounded-r-md px-2.5 py-1 text-[11px] font-semibold ${
-            room.availableRooms > 0 ? "bg-brand-600 text-white" : "bg-white/90 text-muted"
+            room.availableRooms > 0 ? "bg-brand-600 text-white" : "bg-white/90 text-ink-soft"
           }`}
         >
           {room.availableRooms > 0 ? `${room.availableRooms} kamar tersedia` : "Penuh, daftar tunggu"}
@@ -31,14 +31,14 @@ export function RoomCard({ room, className = "" }: { room: RoomListing; classNam
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h3 className="font-semibold">{kos.name}</h3>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-ink-soft">
           Kamar {room.name}
           {room.size && ` · ${room.size}`}
         </p>
-        <p className="mt-1 flex items-center gap-1 text-xs text-muted">
+        <p className="mt-1 flex items-center gap-1 text-xs text-ink-soft">
           <MapPin className="size-3.5" /> {district}, {kos.city}
         </p>
-        <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-muted">
+        <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-ink-soft">
           {tags.map((t) => {
             const Icon = facilityIcon(t);
             return (
@@ -49,9 +49,9 @@ export function RoomCard({ room, className = "" }: { room: RoomListing; classNam
           })}
         </ul>
         <p className="mt-auto pt-4 text-right">
-          <span className="text-xs text-muted">IDR </span>
+          <span className="text-xs text-ink-soft">IDR </span>
           <span className="text-lg font-bold text-brand-700">{price(room.monthlyPrice).replace("Rp", "")}</span>
-          <span className="text-xs text-muted"> / bulan</span>
+          <span className="text-xs text-ink-soft"> / bulan</span>
         </p>
       </div>
     </Link>

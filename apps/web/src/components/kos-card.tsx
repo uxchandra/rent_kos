@@ -16,12 +16,12 @@ export function KosCard({ kos }: { kos: KosSummary }) {
             {genderShort[kos.gender]}
           </span>
         </div>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-ink-soft">
           {kos.city} · {kos.availableRooms > 0 ? `${kos.availableRooms} kamar kosong` : "Penuh"}
         </p>
         <p className="mt-1 text-sm">
           Mulai <span className="font-bold">{kos.minPrice ? price(kos.minPrice) : "-"}</span>
-          <span className="text-muted"> / bulan</span>
+          <span className="text-ink-soft"> / bulan</span>
         </p>
       </div>
     </Link>

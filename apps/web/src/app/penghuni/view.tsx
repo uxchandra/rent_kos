@@ -76,7 +76,7 @@ function PayDialog({ invoice, overview, onClose, onSaved }: { invoice: TenantInv
         </>
       }
     >
-      <p className="text-sm text-muted">Transfer sebesar</p>
+      <p className="text-sm text-ink-soft">Transfer sebesar</p>
       <p className="text-2xl font-bold text-brand-700">{price(invoice.amount)}</p>
 
       <p className="mb-2 mt-5 text-sm font-semibold">1. Transfer ke salah satu rekening</p>
@@ -87,9 +87,9 @@ function PayDialog({ invoice, overview, onClose, onSaved }: { invoice: TenantInv
           {banks.map((b) => (
             <div key={b.id} className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-muted">{b.bankName}</p>
+                <p className="text-xs font-semibold text-ink-soft">{b.bankName}</p>
                 <p className="font-mono font-semibold tracking-wide">{b.accountNumber}</p>
-                <p className="truncate text-xs text-muted">a.n. {b.accountName}</p>
+                <p className="truncate text-xs text-ink-soft">a.n. {b.accountName}</p>
               </div>
               <CopyButton text={b.accountNumber} />
             </div>
@@ -98,7 +98,7 @@ function PayDialog({ invoice, overview, onClose, onSaved }: { invoice: TenantInv
       )}
 
       <p className="mb-3 mt-6 text-sm font-semibold">2. Kirim bukti transfer</p>
-      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-dashed border-line bg-subtle p-4 text-sm text-muted hover:border-brand-600">
+      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-dashed border-line bg-subtle p-4 text-sm text-ink-soft hover:border-brand-600">
         {preview ? (
           <img src={preview} alt="Pratinjau bukti transfer" className="max-h-56 rounded-lg object-contain" />
         ) : (
@@ -108,7 +108,7 @@ function PayDialog({ invoice, overview, onClose, onSaved }: { invoice: TenantInv
         )}
         <input type="file" accept="image/*" className="sr-only" onChange={(e) => pick(e.target.files?.[0] ?? null)} />
       </label>
-      {preview && <p className="mt-1 text-center text-xs text-muted">Ketuk gambar untuk mengganti</p>}
+      {preview && <p className="mt-1 text-center text-xs text-ink-soft">Ketuk gambar untuk mengganti</p>}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <Field label="Nama pengirim (sesuai rekening)" error={errors.senderName}>
@@ -142,7 +142,7 @@ function InvoiceCard({ invoice, today, onPay }: { invoice: TenantInvoice; today:
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-semibold">{invoiceTitle(invoice)}</p>
-          <p className={`text-sm ${overdue ? "font-semibold text-red-600" : "text-muted"}`}>
+          <p className={`text-sm ${overdue ? "font-semibold text-red-600" : "text-ink-soft"}`}>
             {invoice.status === "PAID" ? `Dibayar ${dateShort(invoice.paidAt!)}` : `${overdue ? "Lewat jatuh tempo" : "Jatuh tempo"} ${dateShort(invoice.dueDate)}`}
           </p>
         </div>
@@ -220,12 +220,12 @@ export default function PenghuniPage() {
               )}
             </section>
           ) : (
-            <p className="mt-5 rounded-2xl bg-subtle p-4 text-sm text-muted">Anda tidak sedang menyewa kamar. Riwayat tagihan tetap bisa dilihat di bawah.</p>
+            <p className="mt-5 rounded-2xl bg-subtle p-4 text-sm text-ink-soft">Anda tidak sedang menyewa kamar. Riwayat tagihan tetap bisa dilihat di bawah.</p>
           )}
 
           <h2 className="mb-3 mt-8 font-bold">Perlu dibayar</h2>
           {due.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-muted">Tidak ada tagihan. Terima kasih sudah membayar tepat waktu!</p>
+            <p className="rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-ink-soft">Tidak ada tagihan. Terima kasih sudah membayar tepat waktu!</p>
           ) : (
             <div className="space-y-3">
               {due.map((i) => (

@@ -117,9 +117,48 @@ export type AdminUser = {
   name: string;
   email: string;
   phone: string | null;
+  role: "OWNER" | "ADMIN" | "TENANT";
   isActive: boolean;
+  lastLoginAt: string | null;
   createdAt: string;
+  staffRole: { id: number; name: string } | null;
+  permissionCount: number;
   kos: { id: number; name: string; city: string }[];
+  /** Penghuni: kamar yang sedang ditempati. */
+  stay: { roomNumber: string; kos: { id: number; name: string } } | null;
+};
+
+export type StaffRole = {
+  id: number;
+  name: string;
+  description: string | null;
+  permissions: string[];
+  isSystem: boolean;
+  userCount: number;
+};
+
+export type PermissionCatalog = {
+  groups: { key: string; label: string; permissions: { key: string; label: string }[] }[];
+  ownerOnly: string[];
+  all: string[];
+};
+
+export type ActivityEntry = {
+  id: number;
+  userId: number | null;
+  userName: string;
+  action: string;
+  label: string;
+  target: string | null;
+  meta: Record<string, unknown> | null;
+  ip: string | null;
+  createdAt: string;
+};
+
+export type ActivityPage = {
+  data: ActivityEntry[];
+  meta: { total: number; page: number; pageSize: number; pages: number };
+  users: { userId: number; userName: string }[];
 };
 
 export type DepositStatus = "NONE" | "UNPAID" | "HELD" | "REFUNDED" | "PARTIAL_REFUNDED" | "FORFEITED";
@@ -163,7 +202,7 @@ export const invoiceStatusStyle: Record<InvoiceStatus, string> = {
   UNPAID: "bg-amber-50 text-amber-700",
   WAITING_VERIFICATION: "bg-sky-50 text-sky-700",
   PAID: "bg-mint text-mint-ink",
-  CANCELLED: "bg-subtle text-muted",
+  CANCELLED: "bg-subtle text-ink-soft",
 };
 
 export type Invoice = {

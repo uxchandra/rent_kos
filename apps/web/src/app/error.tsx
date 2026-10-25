@@ -14,7 +14,7 @@ export default function ErrorPage({ error, retry }: { error: unknown; retry: () 
       <div className="flex flex-col items-center">
         <Logo />
         <h1 className="mt-8 text-2xl font-bold">Ups, halaman gagal dimuat</h1>
-        <p className="mt-2 max-w-sm text-muted">Server sedang tidak dapat dihubungi. Silakan coba beberapa saat lagi.</p>
+        <p className="mt-2 max-w-sm text-ink-soft">Server sedang tidak dapat dihubungi. Silakan coba beberapa saat lagi.</p>
         <button
           onClick={retry}
           className="mt-6 flex items-center gap-2 rounded-lg bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800"

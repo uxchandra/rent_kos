@@ -28,7 +28,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="-mr-2 rounded-full p-2 hover:bg-subtle md:hidden" aria-label="Buka menu">
+      <button onClick={() => setOpen(true)} className="-mr-2 ml-1 rounded-full p-2 hover:bg-current/10 md:hidden" aria-label="Buka menu">
         <Menu className="size-6" />
       </button>
       {open && (
@@ -47,7 +47,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-between border-b border-line py-4 text-lg font-semibold"
               >
-                {l.label} <ChevronRight className="size-5 text-muted" />
+                {l.label} <ChevronRight className="size-5 text-ink-soft" />
               </Link>
             ))}
           </nav>

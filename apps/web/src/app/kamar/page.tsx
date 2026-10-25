@@ -19,7 +19,7 @@ export default async function KamarPage() {
         <div className="bg-cream">
           <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
             <Heading as="h1" light="Temukan kamar yang" bold="pas buat kamu" />
-            <p className="mt-3 max-w-lg text-muted">Semua tipe kamar dari seluruh cabang SmartKos, lengkap dengan harga dan sisa kamar.</p>
+            <p className="mt-3 max-w-lg text-ink-soft">Semua tipe kamar dari seluruh cabang SmartKos, lengkap dengan harga dan sisa kamar.</p>
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">

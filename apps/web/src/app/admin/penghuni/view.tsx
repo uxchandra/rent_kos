@@ -3,18 +3,21 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
+import { useAuth } from "@/components/auth-provider";
 import { LogOut, MessageCircle, Pencil, Plus, Search } from "lucide-react";
 import { Button, Dialog, EmptyState, Field, Input, PageHeader, Select, Spinner, Switch, Textarea, useSave } from "@/components/admin/ui";
 import { api } from "@/lib/client-api";
 import { dateShort, localPhone, price, todayInput, waLink } from "@/lib/format";
 import { depositStatusLabel, type AdminBooking, type DepositStatus, type RoomBoard, type Tenancy } from "@/lib/admin-types";
+import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const depositBadge: Record<DepositStatus, string> = {
-  NONE: "bg-subtle text-muted",
+  NONE: "bg-subtle text-ink-soft",
   UNPAID: "bg-amber-50 text-amber-700",
   HELD: "bg-mint text-mint-ink",
-  REFUNDED: "bg-subtle text-muted",
-  PARTIAL_REFUNDED: "bg-subtle text-muted",
+  REFUNDED: "bg-subtle text-ink-soft",
+  PARTIAL_REFUNDED: "bg-subtle text-ink-soft",
   FORFEITED: "bg-red-50 text-red-700",
 };
 
@@ -292,7 +295,7 @@ function CheckOutDialog({ tenancy, onClose, onSaved }: { tenancy: Tenancy; onClo
       }
     >
       <div className="space-y-5">
-        <p className="text-sm text-muted">
+        <p className="text-sm text-ink-soft">
           <span className="font-semibold text-ink">{tenancy.tenant.name}</span> keluar dari kamar {tenancy.room.number} ({tenancy.kos.name}). Kamar akan
           kembali berstatus kosong.
         </p>
@@ -337,7 +340,39 @@ function CheckOutDialog({ tenancy, onClose, onSaved }: { tenancy: Tenancy; onClo
 
 // ---------- Halaman ----------
 
+/** Tombol WhatsApp, edit, dan akhiri sewa; dipakai di kartu HP dan tabel desktop. */
+function TenantActions({ t, onEdit, onEnd, className = "" }: { t: Tenancy; onEdit: (t: Tenancy) => void; onEnd: (t: Tenancy) => void; className?: string }) {
+  const { can } = useAuth();
+  return (
+    <div className={`flex gap-1 ${className}`}>
+      {t.tenant.phone && (
+        <a
+          href={waLink(t.tenant.phone, `Halo ${t.tenant.name},`)}
+          target="_blank"
+          rel="noopener"
+          className="rounded-full p-2.5 hover:bg-subtle"
+          aria-label={`WhatsApp ${t.tenant.name}`}
+          title="WhatsApp"
+        >
+          <MessageCircle className="size-4" />
+        </a>
+      )}
+      {can("tenants.update") && (
+        <button onClick={() => onEdit(t)} className="rounded-full p-2.5 hover:bg-subtle" aria-label={`Edit ${t.tenant.name}`} title="Edit ketentuan sewa">
+          <Pencil className="size-4" />
+        </button>
+      )}
+      {can("tenants.checkout") && (
+        <button onClick={() => onEnd(t)} className="rounded-full p-2.5 text-red-600 hover:bg-red-50" aria-label={`Akhiri sewa ${t.tenant.name}`} title="Akhiri sewa">
+          <LogOut className="size-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function PenghuniPage() {
+  const { can } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const kamarParam = Number(params.get("kamar")) || null;
@@ -366,14 +401,16 @@ export default function PenghuniPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-6xl">
       <PageHeader
         title="Penghuni"
         description="Daftarkan penghuni baru, ubah ketentuan sewa, dan proses check-out."
         actions={
-          <Button onClick={() => setCheckIn(true)}>
-            <Plus className="size-4" /> Daftarkan penghuni
-          </Button>
+          can("tenants.create") && (
+            <Button onClick={() => setCheckIn(true)}>
+              <Plus className="size-4" /> Daftarkan penghuni
+            </Button>
+          )
         }
       />
 
@@ -383,14 +420,14 @@ export default function PenghuniPage() {
             <button
               key={s}
               onClick={() => setTab(s)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === s ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === s ? "bg-ink text-white" : "text-ink-soft hover:text-ink"}`}
             >
               {s === "ACTIVE" ? "Aktif" : "Riwayat"}
             </button>
           ))}
         </div>
         <label className="relative min-w-48 flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-soft" />
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari nama, kamar, no. HP" className="pl-10" />
         </label>
       </div>
@@ -419,16 +456,17 @@ export default function PenghuniPage() {
           text={rows.length ? "Coba kata kunci lain." : tab === "ACTIVE" ? "Daftarkan penghuni saat mereka mulai menempati kamar." : undefined}
         />
       ) : (
-        <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+        <>
+        <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
           {filtered.map((t) => (
             <div key={t.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4">
               <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lavender font-bold text-brand-700">{t.room.number}</span>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">{t.tenant.name}</p>
-                <p className="truncate text-sm text-muted">
+                <p className="truncate text-sm text-ink-soft">
                   {t.kos.name} · {t.room.typeName}
                 </p>
-                <p className="mt-0.5 text-xs text-muted">
+                <p className="mt-0.5 text-xs text-ink-soft">
                   {t.status === "ACTIVE" ? `Sejak ${dateShort(t.startDate)} · tagihan tiap tgl ${t.billingDay}` : `${dateShort(t.startDate)} – ${dateShort(t.endDate!)}`}
                 </p>
               </div>
@@ -441,30 +479,62 @@ export default function PenghuniPage() {
                   </span>
                 )}
               </div>
-              {t.status === "ACTIVE" && (
-                <div className="flex w-full justify-end gap-1 sm:w-auto">
-                  {t.tenant.phone && (
-                    <a
-                      href={waLink(t.tenant.phone, `Halo ${t.tenant.name},`)}
-                      target="_blank"
-                      rel="noopener"
-                      className="rounded-full p-2.5 hover:bg-subtle"
-                      aria-label={`WhatsApp ${t.tenant.name}`}
-                    >
-                      <MessageCircle className="size-4" />
-                    </a>
-                  )}
-                  <button onClick={() => setEditing(t)} className="rounded-full p-2.5 hover:bg-subtle" aria-label={`Edit ${t.tenant.name}`}>
-                    <Pencil className="size-4" />
-                  </button>
-                  <button onClick={() => setEnding(t)} className="rounded-full p-2.5 text-red-600 hover:bg-red-50" aria-label={`Akhiri sewa ${t.tenant.name}`}>
-                    <LogOut className="size-4" />
-                  </button>
-                </div>
-              )}
+              {t.status === "ACTIVE" && <TenantActions t={t} onEdit={setEditing} onEnd={setEnding} className="w-full justify-end sm:w-auto" />}
             </div>
           ))}
-        </div>
+        </MobileList>
+        <DesktopTable>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Kamar</TableHead>
+              <TableHead>Penghuni</TableHead>
+              <TableHead>Cabang</TableHead>
+              <TableHead>{tab === "ACTIVE" ? "Mulai sewa" : "Masa sewa"}</TableHead>
+              <TableHead className="text-right">Sewa/bulan</TableHead>
+              <TableHead>Deposit</TableHead>
+              {tab === "ACTIVE" && <TableHead className="text-right">Aksi</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((t) => (
+              <TableRow key={t.id}>
+                <TableCell>
+                  <span className="inline-grid min-w-10 place-items-center rounded-lg bg-lavender px-2 py-1 text-sm font-bold text-brand-700">{t.room.number}</span>
+                </TableCell>
+                <TableCell>
+                  <CellStack title={t.tenant.name} sub={t.tenant.phone ? localPhone(t.tenant.phone) : t.tenant.email} />
+                </TableCell>
+                <TableCell>
+                  <CellStack title={t.kos.name} sub={`Tipe ${t.room.typeName}`} />
+                </TableCell>
+                <TableCell>
+                  {t.status === "ACTIVE" ? (
+                    <CellStack title={dateShort(t.startDate)} sub={`Tagihan tiap tgl ${t.billingDay}`} />
+                  ) : (
+                    `${dateShort(t.startDate)} – ${dateShort(t.endDate!)}`
+                  )}
+                </TableCell>
+                <TableCell className="text-right font-medium tabular-nums">{price(t.monthlyPrice)}</TableCell>
+                <TableCell>
+                  {t.depositStatus === "NONE" ? (
+                    <span className="text-muted-foreground">–</span>
+                  ) : (
+                    <span className={`inline-block rounded-md px-1.5 py-0.5 text-xs font-semibold ${depositBadge[t.depositStatus]}`}>
+                      {depositStatusLabel[t.depositStatus]}
+                      {t.depositStatus === "PARTIAL_REFUNDED" && t.depositRefundAmount !== null && ` ${price(t.depositRefundAmount)}`}
+                    </span>
+                  )}
+                </TableCell>
+                {tab === "ACTIVE" && (
+                  <TableCell>
+                    <TenantActions t={t} onEdit={setEditing} onEnd={setEnding} className="justify-end" />
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </DesktopTable>
+        </>
       )}
 
       {checkIn && (!bookingParam || bookingData) && (

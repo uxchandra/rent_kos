@@ -3,7 +3,8 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.ts";
 import { badRequest, unauthorized } from "../../lib/http-error.ts";
-import { AUTH_COOKIE, requireAuth, signToken } from "../../middlewares/auth.ts";
+import { AUTH_COOKIE, permissionsOf, requireAuth, signToken } from "../../middlewares/auth.ts";
+import { logActivity } from "../../lib/activity.ts";
 import { isProd } from "../../config/env.ts";
 
 const router = Router();
@@ -20,6 +21,11 @@ router.post("/login", async (req, res) => {
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
   if (!user || !user.isActive || !(await bcrypt.compare(password, user.passwordHash))) {
     throw unauthorized("Email atau password salah");
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+  if (user.role !== "TENANT") {
+    void logActivity({ userId: user.id, userName: user.name, action: "auth.login", label: "Masuk ke admin panel", ip: req.ip });
   }
 
   res.cookie(AUTH_COOKIE, signToken(user.id), {
@@ -45,11 +51,19 @@ router.get("/me", requireAuth, async (req, res) => {
       email: true,
       phone: true,
       role: true,
+      staffRole: { select: { id: true, name: true, permissions: true } },
       managedKos: { select: { kos: { select: { id: true, name: true, slug: true } } } },
     },
   });
-  const { managedKos, ...rest } = user;
-  res.json({ user: { ...rest, kos: managedKos.map((m) => m.kos) } });
+  const { managedKos, staffRole, ...rest } = user;
+  res.json({
+    user: {
+      ...rest,
+      staffRole: staffRole ? { id: staffRole.id, name: staffRole.name } : null,
+      permissions: permissionsOf(user.role, staffRole),
+      kos: managedKos.map((m) => m.kos),
+    },
+  });
 });
 
 const passwordSchema = z.object({

@@ -6,6 +6,8 @@ import { Download, MessageCircle } from "lucide-react";
 import { Button, Card, EmptyState, PageHeader, Select, Spinner } from "@/components/admin/ui";
 import { dateShort, price, priceCompact, waLink } from "@/lib/format";
 import type { AdminKosSummary, Report } from "@/lib/admin-types";
+import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Warna seri (divalidasi dengan validator palet dataviz terhadap latar putih).
 // Oranye di bawah kontras 3:1, jadi angka lengkap selalu tersedia di tabel bulanan.
@@ -32,9 +34,9 @@ const axisLabel = (n: number) =>
 function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <Card className="p-4! sm:p-5!">
-      <p className="text-xs font-medium text-muted sm:text-sm">{label}</p>
+      <p className="text-xs font-medium text-ink-soft sm:text-sm">{label}</p>
       <p className="mt-1 truncate text-xl font-bold sm:text-2xl">{value}</p>
-      <p className="mt-0.5 truncate text-xs text-muted">{sub}</p>
+      <p className="mt-0.5 truncate text-xs text-ink-soft">{sub}</p>
     </Card>
   );
 }
@@ -47,7 +49,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-muted">
+      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-ink-soft">
         <span className="flex items-center gap-2">
           <span className="size-2.5 rounded-sm" style={{ background: COLOR_PAID }} /> Lunas
         </span>
@@ -59,7 +61,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
         {/* Garis bantu & label sumbu Y */}
         {ticks.map((t) => (
           <div key={t} className="pointer-events-none absolute inset-x-0 flex items-center" style={{ bottom: h(t) }}>
-            <span className="w-12 translate-y-1/2 pr-2 text-right text-[11px] text-muted">{axisLabel(t)}</span>
+            <span className="w-12 translate-y-1/2 pr-2 text-right text-[11px] text-ink-soft">{axisLabel(t)}</span>
             <span className="h-px flex-1 bg-line" />
           </div>
         ))}
@@ -94,13 +96,13 @@ function BillingChart({ months }: { months: Report["months"] }) {
             >
               <p className="mb-1.5 text-sm font-semibold">{monthLong(active.month)}</p>
               <p className="flex justify-between gap-3">
-                <span className="flex items-center gap-1.5 text-muted">
+                <span className="flex items-center gap-1.5 text-ink-soft">
                   <span className="size-2 rounded-sm" style={{ background: COLOR_PAID }} /> Lunas
                 </span>
                 {price(active.collected)}
               </p>
               <p className="flex justify-between gap-3">
-                <span className="flex items-center gap-1.5 text-muted">
+                <span className="flex items-center gap-1.5 text-ink-soft">
                   <span className="size-2 rounded-sm" style={{ background: COLOR_OPEN }} /> Belum lunas
                 </span>
                 {price(active.billed - active.collected)}
@@ -115,7 +117,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
       </div>
       <div className="flex pl-12">
         {months.map((m) => (
-          <span key={m.month} className="flex-1 pt-2 text-center text-[11px] text-muted">
+          <span key={m.month} className="flex-1 pt-2 text-center text-[11px] text-ink-soft">
             {monthShort(m.month)}
           </span>
         ))}
@@ -209,54 +211,54 @@ export default function LaporanPage() {
 
           <Card className="mt-6">
             <h2 className="font-bold">Tagihan sewa per bulan</h2>
-            <p className="mb-5 text-sm text-muted">Berdasarkan periode tagihan. Ketuk atau arahkan kursor ke bulan untuk rinciannya.</p>
+            <p className="mb-5 text-sm text-ink-soft">Berdasarkan periode tagihan. Ketuk atau arahkan kursor ke bulan untuk rinciannya.</p>
             {billed === 0 ? <EmptyState title={`Belum ada tagihan di ${r.year}`} /> : <BillingChart months={r.months} />}
           </Card>
 
           <Card className="mt-6 p-0! sm:p-0!">
             <h2 className="px-5 pt-5 font-bold sm:px-6">Rincian bulanan</h2>
             <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[720px] text-sm tabular-nums">
-                <thead className="text-left text-xs text-muted">
-                  <tr className="border-b border-line">
-                    <th className="px-5 py-2 font-medium sm:px-6">Bulan</th>
-                    <th className="px-3 py-2 text-right font-medium">Ditagih</th>
-                    <th className="px-3 py-2 text-right font-medium">Lunas</th>
-                    <th className="px-3 py-2 text-right font-medium">Belum lunas</th>
-                    <th className="px-3 py-2 text-right font-medium">Kas sewa</th>
-                    <th className="px-3 py-2 text-right font-medium">Kas deposit</th>
-                    <th className="px-5 py-2 text-right font-medium sm:px-6">Masuk / keluar</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
+              <Table className="min-w-[720px] tabular-nums">
+                <TableHeader className="[&_th]:text-xs [&_th]:text-muted-foreground">
+                  <TableRow>
+                    <TableHead className="px-5 py-2 font-medium sm:px-6">Bulan</TableHead>
+                    <TableHead className="px-3 py-2 text-right font-medium">Ditagih</TableHead>
+                    <TableHead className="px-3 py-2 text-right font-medium">Lunas</TableHead>
+                    <TableHead className="px-3 py-2 text-right font-medium">Belum lunas</TableHead>
+                    <TableHead className="px-3 py-2 text-right font-medium">Kas sewa</TableHead>
+                    <TableHead className="px-3 py-2 text-right font-medium">Kas deposit</TableHead>
+                    <TableHead className="px-5 py-2 text-right font-medium sm:px-6">Masuk / keluar</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {r.months.map((m) => (
-                    <tr key={m.month}>
-                      <td className="px-5 py-2.5 sm:px-6">{monthLong(m.month)}</td>
-                      <td className="px-3 py-2.5 text-right">{m.billed ? price(m.billed) : "–"}</td>
-                      <td className="px-3 py-2.5 text-right">{m.collected ? price(m.collected) : "–"}</td>
-                      <td className="px-3 py-2.5 text-right">{m.billed - m.collected ? price(m.billed - m.collected) : "–"}</td>
-                      <td className="px-3 py-2.5 text-right">{m.cashRent ? price(m.cashRent) : "–"}</td>
-                      <td className="px-3 py-2.5 text-right">{m.cashDeposit ? price(m.cashDeposit) : "–"}</td>
-                      <td className="px-5 py-2.5 text-right sm:px-6">{m.moveIns || m.moveOuts ? `+${m.moveIns} / −${m.moveOuts}` : "–"}</td>
-                    </tr>
+                    <TableRow key={m.month}>
+                      <TableCell className="px-5 py-2.5 sm:px-6">{monthLong(m.month)}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">{m.billed ? price(m.billed) : "–"}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">{m.collected ? price(m.collected) : "–"}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">{m.billed - m.collected ? price(m.billed - m.collected) : "–"}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">{m.cashRent ? price(m.cashRent) : "–"}</TableCell>
+                      <TableCell className="px-3 py-2.5 text-right">{m.cashDeposit ? price(m.cashDeposit) : "–"}</TableCell>
+                      <TableCell className="px-5 py-2.5 text-right sm:px-6">{m.moveIns || m.moveOuts ? `+${m.moveIns} / −${m.moveOuts}` : "–"}</TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-                <tfoot className="border-t-2 border-line font-semibold">
-                  <tr>
-                    <td className="px-5 py-3 sm:px-6">Total</td>
-                    <td className="px-3 py-3 text-right">{price(billed)}</td>
-                    <td className="px-3 py-3 text-right">{price(collected)}</td>
-                    <td className="px-3 py-3 text-right">{price(billed - collected)}</td>
-                    <td className="px-3 py-3 text-right">{price(sum("cashRent"))}</td>
-                    <td className="px-3 py-3 text-right">{price(sum("cashDeposit"))}</td>
-                    <td className="px-5 py-3 text-right sm:px-6">
+                </TableBody>
+                <TableFooter className="font-semibold">
+                  <TableRow>
+                    <TableCell className="px-5 py-3 sm:px-6">Total</TableCell>
+                    <TableCell className="px-3 py-3 text-right">{price(billed)}</TableCell>
+                    <TableCell className="px-3 py-3 text-right">{price(collected)}</TableCell>
+                    <TableCell className="px-3 py-3 text-right">{price(billed - collected)}</TableCell>
+                    <TableCell className="px-3 py-3 text-right">{price(sum("cashRent"))}</TableCell>
+                    <TableCell className="px-3 py-3 text-right">{price(sum("cashDeposit"))}</TableCell>
+                    <TableCell className="px-5 py-3 text-right sm:px-6">
                       +{sum("moveIns")} / −{sum("moveOuts")}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
             </div>
-            <p className="px-5 pb-5 pt-3 text-xs text-muted sm:px-6">
+            <p className="px-5 pb-5 pt-3 text-xs text-ink-soft sm:px-6">
               &ldquo;Kas&rdquo; dihitung dari tanggal bayar, sehingga bisa berbeda dari kolom lunas (misal tagihan Oktober yang dibayar di November).
             </p>
           </Card>
@@ -265,33 +267,33 @@ export default function LaporanPage() {
             <Card className="mt-6 p-0! sm:p-0!">
               <h2 className="px-5 pt-5 font-bold sm:px-6">Per cabang · {r.year}</h2>
               <div className="mt-3 overflow-x-auto">
-                <table className="w-full min-w-[560px] text-sm tabular-nums">
-                  <thead className="text-left text-xs text-muted">
-                    <tr className="border-b border-line">
-                      <th className="px-5 py-2 font-medium sm:px-6">Cabang</th>
-                      <th className="px-3 py-2 text-right font-medium">Okupansi kini</th>
-                      <th className="px-3 py-2 text-right font-medium">Ditagih</th>
-                      <th className="px-3 py-2 text-right font-medium">Lunas</th>
-                      <th className="px-5 py-2 text-right font-medium sm:px-6">Penagihan</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
+                <Table className="min-w-[560px] tabular-nums">
+                  <TableHeader className="[&_th]:text-xs [&_th]:text-muted-foreground">
+                    <TableRow>
+                      <TableHead className="px-5 py-2 font-medium sm:px-6">Cabang</TableHead>
+                      <TableHead className="px-3 py-2 text-right font-medium">Okupansi kini</TableHead>
+                      <TableHead className="px-3 py-2 text-right font-medium">Ditagih</TableHead>
+                      <TableHead className="px-3 py-2 text-right font-medium">Lunas</TableHead>
+                      <TableHead className="px-5 py-2 text-right font-medium sm:px-6">Penagihan</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {r.kos.map((k) => (
-                      <tr key={k.id}>
-                        <td className="px-5 py-2.5 font-medium sm:px-6">{k.name}</td>
-                        <td className="px-3 py-2.5 text-right">
+                      <TableRow key={k.id}>
+                        <TableCell className="px-5 py-2.5 font-medium sm:px-6">{k.name}</TableCell>
+                        <TableCell className="px-3 py-2.5 text-right">
                           {pct(k.occupied, k.totalRooms)}{" "}
-                          <span className="text-muted">
+                          <span className="text-ink-soft">
                             ({k.occupied}/{k.totalRooms})
                           </span>
-                        </td>
-                        <td className="px-3 py-2.5 text-right">{price(k.billed)}</td>
-                        <td className="px-3 py-2.5 text-right">{price(k.collected)}</td>
-                        <td className="px-5 py-2.5 text-right sm:px-6">{pct(k.collected, k.billed)}</td>
-                      </tr>
+                        </TableCell>
+                        <TableCell className="px-3 py-2.5 text-right">{price(k.billed)}</TableCell>
+                        <TableCell className="px-3 py-2.5 text-right">{price(k.collected)}</TableCell>
+                        <TableCell className="px-5 py-2.5 text-right sm:px-6">{pct(k.collected, k.billed)}</TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
               <div className="pb-2" />
             </Card>
@@ -301,16 +303,17 @@ export default function LaporanPage() {
           {r.arrears.length === 0 ? (
             <EmptyState title="Tidak ada tunggakan" text="Semua tagihan yang lewat jatuh tempo sudah dibayar." />
           ) : (
-            <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+            <>
+            <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
               {r.arrears.map((a) => (
                 <div key={a.tenancyId} className="flex items-center gap-4 p-4">
                   <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lavender text-sm font-bold text-brand-700">{a.roomNumber}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">
                       {a.name}
-                      {a.ended && <span className="ml-2 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-muted">Sudah keluar</span>}
+                      {a.ended && <span className="ml-2 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">Sudah keluar</span>}
                     </p>
-                    <p className="truncate text-sm text-muted">
+                    <p className="truncate text-sm text-ink-soft">
                       {a.kosName} · {a.count} tagihan · sejak {dateShort(a.oldestDue)}
                     </p>
                   </div>
@@ -331,7 +334,55 @@ export default function LaporanPage() {
                   )}
                 </div>
               ))}
-            </div>
+            </MobileList>
+            <DesktopTable>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Kamar</TableHead>
+                  <TableHead>Penghuni</TableHead>
+                  <TableHead>Cabang</TableHead>
+                  <TableHead className="text-right">Jumlah tagihan</TableHead>
+                  <TableHead>Telat sejak</TableHead>
+                  <TableHead className="text-right">Total tunggakan</TableHead>
+                  <TableHead className="text-right">Ingatkan</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {r.arrears.map((a) => (
+                  <TableRow key={a.tenancyId}>
+                    <TableCell>
+                      <span className="inline-grid min-w-10 place-items-center rounded-lg bg-lavender px-2 py-1 text-sm font-bold text-brand-700">{a.roomNumber}</span>
+                    </TableCell>
+                    <TableCell>
+                      <CellStack title={a.name} sub={a.ended ? "Sudah keluar" : undefined} />
+                    </TableCell>
+                    <TableCell>{a.kosName}</TableCell>
+                    <TableCell className="text-right tabular-nums">{a.count}</TableCell>
+                    <TableCell>{dateShort(a.oldestDue)}</TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums text-red-600">{price(a.amount)}</TableCell>
+                    <TableCell className="text-right">
+                      {a.phone ? (
+                        <a
+                          href={waLink(
+                            a.phone,
+                            `Halo ${a.name}, kami mengingatkan masih ada ${a.count} tagihan sewa yang belum dibayar sebesar ${price(a.amount)}. Mohon segera diselesaikan. Terima kasih.`,
+                          )}
+                          target="_blank"
+                          rel="noopener"
+                          className="inline-flex rounded-full p-2 hover:bg-subtle"
+                          aria-label={`WhatsApp ${a.name}`}
+                        >
+                          <MessageCircle className="size-4" />
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">–</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </DesktopTable>
+            </>
           )}
         </>
       )}

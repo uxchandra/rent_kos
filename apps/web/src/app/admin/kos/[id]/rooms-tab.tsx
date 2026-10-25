@@ -304,7 +304,7 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">
+        <p className="text-sm text-ink-soft">
           {kos.roomTypes.length} tipe · {kos.roomTypes.reduce((s, t) => s + t.rooms.length, 0)} kamar
         </p>
         <Button onClick={() => setTypeDialog({ open: true, type: null })}>
@@ -327,15 +327,15 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-lg font-bold">{t.name}</h3>
                 {!t.isActive && (
-                  <span className="flex items-center gap-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-muted">
+                  <span className="flex items-center gap-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">
                     <EyeOff className="size-3" /> Disembunyikan
                   </span>
                 )}
               </div>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-ink-soft">
                 <span className="font-semibold text-brand-700">{price(t.monthlyPrice)}</span>/bulan{t.size && ` · ${t.size}`}
               </p>
-              {t.facilities && t.facilities.length > 0 && <p className="mt-1 line-clamp-2 text-xs text-muted">{t.facilities.join(" · ")}</p>}
+              {t.facilities && t.facilities.length > 0 && <p className="mt-1 line-clamp-2 text-xs text-ink-soft">{t.facilities.join(" · ")}</p>}
             </div>
             <div className="flex shrink-0 gap-1">
               <button onClick={() => setTypeDialog({ open: true, type: t })} className="rounded-full p-2 hover:bg-subtle" aria-label="Edit tipe">
@@ -396,7 +396,7 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
                 fileInput.current?.click();
               }}
               disabled={uploadingFor === t.id}
-              className="grid h-24 w-32 shrink-0 place-items-center rounded-lg border-2 border-dashed border-line text-xs text-muted hover:border-brand-400 disabled:opacity-50"
+              className="grid h-24 w-32 shrink-0 place-items-center rounded-lg border-2 border-dashed border-line text-xs text-ink-soft hover:border-brand-400 disabled:opacity-50"
             >
               <span className="flex flex-col items-center gap-1">
                 <ImagePlus className="size-5 text-brand-400" />
@@ -414,7 +414,7 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
               </button>
             </div>
             {t.rooms.length === 0 ? (
-              <p className="text-sm text-muted">Belum ada kamar. Tambahkan nomor kamar agar bisa disewakan.</p>
+              <p className="text-sm text-ink-soft">Belum ada kamar. Tambahkan nomor kamar agar bisa disewakan.</p>
             ) : (
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
                 {t.rooms.map((r) => (

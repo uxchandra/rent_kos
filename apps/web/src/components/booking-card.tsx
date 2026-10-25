@@ -26,7 +26,7 @@ function useSelectedType(roomTypes: RoomType[]) {
 
 type Step = { name: "pick" } | { name: "details" } | { name: "done"; code: string };
 
-const fieldBox = "block border-muted/50 px-3 py-2.5";
+const fieldBox = "block border-ink-soft/50 px-3 py-2.5";
 const fieldLabel = "block text-[10px] font-bold uppercase tracking-wide";
 const fieldInput = "w-full bg-transparent text-base outline-none sm:text-sm";
 
@@ -87,7 +87,7 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
           <Check className="size-7" strokeWidth={2.5} />
         </span>
         <p className="mt-4 text-xl font-bold">Pengajuan terkirim</p>
-        <p className="mt-2 text-muted">Pengelola {kosName} akan menghubungi Anda lewat WhatsApp untuk konfirmasi. Simpan kode pengajuan berikut:</p>
+        <p className="mt-2 text-ink-soft">Pengelola {kosName} akan menghubungi Anda lewat WhatsApp untuk konfirmasi. Simpan kode pengajuan berikut:</p>
         <p className="mt-4 rounded-xl bg-subtle py-3 font-mono text-lg font-bold tracking-widest">{step.code}</p>
         {whatsapp && (
           <a href={waLink(whatsapp, waMessage(step.code))} target="_blank" rel="noopener" className="mt-5 block text-sm font-semibold text-brand-600 underline underline-offset-4">
@@ -105,14 +105,14 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
         <div className="flex items-start justify-between gap-3 rounded-lg bg-subtle px-3 py-2.5 text-sm">
           <p>
             <span className="font-semibold">{type.name}</span>
-            <span className="block text-muted">Masuk {moveInLabel}</span>
+            <span className="block text-ink-soft">Masuk {moveInLabel}</span>
           </p>
           <button type="button" onClick={() => setStep({ name: "pick" })} className="font-semibold underline underline-offset-4">
             Ubah
           </button>
         </div>
 
-        <div className="mt-4 divide-y divide-muted/50 overflow-hidden rounded-lg border border-muted/50">
+        <div className="mt-4 divide-y divide-ink-soft/50 overflow-hidden rounded-lg border border-ink-soft/50">
           <label className={fieldBox}>
             <span className={fieldLabel}>Nama lengkap</span>
             <input required value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} autoComplete="name" className={fieldInput} />
@@ -156,7 +156,7 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
         >
           {sending && <Loader2 className="size-4 animate-spin" />} Kirim pengajuan
         </button>
-        <p className="mt-3 text-center text-sm text-muted">Gratis, belum ada biaya yang dikenakan</p>
+        <p className="mt-3 text-center text-sm text-ink-soft">Gratis, belum ada biaya yang dikenakan</p>
       </form>
     );
   }
@@ -165,11 +165,11 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
     <>
       <p>
         <span className="text-2xl font-bold text-brand-700">{price(type.monthlyPrice)}</span>
-        <span className="text-muted"> / bulan</span>
+        <span className="text-ink-soft"> / bulan</span>
       </p>
 
-      <div className="mt-5 overflow-hidden rounded-lg border border-muted/50">
-        <label className="block border-b border-muted/50 px-3 py-2.5">
+      <div className="mt-5 overflow-hidden rounded-lg border border-ink-soft/50">
+        <label className="block border-b border-ink-soft/50 px-3 py-2.5">
           <span className="block text-[10px] font-bold uppercase tracking-wide">Tipe kamar</span>
           {/* text-base di HP supaya iOS tidak auto-zoom saat input difokus */}
           <select
@@ -210,7 +210,7 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
           Tanya dulu via WhatsApp
         </a>
       ) : (
-        <p className="mt-3 text-center text-sm text-muted">Belum ada biaya yang dikenakan</p>
+        <p className="mt-3 text-center text-sm text-ink-soft">Belum ada biaya yang dikenakan</p>
       )}
 
       <dl className="mt-5 space-y-3 text-[15px]">
@@ -260,9 +260,9 @@ export function MobileBookingBar(props: Props & { minPrice: number | null }) {
     <>
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-line bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
         <p>
-          <span className="block text-xs text-muted">Mulai dari</span>
+          <span className="block text-xs text-ink-soft">Mulai dari</span>
           <span className="font-bold">{props.minPrice ? price(props.minPrice) : "-"}</span>
-          <span className="text-sm text-muted"> / bulan</span>
+          <span className="text-sm text-ink-soft"> / bulan</span>
         </p>
         <button onClick={() => setOpen(true)} className="rounded-full bg-brand-600 px-7 py-3 font-semibold text-white">
           Ajukan sewa

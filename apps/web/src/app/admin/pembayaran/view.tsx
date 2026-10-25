@@ -9,6 +9,8 @@ import { Button, Dialog, EmptyState, Field, Input, Select, Spinner, Switch, Text
 import { api } from "@/lib/client-api";
 import { dateShort, invoiceTitle, price } from "@/lib/format";
 import type { AdminBankAccount, AdminKosSummary, AdminPayment, PaymentStatus } from "@/lib/admin-types";
+import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type Tab = PaymentStatus | "BANK";
 
@@ -43,7 +45,8 @@ function PaymentDialog({ payment, onClose, onSaved }: { payment: AdminPayment; o
     }
   }
 
-  const footer = !pending ? undefined : rejecting ? (
+  const canVerify = useAuth().can("payments.verify");
+  const footer = !pending || !canVerify ? undefined : rejecting ? (
     <>
       <Button variant="secondary" onClick={() => setRejecting(false)}>
         Kembali
@@ -75,29 +78,29 @@ function PaymentDialog({ payment, onClose, onSaved }: { payment: AdminPayment; o
         <div className="space-y-4 text-sm">
           <dl className="grid grid-cols-2 gap-3">
             <div>
-              <dt className="text-muted">Ditransfer</dt>
+              <dt className="text-ink-soft">Ditransfer</dt>
               <dd className={`text-lg font-bold ${mismatch ? "text-amber-700" : ""}`}>{price(payment.amount)}</dd>
             </div>
             <div>
-              <dt className="text-muted">Tagihan</dt>
+              <dt className="text-ink-soft">Tagihan</dt>
               <dd className="text-lg font-bold">{price(payment.invoice.amount)}</dd>
             </div>
             <div>
-              <dt className="text-muted">Tanggal transfer</dt>
+              <dt className="text-ink-soft">Tanggal transfer</dt>
               <dd className="font-semibold">{dateShort(payment.transferDate)}</dd>
             </div>
             <div>
-              <dt className="text-muted">Nama pengirim</dt>
+              <dt className="text-ink-soft">Nama pengirim</dt>
               <dd className="font-semibold">{payment.senderName}</dd>
             </div>
             <div className="col-span-2">
-              <dt className="text-muted">Rekening tujuan</dt>
+              <dt className="text-ink-soft">Rekening tujuan</dt>
               <dd className="font-semibold">
                 {payment.bankAccount ? `${payment.bankAccount.bankName} ${payment.bankAccount.accountNumber} a.n. ${payment.bankAccount.accountName}` : "—"}
               </dd>
             </div>
             <div className="col-span-2">
-              <dt className="text-muted">Penghuni</dt>
+              <dt className="text-ink-soft">Penghuni</dt>
               <dd className="font-semibold">
                 {payment.tenant.name} · Kamar {payment.roomNumber}, {payment.kos.name}
               </dd>
@@ -108,12 +111,12 @@ function PaymentDialog({ payment, onClose, onSaved }: { payment: AdminPayment; o
               <AlertTriangle className="mt-0.5 size-4 shrink-0" /> Nominal transfer berbeda dari tagihan. Jika disetujui, tagihan tetap dianggap lunas.
             </p>
           )}
-          {pending && !rejecting && <p className="text-muted">Cocokkan dengan mutasi rekening sebelum menyetujui.</p>}
+          {pending && !rejecting && <p className="text-ink-soft">Cocokkan dengan mutasi rekening sebelum menyetujui.</p>}
           {!pending && (
             <p className="rounded-xl bg-subtle px-3 py-2">
               {payment.status === "APPROVED" ? "Disetujui" : "Ditolak"} oleh {payment.verifiedBy?.name ?? "—"}
               {payment.verifiedAt && `, ${submittedAt(payment.verifiedAt)}`}
-              {payment.note && <span className="mt-1 block text-muted">Alasan: {payment.note}</span>}
+              {payment.note && <span className="mt-1 block text-ink-soft">Alasan: {payment.note}</span>}
             </p>
           )}
           {rejecting && (
@@ -146,24 +149,69 @@ function PaymentList({ status }: { status: PaymentStatus }) {
   }
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <MobileList className="grid gap-3">
         {data.data.map((p) => (
           <button key={p.id} onClick={() => setSelected(p)} className="flex gap-4 rounded-2xl border border-line bg-white p-3 text-left transition hover:border-ink">
             <img src={p.proofUrl} alt="" className="size-20 shrink-0 rounded-xl bg-subtle object-cover" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{p.tenant.name}</p>
-              <p className="truncate text-sm text-muted">
+              <p className="truncate text-sm text-ink-soft">
                 {invoiceTitle(p.invoice)} · Kamar {p.roomNumber}, {p.kos.name}
               </p>
               <p className="mt-1 text-sm">
                 <span className="font-semibold">{price(p.amount)}</span>
                 {p.amount !== p.invoice.amount && <span className="ml-1.5 text-xs font-semibold text-amber-700">≠ tagihan {price(p.invoice.amount)}</span>}
               </p>
-              <p className="mt-0.5 text-xs text-muted">{status === "REJECTED" && p.note ? `Ditolak: ${p.note}` : `Dikirim ${submittedAt(p.createdAt)}`}</p>
+              <p className="mt-0.5 text-xs text-ink-soft">{status === "REJECTED" && p.note ? `Ditolak: ${p.note}` : `Dikirim ${submittedAt(p.createdAt)}`}</p>
             </div>
           </button>
         ))}
-      </div>
+      </MobileList>
+      <DesktopTable>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-20">Bukti</TableHead>
+            <TableHead>Penghuni</TableHead>
+            <TableHead>Tagihan</TableHead>
+            <TableHead className="text-right">Ditransfer</TableHead>
+            <TableHead>Tgl transfer</TableHead>
+            <TableHead>{status === "REJECTED" ? "Alasan ditolak" : status === "APPROVED" ? "Diverifikasi" : "Dikirim"}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.data.map((p) => (
+            <TableRow key={p.id} onClick={() => setSelected(p)} className="cursor-pointer">
+              <TableCell>
+                <img src={p.proofUrl} alt="" className="size-12 rounded-lg bg-subtle object-cover" />
+              </TableCell>
+              <TableCell>
+                <CellStack title={p.tenant.name} sub={`Kamar ${p.roomNumber} · ${p.kos.name}`} />
+              </TableCell>
+              <TableCell>
+                <CellStack title={invoiceTitle(p.invoice)} sub={price(p.invoice.amount)} />
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                <span className="font-medium">{price(p.amount)}</span>
+                {p.amount !== p.invoice.amount && <span className="block text-xs font-semibold text-amber-700">tidak sama</span>}
+              </TableCell>
+              <TableCell>
+                <CellStack title={dateShort(p.transferDate)} sub={p.bankAccount ? `ke ${p.bankAccount.bankName}` : `a.n. ${p.senderName}`} />
+              </TableCell>
+              <TableCell className="max-w-56 text-muted-foreground">
+                {status === "REJECTED" ? (
+                  <span className="block truncate" title={p.note ?? undefined}>
+                    {p.note ?? "–"}
+                  </span>
+                ) : status === "APPROVED" && p.verifiedAt ? (
+                  <CellStack title={submittedAt(p.verifiedAt)} sub={p.verifiedBy?.name} />
+                ) : (
+                  submittedAt(p.createdAt)
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </DesktopTable>
       {selected && <PaymentDialog payment={selected} onClose={() => setSelected(null)} onSaved={mutate} />}
     </>
   );
@@ -271,15 +319,16 @@ function BankAccounts() {
       {data.data.length === 0 ? (
         <EmptyState title="Belum ada rekening" text="Penghuni butuh rekening tujuan untuk transfer." />
       ) : (
-        <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+        <>
+        <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
           {data.data.map((a) => (
             <div key={a.id} className={`flex items-center gap-4 p-4 ${a.isActive ? "" : "opacity-60"}`}>
               <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-lavender text-xs font-bold text-brand-700">{a.bankName.slice(0, 4)}</span>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">
-                  {a.accountNumber} {!a.isActive && <span className="ml-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-muted">Nonaktif</span>}
+                  {a.accountNumber} {!a.isActive && <span className="ml-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">Nonaktif</span>}
                 </p>
-                <p className="truncate text-sm text-muted">
+                <p className="truncate text-sm text-ink-soft">
                   {a.bankName} · a.n. {a.accountName} · {a.kos?.name ?? "Semua cabang"}
                 </p>
               </div>
@@ -295,7 +344,47 @@ function BankAccounts() {
               )}
             </div>
           ))}
-        </div>
+        </MobileList>
+        <DesktopTable>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Bank</TableHead>
+              <TableHead>Nomor rekening</TableHead>
+              <TableHead>Atas nama</TableHead>
+              <TableHead>Berlaku untuk</TableHead>
+              <TableHead>Status</TableHead>
+              {isOwner && <TableHead className="text-right">Aksi</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.data.map((a) => (
+              <TableRow key={a.id} className={a.isActive ? undefined : "opacity-60"}>
+                <TableCell className="font-semibold">{a.bankName}</TableCell>
+                <TableCell className="font-mono tabular-nums">{a.accountNumber}</TableCell>
+                <TableCell>{a.accountName}</TableCell>
+                <TableCell>{a.kos?.name ?? "Semua cabang"}</TableCell>
+                <TableCell>
+                  <span className={`inline-block rounded-md px-1.5 py-0.5 text-xs font-semibold ${a.isActive ? "bg-mint text-mint-ink" : "bg-subtle text-ink-soft"}`}>
+                    {a.isActive ? "Aktif" : "Nonaktif"}
+                  </span>
+                </TableCell>
+                {isOwner && (
+                  <TableCell>
+                    <div className="flex justify-end">
+                      <button onClick={() => setDialog({ account: a })} className="rounded-full p-2 hover:bg-subtle" aria-label="Edit rekening">
+                        <Pencil className="size-4" />
+                      </button>
+                      <button onClick={() => remove(a)} className="rounded-full p-2 text-red-600 hover:bg-red-50" aria-label="Hapus rekening">
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </DesktopTable>
+        </>
       )}
       {dialog && <BankDialog account={dialog.account} kosList={kosData?.data ?? []} onClose={() => setDialog(null)} onSaved={mutate} />}
     </>
@@ -310,7 +399,7 @@ export default function PembayaranPage() {
   const pendingCount = pending?.data.length ?? 0;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-6xl">
       <PageHeader title="Pembayaran" description="Periksa bukti transfer dari penghuni, lalu setujui atau tolak." />
       <div className="no-scrollbar -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {tabs.map((t) => (

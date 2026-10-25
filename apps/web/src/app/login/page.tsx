@@ -37,14 +37,14 @@ export default function LoginPage() {
         </div>
         <form onSubmit={onSubmit} className="mt-8 rounded-xl border border-line bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-bold">Selamat datang</h1>
-          <p className="mt-1 text-sm text-muted">Masuk sebagai pengelola atau penghuni kos.</p>
+          <p className="mt-1 text-sm text-ink-soft">Masuk sebagai pengelola atau penghuni kos.</p>
 
           {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
           <label className="mt-6 block text-sm font-medium">
             Email
             <span className="mt-1.5 flex items-center gap-2 rounded-lg border border-line bg-white px-3 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
-              <Mail className="size-4 text-muted" />
+              <Mail className="size-4 text-ink-soft" />
               <input name="email" type="email" required autoComplete="email" className="w-full bg-transparent py-3 outline-none" />
             </span>
           </label>
@@ -52,7 +52,7 @@ export default function LoginPage() {
           <label className="mt-4 block text-sm font-medium">
             Password
             <span className="mt-1.5 flex items-center gap-2 rounded-lg border border-line bg-white px-3 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
-              <LockKeyhole className="size-4 text-muted" />
+              <LockKeyhole className="size-4 text-ink-soft" />
               <input
                 name="password"
                 type="password"

@@ -11,7 +11,7 @@ const buttonStyles: Record<ButtonVariant, string> = {
   primary: "bg-brand-600 text-white hover:bg-brand-700",
   secondary: "border border-line bg-white text-ink hover:border-ink",
   danger: "bg-red-600 text-white hover:bg-red-700",
-  ghost: "text-muted hover:bg-subtle hover:text-ink",
+  ghost: "text-ink-soft hover:bg-subtle hover:text-ink",
 };
 
 export function Button({
@@ -53,7 +53,7 @@ export function Field({
     <label className={`block ${className}`}>
       <span className="mb-1.5 block text-sm font-medium">{label}</span>
       {children}
-      {message ? <span className="mt-1 block text-xs text-red-600">{message}</span> : hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
+      {message ? <span className="mt-1 block text-xs text-red-600">{message}</span> : hint && <span className="mt-1 block text-xs text-ink-soft">{hint}</span>}
     </label>
   );
 }
@@ -141,7 +141,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-        {description && <p className="mt-1 text-muted">{description}</p>}
+        {description && <p className="mt-1 text-ink-soft">{description}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
@@ -164,7 +164,7 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
   return (
     <div className="rounded-2xl border border-dashed border-line bg-cream/50 px-6 py-14 text-center">
       <p className="font-semibold">{title}</p>
-      {text && <p className="mt-1 text-sm text-muted">{text}</p>}
+      {text && <p className="mt-1 text-sm text-ink-soft">{text}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
@@ -279,7 +279,7 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
           </>
         }
       >
-        <p className="text-sm leading-relaxed text-muted">{confirmState?.text}</p>
+        <p className="text-sm leading-relaxed text-ink-soft">{confirmState?.text}</p>
       </Dialog>
     </FeedbackContext>
   );

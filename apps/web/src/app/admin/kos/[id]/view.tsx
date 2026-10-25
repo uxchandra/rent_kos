@@ -24,7 +24,8 @@ export default function KosDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const tab = useSearchParams().get("tab") ?? "info";
-  const { user } = useAuth();
+  const { user, can } = useAuth();
+  const canEdit = can("kos.update");
   const { toast, confirm } = useFeedback();
   const { data, error, mutate } = useSWR<{ data: AdminKosDetail }>(`/admin/kos/${id}`);
   const isOwner = user.role === "OWNER";
@@ -52,13 +53,13 @@ export default function KosDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/admin/kos" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-ink">
+      <Link href="/admin/kos" className="mb-3 inline-flex items-center gap-1 text-sm text-ink-soft hover:text-ink">
         <ChevronLeft className="size-4" /> Cabang
       </Link>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{kos.name}</h1>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-ink-soft">
             {kos.city} ·{" "}
             {kos.isPublished ? <span className="font-medium text-mint-ink">Tayang di website</span> : <span className="font-medium text-amber-600">Draf</span>}
           </p>
@@ -70,7 +71,7 @@ export default function KosDetailPage() {
         )}
       </div>
 
-      <div className="no-scrollbar sticky top-14 z-20 -mx-4 mb-5 flex gap-1 overflow-x-auto border-b border-line bg-subtle px-4 lg:top-0 lg:mx-0 lg:px-0">
+      <div className="no-scrollbar sticky top-14 z-20 -mx-4 mb-5 flex gap-1 overflow-x-auto border-b border-line bg-background px-4 md:mx-0 md:px-0">
         {tabs
           .filter((t) => !t.ownerOnly || isOwner)
           .map((t) => (
@@ -80,7 +81,7 @@ export default function KosDetailPage() {
               scroll={false}
               replace
               className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-                tab === t.id ? "border-brand-600 text-brand-700" : "border-transparent text-muted hover:text-ink"
+                tab === t.id ? "border-brand-600 text-brand-700" : "border-transparent text-ink-soft hover:text-ink"
               }`}
             >
               {t.label}
@@ -88,32 +89,38 @@ export default function KosDetailPage() {
           ))}
       </div>
 
-      {tab === "info" && (
-        <>
-          <KosForm
-            key={kos.id}
-            initial={kosToForm(kos)}
-            isOwner={isOwner}
-            onSubmit={async (payload) => {
-              await api(`/admin/kos/${kos.id}`, { method: "PUT", body: JSON.stringify(payload) });
-              await mutate();
-              toast("Perubahan disimpan");
-            }}
-          />
-          {isOwner && (
-            <Card className="mt-8 border-red-200">
-              <h2 className="font-bold text-red-700">Hapus cabang</h2>
-              <p className="mb-4 mt-1 text-sm text-muted">Hanya bisa dilakukan jika cabang belum pernah punya penyewa.</p>
-              <Button variant="danger" onClick={remove}>
-                Hapus {kos.name}
-              </Button>
-            </Card>
-          )}
-        </>
+      {!canEdit && (
+        <p className="mb-4 rounded-xl bg-subtle px-4 py-3 text-sm text-ink-soft">Peran Anda hanya bisa melihat data cabang ini. Perubahan dilakukan oleh Owner atau admin dengan izin ubah cabang.</p>
       )}
-      {tab === "foto" && <PhotosTab kos={kos} reload={mutate} />}
-      {tab === "kamar" && <RoomsTab kos={kos} reload={mutate} />}
-      {tab === "pengelola" && isOwner && <AdminsTab key={kos.admins.map((a) => a.id).join()} kos={kos} reload={mutate} />}
+      {/* Tanpa izin ubah cabang: semua isian & tombol di dalam fieldset otomatis nonaktif. */}
+      <fieldset disabled={!canEdit} className="min-w-0">
+        {tab === "info" && (
+          <>
+            <KosForm
+              key={kos.id}
+              initial={kosToForm(kos)}
+              isOwner={isOwner}
+              onSubmit={async (payload) => {
+                await api(`/admin/kos/${kos.id}`, { method: "PUT", body: JSON.stringify(payload) });
+                await mutate();
+                toast("Perubahan disimpan");
+              }}
+            />
+            {isOwner && (
+              <Card className="mt-8 border-red-200">
+                <h2 className="font-bold text-red-700">Hapus cabang</h2>
+                <p className="mb-4 mt-1 text-sm text-ink-soft">Hanya bisa dilakukan jika cabang belum pernah punya penyewa.</p>
+                <Button variant="danger" onClick={remove}>
+                  Hapus {kos.name}
+                </Button>
+              </Card>
+            )}
+          </>
+        )}
+        {tab === "foto" && <PhotosTab kos={kos} reload={mutate} />}
+        {tab === "kamar" && <RoomsTab kos={kos} reload={mutate} />}
+        {tab === "pengelola" && isOwner && <AdminsTab key={kos.admins.map((a) => a.id).join()} kos={kos} reload={mutate} />}
+      </fieldset>
     </div>
   );
 }

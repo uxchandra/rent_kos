@@ -48,6 +48,10 @@ export type CurrentUser = {
   email: string;
   phone: string | null;
   role: Role;
+  /** Peran custom untuk akun ADMIN; null untuk OWNER. */
+  staffRole: { id: number; name: string } | null;
+  /** Izin efektif dari server (OWNER: semua). */
+  permissions: string[];
   kos: { id: number; name: string; slug: string }[];
 };
 

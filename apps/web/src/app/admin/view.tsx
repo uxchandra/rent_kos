@@ -50,14 +50,14 @@ export default function AdminDashboardPage() {
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold">{k.name}</p>
-                      <p className="text-sm text-muted">
+                      <p className="text-sm text-ink-soft">
                         {k.city} · {k.isPublished ? <span className="text-mint-ink">Tayang</span> : <span className="text-amber-600">Draf</span>}
                       </p>
                     </div>
-                    <ArrowRight className="size-4 text-muted transition group-hover:translate-x-0.5" />
+                    <ArrowRight className="size-4 text-ink-soft transition group-hover:translate-x-0.5" />
                   </div>
                   <div className="border-t border-line px-4 py-3">
-                    <div className="flex justify-between text-xs text-muted">
+                    <div className="flex justify-between text-xs text-ink-soft">
                       <span>
                         <b className="text-ink">{k.occupied}</b>/{k.totalRooms} terisi
                       </span>
@@ -84,9 +84,9 @@ function Stat({ icon: Icon, label, value, sub }: { icon: typeof BedDouble; label
   return (
     <Card className="p-4! sm:p-5!">
       <Icon className="size-5 text-brand-600" />
-      <p className="mt-3 text-xs font-medium text-muted sm:text-sm">{label}</p>
+      <p className="mt-3 text-xs font-medium text-ink-soft sm:text-sm">{label}</p>
       <p className="mt-0.5 truncate text-xl font-bold sm:text-2xl">{value}</p>
-      <p className="mt-0.5 truncate text-xs text-muted">{sub}</p>
+      <p className="mt-0.5 truncate text-xs text-ink-soft">{sub}</p>
     </Card>
   );
 }

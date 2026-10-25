@@ -36,17 +36,17 @@ export function AdminsTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
   }
 
   if (!data) return <Spinner />;
-  const admins = data.data.filter((a) => a.isActive);
+  const admins = data.data.filter((a) => a.isActive && a.role === "ADMIN");
 
   return (
     <Card>
       <h2 className="font-bold">Pengelola cabang</h2>
-      <p className="mb-5 text-sm text-muted">Admin yang dipilih bisa mengelola kamar, booking, dan tagihan di {kos.name}.</p>
+      <p className="mb-5 text-sm text-ink-soft">Admin yang dipilih bisa mengelola kamar, booking, dan tagihan di {kos.name}.</p>
       {admins.length === 0 ? (
         <EmptyState
           title="Belum ada akun admin"
           action={
-            <Link href="/admin/pengelola" className="text-sm font-semibold text-brand-600 underline">
+            <Link href="/admin/pengguna" className="text-sm font-semibold text-brand-600 underline">
               Buat akun admin
             </Link>
           }
@@ -62,7 +62,7 @@ export function AdminsTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-medium">{a.name}</span>
-                <span className="block truncate text-xs text-muted">
+                <span className="block truncate text-xs text-ink-soft">
                   {a.email}
                   {a.kos.length > 0 && ` · ${a.kos.map((k) => k.name).join(", ")}`}
                 </span>
@@ -72,8 +72,8 @@ export function AdminsTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         </div>
       )}
       <div className="mt-5 flex items-center justify-between gap-3">
-        <Link href="/admin/pengelola" className="text-sm font-semibold text-brand-600">
-          Kelola akun admin →
+        <Link href="/admin/pengguna" className="text-sm font-semibold text-brand-600">
+          Kelola akun & peran →
         </Link>
         <Button loading={saving} onClick={save}>
           Simpan

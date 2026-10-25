@@ -169,7 +169,7 @@ export function ListingExplorer({ rooms }: { rooms: RoomListing[] }) {
 
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-ink-soft">
             <span className="font-semibold text-ink">{result.length}</span> tipe kamar
             {city && ` di ${city}`}
             {Number.isFinite(maxPrice) && ` · maks. Rp${(maxPrice / 1_000_000).toLocaleString("id-ID")} jt`}
@@ -190,7 +190,7 @@ export function ListingExplorer({ rooms }: { rooms: RoomListing[] }) {
         {result.length === 0 ? (
           <div className="mt-6 rounded-2xl bg-cream px-6 py-20 text-center">
             <p className="text-lg font-bold">Belum ada kamar yang cocok</p>
-            <p className="mt-1 text-sm text-muted">Coba longgarkan filter atau pilih kota lain.</p>
+            <p className="mt-1 text-sm text-ink-soft">Coba longgarkan filter atau pilih kota lain.</p>
           </div>
         ) : (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -207,7 +207,7 @@ export function ListingExplorer({ rooms }: { rooms: RoomListing[] }) {
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">{title}</p>
+      <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ink-soft">{title}</p>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );

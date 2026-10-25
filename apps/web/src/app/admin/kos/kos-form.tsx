@@ -132,7 +132,7 @@ export function KosForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 pb-20 lg:pb-0">
+    <form onSubmit={submit} className="space-y-5 pb-20 md:pb-0">
       <Card>
         <h2 className="mb-5 font-bold">Informasi dasar</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -153,7 +153,7 @@ export function KosForm({
             hint={isOwner ? "Huruf kecil, angka, dan strip. Mengubah slug akan mengubah link cabang." : "Hanya Owner yang bisa mengubah."}
           >
             <div className="flex items-center rounded-xl border border-line bg-subtle focus-within:border-brand-600">
-              <span className="pl-3.5 text-sm text-muted">smartkos.com/</span>
+              <span className="pl-3.5 text-sm text-ink-soft">smartkos.com/</span>
               <input
                 value={v.slug}
                 disabled={!isOwner}
@@ -161,7 +161,7 @@ export function KosForm({
                   setSlugTouched(true);
                   set("slug", e.target.value.toLowerCase());
                 }}
-                className="w-full bg-transparent py-2.5 pr-3.5 text-base outline-none disabled:text-muted sm:text-sm"
+                className="w-full bg-transparent py-2.5 pr-3.5 text-base outline-none disabled:text-ink-soft sm:text-sm"
                 required
               />
             </div>
@@ -233,7 +233,7 @@ export function KosForm({
               <button
                 type="button"
                 onClick={() => set("nearby", v.nearby.filter((_, j) => j !== i))}
-                className="shrink-0 rounded-xl px-2 text-muted hover:bg-subtle hover:text-red-600"
+                className="shrink-0 rounded-xl px-2 text-ink-soft hover:bg-subtle hover:text-red-600"
                 aria-label="Hapus"
               >
                 <Trash2 className="size-4" />
@@ -274,15 +274,15 @@ export function KosForm({
         {isOwner && (
           <div className="mt-6 rounded-xl bg-subtle p-4">
             <Switch checked={v.isPublished} onChange={(c) => set("isPublished", c)} label="Tayangkan di website" />
-            <p className="mt-1 pl-14 text-xs text-muted">Jika mati, cabang tidak muncul di website publik.</p>
+            <p className="mt-1 pl-14 text-xs text-ink-soft">Jika mati, cabang tidak muncul di website publik.</p>
           </div>
         )}
       </Card>
 
       {formError && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{formError}</p>}
 
-      <div className="fixed inset-x-0 bottom-[calc(3.9rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-white/95 px-4 py-3 backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:p-0">
-        <Button type="submit" loading={saving} className="w-full lg:w-auto">
+      <div className="fixed inset-x-0 bottom-[calc(3.9rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-white/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
+        <Button type="submit" loading={saving} className="w-full md:w-auto">
           {isNew ? "Simpan cabang" : "Simpan perubahan"}
         </Button>
       </div>

@@ -27,6 +27,7 @@ router.get("/", async (_req, res) => {
 
 router.post("/", requireRole("OWNER"), async (req, res) => {
   const data = accountSchema.parse(req.body);
+  res.locals.activityTarget = `${data.bankName} ${data.accountNumber}`;
   res.status(201).json({ data: await prisma.bankAccount.create({ data, select }) });
 });
 
