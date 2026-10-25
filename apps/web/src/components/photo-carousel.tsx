@@ -14,8 +14,8 @@ export function PhotoCarousel({ photos, alt, className = "" }: { photos: string[
 
   if (photos.length === 0) {
     return (
-      <div className={`grid place-items-center bg-subtle ${className}`}>
-        <ImageOff className="size-8 text-line" />
+      <div className={`grid place-items-center bg-white/5 ${className}`}>
+        <ImageOff className="size-8 text-white/20" />
       </div>
     );
   }
@@ -28,7 +28,7 @@ export function PhotoCarousel({ photos, alt, className = "" }: { photos: string[
   };
 
   return (
-    <div className={`group/photo relative overflow-hidden bg-subtle ${className}`}>
+    <div className={`group/photo relative overflow-hidden bg-white/5 ${className}`}>
       <div
         ref={ref}
         onScroll={(e) => setI(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}

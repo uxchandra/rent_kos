@@ -26,9 +26,9 @@ function useSelectedType(roomTypes: RoomType[]) {
 
 type Step = { name: "pick" } | { name: "details" } | { name: "done"; code: string };
 
-const fieldBox = "block border-ink-soft/50 px-3 py-2.5";
-const fieldLabel = "block text-[10px] font-bold uppercase tracking-wide";
-const fieldInput = "w-full bg-transparent text-base outline-none sm:text-sm";
+const fieldBox = "block border-white/15 px-3 py-2.5";
+const fieldLabel = "block text-[10px] font-bold uppercase tracking-wide text-white/55";
+const fieldInput = "w-full bg-transparent text-base text-white outline-none scheme-dark sm:text-sm";
 
 function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
   const { type, setOverride } = useSelectedType(roomTypes);
@@ -83,14 +83,14 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
   if (step.name === "done") {
     return (
       <div className="py-4 text-center">
-        <span className="mx-auto grid size-14 place-items-center rounded-full bg-mint text-mint-ink">
+        <span className="mx-auto grid size-14 place-items-center rounded-full bg-lime/15 text-lime">
           <Check className="size-7" strokeWidth={2.5} />
         </span>
         <p className="mt-4 text-xl font-bold">Pengajuan terkirim</p>
-        <p className="mt-2 text-ink-soft">Pengelola {kosName} akan menghubungi Anda lewat WhatsApp untuk konfirmasi. Simpan kode pengajuan berikut:</p>
-        <p className="mt-4 rounded-xl bg-subtle py-3 font-mono text-lg font-bold tracking-widest">{step.code}</p>
+        <p className="mt-2 text-white/60">Pengelola {kosName} akan menghubungi Anda lewat WhatsApp untuk konfirmasi. Simpan kode pengajuan berikut:</p>
+        <p className="mt-4 rounded-xl bg-night py-3 font-mono text-lg font-bold tracking-widest text-lime ring-1 ring-white/10">{step.code}</p>
         {whatsapp && (
-          <a href={waLink(whatsapp, waMessage(step.code))} target="_blank" rel="noopener" className="mt-5 block text-sm font-semibold text-brand-600 underline underline-offset-4">
+          <a href={waLink(whatsapp, waMessage(step.code))} target="_blank" rel="noopener" className="mt-5 block text-sm font-semibold text-lime underline underline-offset-4">
             Ingin lebih cepat? Chat pengelola
           </a>
         )}
@@ -99,20 +99,20 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
   }
 
   if (step.name === "details") {
-    const err = (k: string) => errors[k] && <span className="mt-0.5 block text-xs text-red-600">{errors[k][0]}</span>;
+    const err = (k: string) => errors[k] && <span className="mt-0.5 block text-xs text-red-300">{errors[k][0]}</span>;
     return (
       <form onSubmit={submit}>
-        <div className="flex items-start justify-between gap-3 rounded-lg bg-subtle px-3 py-2.5 text-sm">
+        <div className="flex items-start justify-between gap-3 rounded-lg bg-night px-3 py-2.5 text-sm ring-1 ring-white/10">
           <p>
             <span className="font-semibold">{type.name}</span>
-            <span className="block text-ink-soft">Masuk {moveInLabel}</span>
+            <span className="block text-white/60">Masuk {moveInLabel}</span>
           </p>
           <button type="button" onClick={() => setStep({ name: "pick" })} className="font-semibold underline underline-offset-4">
             Ubah
           </button>
         </div>
 
-        <div className="mt-4 divide-y divide-ink-soft/50 overflow-hidden rounded-lg border border-ink-soft/50">
+        <div className="mt-4 divide-y divide-white/15 overflow-hidden rounded-lg border border-white/15">
           <label className={fieldBox}>
             <span className={fieldLabel}>Nama lengkap</span>
             <input required value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} autoComplete="name" className={fieldInput} />
@@ -148,15 +148,15 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
         {/* Honeypot anti-bot: disembunyikan dari pengguna. */}
         <input tabIndex={-1} autoComplete="off" aria-hidden name="website" value={v.website} onChange={(e) => setV({ ...v, website: e.target.value })} className="hidden" />
 
-        {errors.form && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{errors.form[0]}</p>}
+        {errors.form && <p className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{errors.form[0]}</p>}
         <button
           type="submit"
           disabled={sending}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 py-3.5 font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-lime py-3.5 font-semibold text-night transition hover:brightness-95 disabled:opacity-60"
         >
           {sending && <Loader2 className="size-4 animate-spin" />} Kirim pengajuan
         </button>
-        <p className="mt-3 text-center text-sm text-ink-soft">Gratis, belum ada biaya yang dikenakan</p>
+        <p className="mt-3 text-center text-sm text-white/60">Gratis, belum ada biaya yang dikenakan</p>
       </form>
     );
   }
@@ -164,43 +164,43 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
   return (
     <>
       <p>
-        <span className="text-2xl font-bold text-brand-700">{price(type.monthlyPrice)}</span>
-        <span className="text-ink-soft"> / bulan</span>
+        <span className="text-2xl font-bold text-lime">{price(type.monthlyPrice)}</span>
+        <span className="text-white/60"> / bulan</span>
       </p>
 
-      <div className="mt-5 overflow-hidden rounded-lg border border-ink-soft/50">
-        <label className="block border-b border-ink-soft/50 px-3 py-2.5">
-          <span className="block text-[10px] font-bold uppercase tracking-wide">Tipe kamar</span>
+      <div className="mt-5 overflow-hidden rounded-lg border border-white/15">
+        <label className="block border-b border-white/15 px-3 py-2.5">
+          <span className="block text-[10px] font-bold uppercase tracking-wide text-white/55">Tipe kamar</span>
           {/* text-base di HP supaya iOS tidak auto-zoom saat input difokus */}
           <select
             value={type.id}
             onChange={(e) => setOverride(Number(e.target.value))}
-            className="w-full bg-transparent text-base outline-none sm:text-sm"
+            className="w-full bg-transparent text-base text-white outline-none scheme-dark sm:text-sm"
           >
             {roomTypes.map((t) => (
-              <option key={t.id} value={t.id}>
+              <option key={t.id} value={t.id} className="bg-night-2">
                 {t.name} · {t.availableRooms > 0 ? `${t.availableRooms} kosong` : "penuh"}
               </option>
             ))}
           </select>
         </label>
         <label className="block px-3 py-2.5">
-          <span className="block text-[10px] font-bold uppercase tracking-wide">Tanggal masuk</span>
+          <span className="block text-[10px] font-bold uppercase tracking-wide text-white/55">Tanggal masuk</span>
           <input
             type="date"
             value={moveIn}
             min={todayInput()}
             onChange={(e) => setMoveIn(e.target.value)}
-            className="w-full bg-transparent text-base outline-none sm:text-sm"
+            className="w-full bg-transparent text-base text-white outline-none scheme-dark sm:text-sm"
           />
         </label>
       </div>
-      {(errors.moveInDate ?? errors.roomTypeId) && <p className="mt-1.5 text-xs text-red-600">{(errors.moveInDate ?? errors.roomTypeId)[0]}</p>}
+      {(errors.moveInDate ?? errors.roomTypeId) && <p className="mt-1.5 text-xs text-red-300">{(errors.moveInDate ?? errors.roomTypeId)[0]}</p>}
 
       <button
         onClick={next}
-        className={`mt-4 block w-full rounded-full py-3.5 text-center font-semibold text-white transition ${
-          full ? "bg-ink hover:bg-black" : "bg-brand-600 hover:bg-brand-700"
+        className={`mt-4 block w-full rounded-full py-3.5 text-center font-semibold transition ${
+          full ? "bg-white/10 text-white hover:bg-white/15" : "bg-lime text-night hover:brightness-95"
         }`}
       >
         {full ? "Masuk daftar tunggu" : "Ajukan sewa"}
@@ -210,21 +210,21 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
           Tanya dulu via WhatsApp
         </a>
       ) : (
-        <p className="mt-3 text-center text-sm text-ink-soft">Belum ada biaya yang dikenakan</p>
+        <p className="mt-3 text-center text-sm text-white/60">Belum ada biaya yang dikenakan</p>
       )}
 
       <dl className="mt-5 space-y-3 text-[15px]">
         <div className="flex justify-between">
-          <dt className="underline decoration-line underline-offset-4">Sewa bulan pertama</dt>
+          <dt className="underline decoration-white/25 underline-offset-4">Sewa bulan pertama</dt>
           <dd>{price(type.monthlyPrice)}</dd>
         </div>
         {deposit > 0 && (
           <div className="flex justify-between">
-            <dt className="underline decoration-line underline-offset-4">Deposit (dikembalikan)</dt>
+            <dt className="underline decoration-white/25 underline-offset-4">Deposit (dikembalikan)</dt>
             <dd>{price(deposit)}</dd>
           </div>
         )}
-        <div className="flex justify-between border-t border-line pt-4 font-bold">
+        <div className="flex justify-between border-t border-white/10 pt-4 font-bold">
           <dt>Total bayar di awal</dt>
           <dd>{price(type.monthlyPrice + deposit)}</dd>
         </div>
@@ -236,7 +236,7 @@ function BookingForm({ roomTypes, deposit, whatsapp, kosName, slug }: Props) {
 /** Kartu pemesanan di kolom samping (desktop). */
 export function BookingCard(props: Props) {
   return (
-    <div id="booking" className="scroll-mt-28 rounded-2xl border border-line p-6 shadow-[0_12px_32px_-12px_rgb(30_10_60/0.25)]">
+    <div id="booking" className="scroll-mt-28 rounded-3xl bg-night-2 p-6 shadow-2xl shadow-black/30 ring-1 ring-white/8">
       <BookingForm {...props} />
     </div>
   );
@@ -258,17 +258,17 @@ export function MobileBookingBar(props: Props & { minPrice: number | null }) {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-line bg-white px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-white/10 bg-night-2/95 px-4 backdrop-blur-md pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
         <p>
-          <span className="block text-xs text-ink-soft">Mulai dari</span>
+          <span className="block text-xs text-white/60">Mulai dari</span>
           <span className="font-bold">{props.minPrice ? price(props.minPrice) : "-"}</span>
-          <span className="text-sm text-ink-soft"> / bulan</span>
+          <span className="text-sm text-white/60"> / bulan</span>
         </p>
-        <button onClick={() => setOpen(true)} className="rounded-full bg-brand-600 px-7 py-3 font-semibold text-white">
+        <button onClick={() => setOpen(true)} className="rounded-full bg-lime px-7 py-3 font-semibold text-night">
           Ajukan sewa
         </button>
       </div>
-      <BottomSheet open={open} onClose={() => setOpen(false)} title={props.kosName}>
+      <BottomSheet open={open} onClose={() => setOpen(false)} title={props.kosName} night>
         <BookingForm {...props} />
       </BottomSheet>
     </>

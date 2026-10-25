@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element -- foto dari /uploads */
 
 // Bingkai foto berbentuk rumah beratap, motif khas SmartKos.
-const HOUSE = "polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%)";
+export const HOUSE_CLIP = "polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%)";
 
 export function HouseFrame({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
-    <div className={`overflow-hidden rounded-b-[2rem] ${className}`} style={{ clipPath: HOUSE }}>
+    <div className={`overflow-hidden rounded-b-[2rem] ${className}`} style={{ clipPath: HOUSE_CLIP }}>
       <img src={src} alt={alt} className="size-full object-cover" />
     </div>
   );

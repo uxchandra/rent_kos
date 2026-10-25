@@ -20,7 +20,7 @@ import { WhatsAppFab } from "@/components/whatsapp-fab";
 import { Faq } from "@/components/faq";
 import { Phone, TenantScreen } from "@/components/landing/phone";
 import { Ornament } from "@/components/landing/ornament";
-import { HouseBadge, HouseFrame } from "@/components/landing/house-frame";
+import { HOUSE_CLIP, HouseBadge, HouseFrame } from "@/components/landing/house-frame";
 import { RevealObserver } from "@/components/landing/reveal-observer";
 import { getKosList, getRoomListings } from "@/lib/public-api";
 import { genderLabel, price, waLink } from "@/lib/format";
@@ -58,10 +58,8 @@ function AvailabilityBadge({ count }: { count: number }) {
 
 export default async function HomePage() {
   const [rooms, kosList] = await Promise.all([getRoomListings(), getKosList()]);
-  const cities = [...new Set(kosList.map((k) => k.city))];
   const featured = [...rooms].sort((a, b) => b.availableRooms - a.availableRooms);
   const showcase = featured.find((r) => r.photos.length) ?? featured[0];
-  const cityText = cities.length > 1 ? `${cities.slice(0, -1).join(", ")}, dan ${cities.at(-1)}` : cities[0] ?? "kotamu";
   const heroPhoto = kosList.find((k) => k.coverImage)?.coverImage ?? "/uploads/seed/about-room.jpg";
 
   return (
@@ -71,13 +69,15 @@ export default async function HomePage() {
       <main className="flex-1 text-white">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <Ornament className="absolute -left-6 bottom-4 hidden w-60 sm:block lg:-left-28 lg:bottom-0" />
           <div className="absolute -right-40 -top-20 size-[560px] rounded-full bg-brand-600/25 blur-3xl motion-safe:animate-drift" />
           <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:pb-20 lg:pt-10">
             <div className="text-center lg:text-left">
               <h1 data-reveal className="mt-4 text-balance text-[2.1rem] font-bold leading-[1.15] tracking-tight sm:text-5xl lg:mt-0 lg:text-[3.1rem] lg:leading-[1.12]">
-                Kos bersih dan nyaman di <Lime>{cityText}</Lime>
+                Temukan kos nyaman, <Lime>mulai dari sini</Lime>
               </h1>
+              <p data-reveal style={delay(120)} className="mx-auto mt-5 max-w-md text-pretty text-base leading-relaxed text-white/70 sm:text-lg lg:mx-0">
+                Pindah kos tanpa drama. Survey, sewa, sampai bayar bulanan, semuanya beres dari HP.
+              </p>
               <div data-reveal style={delay(220)} className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
                 <Link href="/kamar" className="group flex items-center gap-2 rounded-full bg-lime px-6 py-3 font-semibold text-night transition hover:brightness-95">
                   Cari kamar <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
@@ -112,6 +112,100 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Cabang: kartu berbentuk rumah langsung di latar halaman */}
+        <section id="cabang" className="relative scroll-mt-20 overflow-hidden">
+          <Ornament className="absolute -right-8 top-4 hidden w-52 rotate-12 sm:block" />
+          <div className="pointer-events-none absolute -left-32 top-1/4 size-96 rounded-full bg-brand-600/20 blur-3xl motion-safe:animate-drift" aria-hidden />
+          <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
+            <div data-reveal className="flex flex-col items-center gap-3 text-center md:flex-row md:items-end md:justify-between md:text-left">
+              <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+                Cabang <Lime>SmartKos</Lime>
+              </h2>
+              <p className="max-w-sm text-white/60">Pilih cabang untuk melihat tipe kamar, fasilitas, dan lokasinya.</p>
+            </div>
+
+            {/* HP: geser ke samping; md ke atas: grid */}
+            <div data-reveal style={delay(100)} className="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 pt-1 md:mx-0 md:mt-10 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-3">
+              {kosList.map((k) => (
+                <Link
+                  key={k.slug}
+                  href={`/${k.slug}`}
+                  className="group flex w-[80%] shrink-0 snap-center flex-col rounded-[1.75rem] bg-night-2 p-3 ring-1 ring-white/8 transition duration-300 hover:-translate-y-1 hover:ring-lime/40 md:w-auto"
+                >
+                  <div className="relative aspect-5/4 overflow-hidden rounded-b-[1.4rem]" style={{ clipPath: HOUSE_CLIP }}>
+                    <img src={k.coverImage ?? ""} alt={k.name} className="size-full object-cover transition duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-linear-to-t from-night-2/70 via-transparent to-transparent" />
+                    <span className="absolute bottom-3 left-3 rounded-full bg-night/80 px-3 py-1 text-xs font-semibold ring-1 ring-white/15 backdrop-blur">{genderLabel[k.gender]}</span>
+                  </div>
+                  <div className="flex flex-1 flex-col px-2 pb-1 pt-4">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <p className="flex items-center gap-1 text-lime">
+                        <MapPin className="size-3.5" /> {k.city}
+                      </p>
+                      <span className="text-xs text-white/50">{k.availableRooms > 0 ? `${k.availableRooms} kamar kosong` : "Penuh"}</span>
+                    </div>
+                    <h3 className="mt-1 text-xl font-bold">{k.name}</h3>
+                    {k.tagline && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-white/55">{k.tagline}</p>}
+                    <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+                      <p className="w-full border-t border-dashed border-white/12 pt-4">
+                        <span className="block text-xs text-white/50">Mulai dari</span>
+                        <span className="text-lg font-bold text-lime">{k.minPrice ? price(k.minPrice) : "-"}</span>
+                        <span className="text-sm text-white/50">/bln</span>
+                      </p>
+                      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/8 transition group-hover:bg-lime group-hover:text-night">
+                        <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pilihan kamar */}
+        {rooms.length > 0 && (
+          <section id="pilihan-kamar" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:py-20">
+            <div data-reveal className="flex flex-col items-center gap-3 text-center md:flex-row md:items-end md:justify-between md:text-left">
+              <h2 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+                Pilihan <Lime>kamar</Lime>
+              </h2>
+              <p className="max-w-sm text-white/65">Harga per bulan, sudah termasuk WiFi dan air.</p>
+            </div>
+            <ul className="mt-8 grid grid-cols-1 gap-3 lg:mt-10 lg:grid-cols-2">
+              {featured.slice(0, 6).map((r, i) => (
+                <li key={r.id} data-reveal style={delay(i * 70)}>
+                  <Link
+                    href={`/${r.kos.slug}?tipe=${r.id}`}
+                    className="flex items-center gap-4 rounded-2xl bg-night-2 p-3 pr-4 ring-1 ring-white/6 transition hover:ring-lime/40"
+                  >
+                    <img src={r.photos[0]?.url ?? r.kos.coverImage ?? ""} alt="" className="size-16 shrink-0 rounded-xl object-cover sm:size-20" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{r.kos.name}</p>
+                      <p className="truncate text-sm text-white/55">Tipe {r.name}</p>
+                      <p className="mt-0.5 text-sm font-semibold">
+                        {price(r.monthlyPrice)}
+                        <span className="font-normal text-white/55">/bln</span>
+                      </p>
+                    </div>
+                    <AvailabilityBadge count={r.availableRooms} />
+                    <ChevronRight className="hidden size-5 shrink-0 text-white/40 sm:block" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div data-reveal className="mt-10 text-center">
+              <Link
+                href="/kamar"
+                className="group inline-flex items-center gap-2 rounded-full bg-lime px-6 py-3.5 font-semibold text-night transition hover:brightness-95"
+              >
+                {rooms.length > 6 ? `Lihat semua ${rooms.length} tipe kamar` : "Cari & bandingkan kamar"}
+                <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* Fasilitas */}
         <section id="fasilitas" className="relative scroll-mt-20 overflow-hidden">
@@ -164,87 +258,6 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* Cabang */}
-        <section id="cabang" className="scroll-mt-20 px-3 sm:px-6">
-          <div className="mx-auto max-w-7xl rounded-[2rem] bg-white px-4 py-12 text-ink sm:rounded-[2.5rem] sm:px-10 sm:py-20">
-            <div data-reveal className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center md:flex-row md:items-end md:justify-between md:text-left">
-              <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-                Cabang <span className="text-brand-600">SmartKos</span>
-              </h2>
-              <p className="max-w-sm text-ink-soft">Pilih cabang untuk melihat tipe kamar, fasilitas, dan lokasinya.</p>
-            </div>
-
-            {/* HP: geser ke samping; md ke atas: grid */}
-            <div data-reveal style={delay(100)} className="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 md:mx-auto md:mt-10 md:grid md:max-w-6xl md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-3">
-              {kosList.map((k) => (
-                <Link key={k.slug} href={`/${k.slug}`} className="group relative block w-[78%] shrink-0 snap-center overflow-hidden rounded-3xl md:w-auto">
-                  <img src={k.coverImage ?? ""} alt={k.name} className="aspect-4/5 w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-linear-to-t from-night via-night/40 to-transparent" />
-                  <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-night">{genderLabel[k.gender]}</span>
-                  <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                    <p className="flex items-center gap-1 text-sm text-lime">
-                      <MapPin className="size-3.5" /> {k.city}
-                    </p>
-                    <h3 className="mt-1 text-2xl font-bold">{k.name}</h3>
-                    <div className="mt-4 flex items-center justify-between gap-3">
-                      <p className="text-sm text-white/75">
-                        Mulai <b className="text-white">{k.minPrice ? price(k.minPrice) : "-"}</b>/bln
-                      </p>
-                      <span className="grid size-10 place-items-center rounded-full bg-lime text-night transition group-hover:translate-x-1">
-                        <ArrowRight className="size-4" />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-          </div>
-        </section>
-
-        {/* Pilihan kamar */}
-        {rooms.length > 0 && (
-          <section id="pilihan-kamar" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:py-20">
-            <div data-reveal className="flex flex-col items-center gap-3 text-center md:flex-row md:items-end md:justify-between md:text-left">
-              <h2 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-                Pilihan <Lime>kamar</Lime>
-              </h2>
-              <p className="max-w-sm text-white/65">Harga per bulan, sudah termasuk WiFi dan air.</p>
-            </div>
-            <ul className="mt-8 grid grid-cols-1 gap-3 lg:mt-10 lg:grid-cols-2">
-              {featured.slice(0, 6).map((r, i) => (
-                <li key={r.id} data-reveal style={delay(i * 70)}>
-                  <Link
-                    href={`/${r.kos.slug}?tipe=${r.id}`}
-                    className="flex items-center gap-4 rounded-2xl bg-night-2 p-3 pr-4 ring-1 ring-white/6 transition hover:ring-lime/40"
-                  >
-                    <img src={r.photos[0]?.url ?? r.kos.coverImage ?? ""} alt="" className="size-16 shrink-0 rounded-xl object-cover sm:size-20" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold">{r.kos.name}</p>
-                      <p className="truncate text-sm text-white/55">Tipe {r.name}</p>
-                      <p className="mt-0.5 text-sm font-semibold">
-                        {price(r.monthlyPrice)}
-                        <span className="font-normal text-white/55">/bln</span>
-                      </p>
-                    </div>
-                    <AvailabilityBadge count={r.availableRooms} />
-                    <ChevronRight className="hidden size-5 shrink-0 text-white/40 sm:block" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div data-reveal className="mt-10 text-center">
-              <Link
-                href="/kamar"
-                className="group inline-flex items-center gap-2 rounded-full bg-lime px-6 py-3.5 font-semibold text-night transition hover:brightness-95"
-              >
-                {rooms.length > 6 ? `Lihat semua ${rooms.length} tipe kamar` : "Cari & bandingkan kamar"}
-                <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-          </section>
-        )}
 
         {/* FAQ */}
         <section id="faq" className="relative scroll-mt-20 overflow-hidden">

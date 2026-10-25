@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, LockKeyhole, Mail } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Loader2, LockKeyhole, Mail } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { Ornament } from "@/components/landing/ornament";
 import { api, ApiError } from "@/lib/client-api";
 import type { Role } from "@/lib/types";
 
@@ -30,46 +32,56 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="bg-subtle grid flex-1 place-items-center px-4 py-16">
-      <div className="w-full max-w-sm">
+    <main className="relative grid flex-1 place-items-center overflow-hidden bg-night px-4 py-16 text-white">
+      <Ornament className="absolute -left-8 bottom-6 w-56 sm:w-64" />
+      <Ornament className="absolute -right-10 top-6 w-48 rotate-12 sm:w-56" />
+      <div className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-brand-600/30 blur-3xl motion-safe:animate-drift" aria-hidden />
+      <div className="pointer-events-none absolute -bottom-40 -right-32 size-96 rounded-full bg-lime/10 blur-3xl motion-safe:animate-drift motion-safe:[animation-delay:-6s]" aria-hidden />
+
+      <div className="relative w-full max-w-sm">
         <div className="flex justify-center">
-          <Logo />
+          <Logo night />
         </div>
-        <form onSubmit={onSubmit} className="mt-8 rounded-xl border border-line bg-white p-8 shadow-sm">
+        <form onSubmit={onSubmit} className="mt-8 rounded-3xl bg-night-2/90 p-7 shadow-2xl shadow-black/30 ring-1 ring-white/10 backdrop-blur-md sm:p-8">
           <h1 className="text-2xl font-bold">Selamat datang</h1>
-          <p className="mt-1 text-sm text-ink-soft">Masuk sebagai pengelola atau penghuni kos.</p>
+          <p className="mt-1 text-sm text-white/60">Login untuk pengelola dan penghuni SmartKos.</p>
 
-          {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+          {error && <p className="mt-5 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300 ring-1 ring-red-500/30">{error}</p>}
 
-          <label className="mt-6 block text-sm font-medium">
+          <label className="mt-6 block text-sm font-medium text-white/80">
             Email
-            <span className="mt-1.5 flex items-center gap-2 rounded-lg border border-line bg-white px-3 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
-              <Mail className="size-4 text-ink-soft" />
-              <input name="email" type="email" required autoComplete="email" className="w-full bg-transparent py-3 outline-none" />
+            <span className="mt-1.5 flex items-center gap-2 rounded-xl border border-white/12 bg-night px-3 focus-within:border-lime focus-within:ring-2 focus-within:ring-lime/20">
+              <Mail className="size-4 text-white/45" />
+              <input name="email" type="email" required autoComplete="email" className="w-full bg-transparent py-3 text-base text-white outline-none sm:text-sm" />
             </span>
           </label>
 
-          <label className="mt-4 block text-sm font-medium">
+          <label className="mt-4 block text-sm font-medium text-white/80">
             Password
-            <span className="mt-1.5 flex items-center gap-2 rounded-lg border border-line bg-white px-3 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
-              <LockKeyhole className="size-4 text-ink-soft" />
+            <span className="mt-1.5 flex items-center gap-2 rounded-xl border border-white/12 bg-night px-3 focus-within:border-lime focus-within:ring-2 focus-within:ring-lime/20">
+              <LockKeyhole className="size-4 text-white/45" />
               <input
                 name="password"
                 type="password"
                 required
                 autoComplete="current-password"
-                className="w-full bg-transparent py-3 outline-none"
+                className="w-full bg-transparent py-3 text-base text-white outline-none sm:text-sm"
               />
             </span>
           </label>
 
           <button
             disabled={loading}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-700 py-3 font-semibold text-white transition hover:bg-brand-800 disabled:opacity-60"
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-lime py-3 font-semibold text-night transition hover:brightness-95 disabled:opacity-60"
           >
             {loading && <Loader2 className="size-4 animate-spin" />} Login
           </button>
         </form>
+        <p className="mt-6 text-center text-sm">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-white/55 transition hover:text-white">
+            <ArrowLeft className="size-4" /> Kembali ke beranda
+          </Link>
+        </p>
       </div>
     </main>
   );

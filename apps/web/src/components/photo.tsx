@@ -4,8 +4,8 @@ import { ImageOff } from "lucide-react";
 export function Photo({ src, alt, className = "" }: { src: string | null | undefined; alt: string; className?: string }) {
   if (!src) {
     return (
-      <div className={`grid place-items-center bg-subtle ${className}`}>
-        <ImageOff className="size-8 text-line" strokeWidth={1.5} />
+      <div className={`grid place-items-center bg-white/5 ${className}`}>
+        <ImageOff className="size-8 text-white/20" strokeWidth={1.5} />
       </div>
     );
   }

@@ -6,9 +6,9 @@ export const genderShort = { PUTRA: "Putra", PUTRI: "Putri", CAMPUR: "Campur" } 
 
 /** Warna label gender ala Mamikos. */
 export const genderBadge = {
-  PUTRA: "bg-sky-50 text-sky-700 ring-sky-200",
-  PUTRI: "bg-pink-50 text-pink-700 ring-pink-200",
-  CAMPUR: "bg-brand-50 text-brand-700 ring-brand-200",
+  PUTRA: "bg-sky-400/10 text-sky-300 ring-sky-400/30",
+  PUTRI: "bg-pink-400/10 text-pink-300 ring-pink-400/30",
+  CAMPUR: "bg-lime/10 text-lime ring-lime/30",
 } as const;
 
 /** Rp1.400.000 tanpa spasi, gaya label harga marketplace. */

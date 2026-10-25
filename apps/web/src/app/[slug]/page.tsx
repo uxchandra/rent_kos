@@ -40,19 +40,19 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
   const rules = kos.rules?.split("\n").filter(Boolean) ?? [];
 
   return (
-    <>
-      <SiteHeader />
+    <div className="flex min-h-full flex-1 flex-col bg-night text-white">
+      <SiteHeader night />
 
       <main className="flex-1 pb-24 lg:pb-0">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Link href="/" className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-ink-soft hover:text-ink">
+          <Link href="/" className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-white/60 hover:text-white">
             <ChevronLeft className="size-4" /> Semua kos
           </Link>
           <h1 className="mt-3 text-3xl tracking-tight sm:text-[2.4rem]">
             <span className="font-bold">{kos.name}</span>
           </h1>
-          {kos.tagline && <p className="mt-1 text-lg text-ink-soft">{kos.tagline}</p>}
-          <p className="mb-6 mt-2 flex items-center gap-1 text-sm text-ink-soft">
+          {kos.tagline && <p className="mt-1 text-lg text-white/60">{kos.tagline}</p>}
+          <p className="mb-6 mt-2 flex items-center gap-1 text-sm text-white/60">
             <MapPin className="size-4" /> {kos.address}
           </p>
 
@@ -61,24 +61,24 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
           <div className="grid gap-x-20 lg:grid-cols-[1fr_370px]">
             <div className="min-w-0">
               {/* Ringkasan */}
-              <div className="border-b border-line py-8">
+              <div className="border-b border-white/10 py-8">
                 <h2 className="text-2xl font-bold">
                   {genderLabel[kos.gender]} di {district}
                 </h2>
-                <p className="mt-1 text-ink-soft">
+                <p className="mt-1 text-white/60">
                   {total} kamar · {kos.roomTypes.length} tipe kamar · {available > 0 ? `${available} kamar kosong` : "Saat ini penuh"}
                 </p>
               </div>
 
               {/* Pengelola */}
               {kos.managerName && (
-                <div className="flex items-center gap-4 border-b border-line py-6">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-lavender text-lg font-bold text-brand-700">
+                <div className="flex items-center gap-4 border-b border-white/10 py-6">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-lime text-lg font-bold text-night">
                     {kos.managerName[0]}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">Dikelola oleh {kos.managerName}</p>
-                    <p className="text-sm text-ink-soft">Pengelola {kos.name} · Tim SmartKos</p>
+                    <p className="text-sm text-white/60">Pengelola {kos.name} · Tim SmartKos</p>
                   </div>
                   {kos.whatsapp && (
                     <a
@@ -86,7 +86,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                       target="_blank"
                       rel="noopener"
                       aria-label="Chat pengelola"
-                      className="grid size-11 shrink-0 place-items-center rounded-full border border-line lg:hidden"
+                      className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 lg:hidden"
                     >
                       <MessageCircle className="size-5" />
                     </a>
@@ -95,36 +95,36 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               )}
 
               {/* Sorotan */}
-              <ul className="space-y-6 border-b border-line py-8">
+              <ul className="space-y-6 border-b border-white/10 py-8">
                 {nearest && (
                   <li className="flex gap-5">
-                    <MapPin className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} />
+                    <MapPin className="size-6 shrink-0 text-lime" strokeWidth={1.5} />
                     <div>
                       <p className="font-semibold">Dekat {nearest.name}</p>
-                      <p className="text-sm text-ink-soft">Sekitar {nearest.distance} dari kos.</p>
+                      <p className="text-sm text-white/60">Sekitar {nearest.distance} dari kos.</p>
                     </div>
                   </li>
                 )}
                 {kos.defaultDeposit > 0 && (
                   <li className="flex gap-5">
-                    <ShieldCheck className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} />
+                    <ShieldCheck className="size-6 shrink-0 text-lime" strokeWidth={1.5} />
                     <div>
                       <p className="font-semibold">Deposit {price(kos.defaultDeposit)}, bisa kembali utuh</p>
-                      <p className="text-sm text-ink-soft">Dikembalikan saat selesai sewa jika tidak ada kerusakan atau tunggakan.</p>
+                      <p className="text-sm text-white/60">Dikembalikan saat selesai sewa jika tidak ada kerusakan atau tunggakan.</p>
                     </div>
                   </li>
                 )}
                 <li className="flex gap-5">
-                  <CreditCard className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} />
+                  <CreditCard className="size-6 shrink-0 text-lime" strokeWidth={1.5} />
                   <div>
                     <p className="font-semibold">Bayar bulanan, tanpa ribet</p>
-                    <p className="text-sm text-ink-soft">Tagihan muncul di akun penghuni, cukup transfer dan upload bukti.</p>
+                    <p className="text-sm text-white/60">Tagihan muncul di akun penghuni, cukup transfer dan upload bukti.</p>
                   </div>
                 </li>
               </ul>
 
               {kos.description && (
-                <div className="space-y-4 border-b border-line py-8 leading-relaxed">
+                <div className="space-y-4 border-b border-white/10 py-8 leading-relaxed text-white/80">
                   {kos.description.split("\n").filter(Boolean).map((p) => (
                     <p key={p}>{p}</p>
                   ))}
@@ -132,11 +132,11 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               )}
 
               {/* Tipe kamar */}
-              <section id="kamar" className="scroll-mt-24 border-b border-line py-8">
+              <section id="kamar" className="scroll-mt-24 border-b border-white/10 py-8">
                 <h2 className="text-2xl font-bold">Pilih tipe kamar</h2>
                 <div className="mt-6 grid gap-6 sm:grid-cols-2">
                   {kos.roomTypes.map((type) => (
-                    <div key={type.id}>
+                    <div key={type.id} className="rounded-3xl bg-night-2 p-3 pb-4 ring-1 ring-white/6 sm:p-4">
                       <div className="relative">
                         <PhotoCarousel photos={type.photos.map((p) => p.url)} alt={`Kamar ${type.name}`} className="aspect-4/3 rounded-2xl" />
                         <span className={`absolute bottom-3 left-3 rounded-md px-2 py-0.5 text-[11px] font-bold ${tierOf(type.monthlyPrice).tag}`}>
@@ -146,26 +146,26 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                       <div className="mt-3 flex items-start justify-between gap-2">
                         <div>
                           <h3 className="font-semibold">Kamar {type.name}</h3>
-                          <p className="text-sm text-ink-soft">{type.size}</p>
+                          <p className="text-sm text-white/60">{type.size}</p>
                         </div>
                         <p className="text-right">
                           <span className="font-bold">{price(type.monthlyPrice)}</span>
-                          <span className="block text-xs text-ink-soft">per bulan</span>
+                          <span className="block text-xs text-white/60">per bulan</span>
                         </p>
                       </div>
-                      {type.description && <p className="mt-2 text-sm leading-relaxed text-ink-soft">{type.description}</p>}
+                      {type.description && <p className="mt-2 text-sm leading-relaxed text-white/60">{type.description}</p>}
                       <ul className="mt-3 flex flex-wrap gap-1.5">
                         {type.facilities?.map((f) => (
-                          <li key={f} className="rounded-md border border-line px-2 py-1 text-xs">
+                          <li key={f} className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/75">
                             {f}
                           </li>
                         ))}
                       </ul>
                       <div className="mt-4 flex items-center justify-between">
-                        <span className={`text-sm font-semibold ${type.availableRooms === 0 ? "text-ink-soft" : type.availableRooms <= 2 ? "text-red-600" : "text-brand-700"}`}>
+                        <span className={`text-sm font-semibold ${type.availableRooms === 0 ? "text-white/45" : type.availableRooms <= 2 ? "text-lime" : "text-white/80"}`}>
                           {type.availableRooms === 0 ? "Penuh" : `Sisa ${type.availableRooms} dari ${type.totalRooms} kamar`}
                         </span>
-                        <Link href={`?tipe=${type.id}#booking`} scroll={false} className="rounded-full border border-brand-600 px-4 py-1.5 text-sm font-semibold text-brand-600 hover:bg-brand-600 hover:text-white">
+                        <Link href={`?tipe=${type.id}#booking`} scroll={false} className="rounded-full border border-lime px-4 py-1.5 text-sm font-semibold text-lime transition hover:bg-lime hover:text-night">
                           Pilih kamar ini
                         </Link>
                       </div>
@@ -176,14 +176,14 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
 
               {/* Fasilitas */}
               {kos.facilities && kos.facilities.length > 0 && (
-                <section className="border-b border-line py-8">
+                <section className="border-b border-white/10 py-8">
                   <h2 className="text-2xl font-bold">Fasilitas bersama</h2>
                   <ul className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
                     {kos.facilities.map((f) => {
                       const Icon = facilityIcon(f);
                       return (
                         <li key={f} className="flex items-center gap-4">
-                          <Icon className="size-6 shrink-0 text-brand-600" strokeWidth={1.5} /> {f}
+                          <Icon className="size-6 shrink-0 text-lime" strokeWidth={1.5} /> {f}
                         </li>
                       );
                     })}
@@ -192,13 +192,13 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
               )}
 
               {/* Lokasi */}
-              <section id="lokasi" className="scroll-mt-24 border-b border-line py-8">
+              <section id="lokasi" className="scroll-mt-24 border-b border-white/10 py-8">
                 <h2 className="text-2xl font-bold">Lokasi</h2>
-                <p className="mt-1 text-ink-soft">{kos.address}</p>
+                <p className="mt-1 text-white/60">{kos.address}</p>
                 {hasCoords && (
                   <iframe
                     title={`Peta ${kos.name}`}
-                    className="mt-6 h-80 w-full rounded-xl border border-line"
+                    className="mt-6 h-80 w-full rounded-xl border border-white/10"
                     loading="lazy"
                     src={`https://www.openstreetmap.org/export/embed.html?bbox=${kos.longitude! - 0.008},${kos.latitude! - 0.005},${kos.longitude! + 0.008},${kos.latitude! + 0.005}&layer=mapnik&marker=${kos.latitude},${kos.longitude}`}
                   />
@@ -210,15 +210,15 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                       return (
                         <li key={place.name} className="flex items-center justify-between gap-3 text-sm">
                           <span className="flex items-center gap-3">
-                            <Icon className="size-5 shrink-0 text-ink-soft" strokeWidth={1.5} /> {place.name}
+                            <Icon className="size-5 shrink-0 text-white/60" strokeWidth={1.5} /> {place.name}
                           </span>
-                          <span className="shrink-0 text-ink-soft">{place.distance}</span>
+                          <span className="shrink-0 text-white/60">{place.distance}</span>
                         </li>
                       );
                     })}
                   </ul>
                 )}
-                <a href={mapsUrl} target="_blank" rel="noopener" className="mt-5 inline-block text-sm font-semibold underline underline-offset-4">
+                <a href={mapsUrl} target="_blank" rel="noopener" className="mt-5 inline-block text-sm font-semibold text-lime underline underline-offset-4">
                   Buka di Google Maps
                 </a>
               </section>
@@ -230,7 +230,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                   <ul className="mt-5 space-y-3">
                     {rules.map((r) => (
                       <li key={r} className="flex gap-3">
-                        <span className="mt-2.5 size-1 shrink-0 rounded-full bg-ink" /> {r}
+                        <span className="mt-2.5 size-1 shrink-0 rounded-full bg-lime" /> {r}
                       </li>
                     ))}
                   </ul>
@@ -241,7 +241,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
             {/* Kartu pemesanan */}
             <aside className="hidden pb-10 pt-8 lg:block">
               <div className="sticky top-28 space-y-4">
-                <Suspense fallback={<div className="h-96 rounded-xl border border-line" />}>
+                <Suspense fallback={<div className="h-96 rounded-xl border border-white/10" />}>
                   <BookingCard roomTypes={kos.roomTypes} deposit={kos.defaultDeposit} whatsapp={kos.whatsapp} kosName={kos.name} slug={kos.slug} />
                 </Suspense>
                 {kos.whatsapp && (
@@ -249,7 +249,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
                     href={waLink(kos.whatsapp, `Halo, saya mau tanya tentang ${kos.name}.`)}
                     target="_blank"
                     rel="noopener"
-                    className="flex items-center justify-center gap-2 rounded-full border border-line py-3 text-sm font-semibold hover:border-brand-600"
+                    className="flex items-center justify-center gap-2 rounded-full border border-white/10 py-3 text-sm font-semibold hover:border-lime"
                   >
                     <MessageCircle className="size-4" /> Tanya pengelola dulu
                   </a>
@@ -260,7 +260,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
         </div>
 
         {others.length > 0 && (
-          <section className="border-t border-line">
+          <section className="border-t border-white/10">
             <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
               <h2 className="text-2xl font-bold">Cabang SmartKos lainnya</h2>
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -286,6 +286,6 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
 
       <SiteFooter />
       <WhatsAppFab phone={kos.whatsapp ?? undefined} message={"Halo, saya mau tanya tentang " + kos.name + "."} raised />
-    </>
+    </div>
   );
 }
