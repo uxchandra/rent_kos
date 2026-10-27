@@ -88,27 +88,31 @@ enum KosGender {
 }
 
 model Kos {
-  id             Int       @id @default(autoincrement())
-  slug           String    @unique @db.VarChar(60) // smartkos.com/{slug}
-  name           String    @db.VarChar(100)
-  tagline        String?   @db.VarChar(200)
-  description    String?   @db.Text
-  address        String    @db.VarChar(255)
-  city           String    @db.VarChar(80)
-  province       String?   @db.VarChar(80)
-  latitude       Decimal?  @db.Decimal(10, 7)
-  longitude      Decimal?  @db.Decimal(10, 7)
-  gender         KosGender @default(CAMPUR)
-  facilities     Json? // string[] fasilitas umum
-  rules          String?   @db.Text
-  nearby         Json? // [{ name, distance }] tempat terdekat
-  whatsapp       String?   @db.VarChar(20)
-  coverImage     String?   @map("cover_image")
-  defaultDeposit Int       @default(0) @map("default_deposit")
-  billingDueDays Int       @default(7) @map("billing_due_days") // jatuh tempo X hari setelah tagihan terbit
-  isPublished    Boolean   @default(false) @map("is_published")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id              Int       @id @default(autoincrement())
+  slug            String    @unique @db.VarChar(60) // smartkos.com/{slug}
+  name            String    @db.VarChar(100)
+  tagline         String?   @db.VarChar(200)
+  description     String?   @db.Text
+  address         String    @db.VarChar(255)
+  city            String    @db.VarChar(80)
+  province        String?   @db.VarChar(80)
+  latitude        Decimal?  @db.Decimal(10, 7)
+  longitude       Decimal?  @db.Decimal(10, 7)
+  gender          KosGender @default(CAMPUR)
+  facilities      Json? // string[] fasilitas umum
+  rules           String?   @db.Text
+  nearby          Json? // [{ name, distance }] tempat terdekat
+  whatsapp        String?   @db.VarChar(20)
+  coverImage      String?   @map("cover_image")
+  area            String?   @db.VarChar(80) // nama daerah, judul kartu cabang di beranda (misal "Madiun")
+  areaImage       String?   @map("area_image") // foto ikon daerah (landmark), untuk kartu cabang
+  areaImageCredit String?   @map("area_image_credit") @db.VarChar(200) // kredit foto, wajib untuk lisensi CC BY
+  defaultDeposit  Int       @default(0) @map("default_deposit")
+  billingDueDays  Int       @default(7) @map("billing_due_days") // jatuh tempo X hari setelah tagihan terbit
+  isPublished     Boolean   @default(false) @map("is_published")
+  comingSoon      Boolean   @default(false) @map("coming_soon") // tampil di website, tapi belum bisa disewa
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   photos       KosPhoto[]
   admins       KosAdmin[]

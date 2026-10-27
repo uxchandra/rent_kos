@@ -56,7 +56,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           ? branches.map((b) => ({
               title: b.name.replace("SmartKos ", ""),
               url: `/admin/kos/${b.id}`,
-              meta: b.isPublished ? `${b.availableRooms} kosong` : "draf",
+              meta: !b.isPublished ? "draf" : b.comingSoon ? "segera" : `${b.availableRooms} kosong`,
             }))
           : []),
         ...(isOwner ? [{ title: "Tambah cabang", url: "/admin/kos/baru", exact: true }] : []),

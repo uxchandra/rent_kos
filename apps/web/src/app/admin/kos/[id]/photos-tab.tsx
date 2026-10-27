@@ -12,6 +12,7 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
   const { toast, confirm } = useFeedback();
   const [busy, setBusy] = useState<string | null>(null);
   const coverInput = useRef<HTMLInputElement>(null);
+  const areaInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
 
   async function run(key: string, fn: () => Promise<unknown>, success: string) {
@@ -29,6 +30,9 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
 
   const onCover = (files: FileList | null) =>
     files?.[0] && run("cover", () => uploadPhotos(`/admin/kos/${kos.id}/cover`, [files[0]], "photo"), "Cover diperbarui");
+
+  const onArea = (files: FileList | null) =>
+    files?.[0] && run("area", () => uploadPhotos(`/admin/kos/${kos.id}/area-image`, [files[0]], "photo"), "Foto daerah diperbarui");
 
   const onGallery = (files: FileList | null) =>
     files?.length && run("gallery", () => uploadPhotos(`/admin/kos/${kos.id}/photos`, [...files]), `${files.length} foto ditambahkan`);
@@ -58,6 +62,42 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
           </Button>
         </div>
         <input ref={coverInput} type="file" accept="image/*" hidden onChange={(e) => (onCover(e.target.files), (e.target.value = ""))} />
+      </Card>
+
+      <Card>
+        <div className="mb-4">
+          <h2 className="font-bold">Foto ikon daerah</h2>
+          <p className="text-sm text-ink-soft">
+            Landmark kota atau daerah (misal Tugu Jogja) untuk kartu cabang di beranda. Kalau kosong, kartu memakai foto cover. Isi kredit fotonya di tab Info.
+          </p>
+        </div>
+        <div className="relative overflow-hidden rounded-xl bg-subtle">
+          {kos.areaImage ? (
+            <img src={kos.areaImage} alt="Foto daerah" className="aspect-5/4 w-full object-cover sm:aspect-video" />
+          ) : (
+            <div className="grid aspect-video place-items-center text-sm text-ink-soft">Belum ada foto daerah</div>
+          )}
+          <div className="absolute bottom-3 right-3 flex gap-2">
+            {kos.areaImage && (
+              <Button
+                variant="secondary"
+                loading={busy === "area-del"}
+                onClick={async () => {
+                  if (await confirm({ title: "Hapus foto daerah?", text: "Kartu cabang di beranda akan memakai foto cover.", confirmLabel: "Hapus", danger: true }))
+                    run("area-del", () => api(`/admin/kos/${kos.id}/area-image`, { method: "DELETE" }), "Foto daerah dihapus");
+                }}
+                className="shadow"
+                aria-label="Hapus foto daerah"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            )}
+            <Button variant="secondary" loading={busy === "area"} onClick={() => areaInput.current?.click()} className="shadow">
+              <ImagePlus className="size-4" /> {kos.areaImage ? "Ganti foto" : "Upload foto"}
+            </Button>
+          </div>
+        </div>
+        <input ref={areaInput} type="file" accept="image/*" hidden onChange={(e) => (onArea(e.target.files), (e.target.value = ""))} />
       </Card>
 
       <Card>

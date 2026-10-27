@@ -45,9 +45,9 @@ export default function AdminKosListPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold">{k.name}</p>
                   <span
-                    className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${k.isPublished ? "bg-mint text-mint-ink" : "bg-amber-50 text-amber-700"}`}
+                    className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${!k.isPublished ? "bg-amber-50 text-amber-700" : k.comingSoon ? "bg-lavender text-brand-700" : "bg-mint text-mint-ink"}`}
                   >
-                    {k.isPublished ? "Tayang" : "Draf"}
+                    {!k.isPublished ? "Draf" : k.comingSoon ? "Segera hadir" : "Tayang"}
                   </span>
                 </div>
                 <p className="text-sm text-ink-soft">
@@ -95,8 +95,8 @@ export default function AdminKosListPage() {
                 <TableCell className="text-right tabular-nums">{k.occupiedRooms}</TableCell>
                 <TableCell className="text-right font-semibold tabular-nums text-mint-ink">{k.availableRooms}</TableCell>
                 <TableCell>
-                  <span className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${k.isPublished ? "bg-mint text-mint-ink" : "bg-amber-50 text-amber-700"}`}>
-                    {k.isPublished ? "Tayang" : "Draf"}
+                  <span className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${!k.isPublished ? "bg-amber-50 text-amber-700" : k.comingSoon ? "bg-lavender text-brand-700" : "bg-mint text-mint-ink"}`}>
+                    {!k.isPublished ? "Draf" : k.comingSoon ? "Segera hadir" : "Tayang"}
                   </span>
                 </TableCell>
                 <TableCell className="w-8">

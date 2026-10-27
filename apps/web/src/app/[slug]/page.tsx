@@ -11,14 +11,18 @@ import { GalleryGrid } from "@/components/gallery";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { BookingCard, MobileBookingBar } from "@/components/booking-card";
 import { getKosBySlug, getKosList } from "@/lib/public-api";
-import { genderLabel, price, waLink } from "@/lib/format";
+import { price, waLink } from "@/lib/format";
 import { facilityIcon, placeIcon } from "@/lib/icons";
 import { tierOf } from "@/lib/tiers";
+import { site } from "@/lib/site";
 
 export async function generateMetadata({ params }: PageProps<"/[slug]">): Promise<Metadata> {
   const kos = await getKosBySlug((await params).slug);
   if (!kos) return { title: "Kos tidak ditemukan" };
-  return { title: `${kos.name}, ${kos.city}`, description: kos.tagline ?? undefined };
+  return {
+    title: `${kos.name}, ${kos.city}`,
+    description: kos.tagline ?? undefined,
+  };
 }
 
 export default async function KosPage({ params }: PageProps<"/[slug]">) {
@@ -26,7 +30,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
   const [kos, allKos] = await Promise.all([getKosBySlug(slug), getKosList()]);
   if (!kos) notFound();
 
-  const others = allKos.filter((k) => k.slug !== kos.slug);
+  const others = allKos.filter((k) => k.slug !== kos.slug && !k.comingSoon);
   const minPrice = kos.roomTypes.length ? Math.min(...kos.roomTypes.map((t) => t.monthlyPrice)) : null;
   const total = kos.roomTypes.reduce((s, t) => s + t.totalRooms, 0);
   const available = kos.roomTypes.reduce((s, t) => s + t.availableRooms, 0);
@@ -43,11 +47,12 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
     <div className="flex min-h-full flex-1 flex-col bg-night text-white">
       <SiteHeader night />
 
-      <main className="flex-1 pb-24 lg:pb-0">
+      <main className={`flex-1 lg:pb-0 ${kos.comingSoon ? "pb-10" : "pb-24"}`}>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Link href="/" className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-white/60 hover:text-white">
             <ChevronLeft className="size-4" /> Semua kos
           </Link>
+          {kos.comingSoon && <span className="mt-4 block w-fit rounded-full bg-lime px-3 py-1 text-xs font-bold text-night">Segera hadir</span>}
           <h1 className="mt-3 text-3xl tracking-tight sm:text-[2.4rem]">
             <span className="font-bold">{kos.name}</span>
           </h1>
@@ -56,26 +61,47 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
             <MapPin className="size-4" /> {kos.address}
           </p>
 
-          <GalleryGrid photos={photos} name={kos.name} />
+          {/* Cabang yang belum buka biasanya baru punya foto sampul, jadi tidak pakai grid galeri */}
+          {kos.comingSoon && photos.length < 3 ? (
+            // eslint-disable-next-line @next/next/no-img-element -- foto dari /uploads
+            photos[0] && <img src={photos[0].url} alt={kos.name} className="aspect-4/3 w-full rounded-2xl object-cover sm:aspect-21/9" />
+          ) : (
+            <GalleryGrid photos={photos} name={kos.name} />
+          )}
 
           <div className="grid gap-x-20 lg:grid-cols-[1fr_370px]">
             <div className="min-w-0">
               {/* Ringkasan */}
               <div className="border-b border-white/10 py-8">
                 <h2 className="text-2xl font-bold">
-                  {genderLabel[kos.gender]} di {district}
+                  Kos di {district}
                 </h2>
                 <p className="mt-1 text-white/60">
-                  {total} kamar · {kos.roomTypes.length} tipe kamar · {available > 0 ? `${available} kamar kosong` : "Saat ini penuh"}
+                  {kos.comingSoon
+                    ? `${total} kamar · sedang disiapkan`
+                    : `${total} kamar · ${kos.roomTypes.length} tipe kamar · ${available > 0 ? `${available} kamar kosong` : "Saat ini penuh"}`}
                 </p>
               </div>
+
+              {kos.comingSoon && (
+                <div className="mt-8 rounded-3xl bg-night-2 p-6 ring-1 ring-lime/30">
+                  <p className="text-lg font-bold">Cabang ini segera dibuka</p>
+                  <p className="mt-1 text-white/65">Kamarnya belum bisa diajukan sewa. Mau dikabari begitu sudah bisa disewa?</p>
+                  <a
+                    href={waLink(kos.whatsapp ?? site.whatsapp, `Halo, tolong kabari saya kalau ${kos.name} sudah bisa disewa.`)}
+                    target="_blank"
+                    rel="noopener"
+                    className="mt-5 inline-flex items-center gap-2 rounded-full bg-lime px-5 py-3 text-sm font-semibold text-night transition hover:brightness-95"
+                  >
+                    <MessageCircle className="size-4" /> Kabari saya lewat WhatsApp
+                  </a>
+                </div>
+              )}
 
               {/* Pengelola */}
               {kos.managerName && (
                 <div className="flex items-center gap-4 border-b border-white/10 py-6">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-lime text-lg font-bold text-night">
-                    {kos.managerName[0]}
-                  </span>
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-lime text-lg font-bold text-night">{kos.managerName[0]}</span>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">Dikelola oleh {kos.managerName}</p>
                     <p className="text-sm text-white/60">Pengelola {kos.name} · Tim SmartKos</p>
@@ -125,54 +151,65 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
 
               {kos.description && (
                 <div className="space-y-4 border-b border-white/10 py-8 leading-relaxed text-white/80">
-                  {kos.description.split("\n").filter(Boolean).map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
+                  {kos.description
+                    .split("\n")
+                    .filter(Boolean)
+                    .map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
                 </div>
               )}
 
               {/* Tipe kamar */}
-              <section id="kamar" className="scroll-mt-24 border-b border-white/10 py-8">
-                <h2 className="text-2xl font-bold">Pilih tipe kamar</h2>
-                <div className="mt-6 grid gap-6 sm:grid-cols-2">
-                  {kos.roomTypes.map((type) => (
-                    <div key={type.id} className="rounded-3xl bg-night-2 p-3 pb-4 ring-1 ring-white/6 sm:p-4">
-                      <div className="relative">
-                        <PhotoCarousel photos={type.photos.map((p) => p.url)} alt={`Kamar ${type.name}`} className="aspect-4/3 rounded-2xl" />
-                        <span className={`absolute bottom-3 left-3 rounded-md px-2 py-0.5 text-[11px] font-bold ${tierOf(type.monthlyPrice).tag}`}>
-                          SmartKos {tierOf(type.monthlyPrice).label}
-                        </span>
-                      </div>
-                      <div className="mt-3 flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="font-semibold">Kamar {type.name}</h3>
-                          <p className="text-sm text-white/60">{type.size}</p>
+              {!kos.comingSoon && (
+                <section id="kamar" className="scroll-mt-24 border-b border-white/10 py-8">
+                  <h2 className="text-2xl font-bold">Pilih tipe kamar</h2>
+                  <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                    {kos.roomTypes.map((type) => (
+                      <div key={type.id} className="rounded-3xl bg-night-2 p-3 pb-4 ring-1 ring-white/6 sm:p-4">
+                        <div className="relative">
+                          <PhotoCarousel photos={type.photos.map((p) => p.url)} alt={`Kamar ${type.name}`} className="aspect-4/3 rounded-2xl" />
+                          <span className={`absolute bottom-3 left-3 rounded-md px-2 py-0.5 text-[11px] font-bold ${tierOf(type.monthlyPrice).tag}`}>
+                            SmartKos {tierOf(type.monthlyPrice).label}
+                          </span>
                         </div>
-                        <p className="text-right">
-                          <span className="font-bold">{price(type.monthlyPrice)}</span>
-                          <span className="block text-xs text-white/60">per bulan</span>
-                        </p>
+                        <div className="mt-3 flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="font-semibold">Kamar {type.name}</h3>
+                            <p className="text-sm text-white/60">{type.size}</p>
+                          </div>
+                          <p className="text-right">
+                            <span className="font-bold">{price(type.monthlyPrice)}</span>
+                            <span className="block text-xs text-white/60">per bulan</span>
+                          </p>
+                        </div>
+                        {type.description && <p className="mt-2 text-sm leading-relaxed text-white/60">{type.description}</p>}
+                        <ul className="mt-3 flex flex-wrap gap-1.5">
+                          {type.facilities?.map((f) => (
+                            <li key={f} className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/75">
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-4 flex items-center justify-between">
+                          <span
+                            className={`text-sm font-semibold ${type.availableRooms === 0 ? "text-white/45" : type.availableRooms <= 2 ? "text-lime" : "text-white/80"}`}
+                          >
+                            {type.availableRooms === 0 ? "Penuh" : `Sisa ${type.availableRooms} dari ${type.totalRooms} kamar`}
+                          </span>
+                          <Link
+                            href={`?tipe=${type.id}#booking`}
+                            scroll={false}
+                            className="rounded-full border border-lime px-4 py-1.5 text-sm font-semibold text-lime transition hover:bg-lime hover:text-night"
+                          >
+                            Pilih kamar ini
+                          </Link>
+                        </div>
                       </div>
-                      {type.description && <p className="mt-2 text-sm leading-relaxed text-white/60">{type.description}</p>}
-                      <ul className="mt-3 flex flex-wrap gap-1.5">
-                        {type.facilities?.map((f) => (
-                          <li key={f} className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/75">
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-4 flex items-center justify-between">
-                        <span className={`text-sm font-semibold ${type.availableRooms === 0 ? "text-white/45" : type.availableRooms <= 2 ? "text-lime" : "text-white/80"}`}>
-                          {type.availableRooms === 0 ? "Penuh" : `Sisa ${type.availableRooms} dari ${type.totalRooms} kamar`}
-                        </span>
-                        <Link href={`?tipe=${type.id}#booking`} scroll={false} className="rounded-full border border-lime px-4 py-1.5 text-sm font-semibold text-lime transition hover:bg-lime hover:text-night">
-                          Pilih kamar ini
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Fasilitas */}
               {kos.facilities && kos.facilities.length > 0 && (
@@ -239,7 +276,7 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
             </div>
 
             {/* Kartu pemesanan */}
-            <aside className="hidden pb-10 pt-8 lg:block">
+            <aside className={`hidden pb-10 pt-8 ${kos.comingSoon ? "" : "lg:block"}`}>
               <div className="sticky top-28 space-y-4">
                 <Suspense fallback={<div className="h-96 rounded-xl border border-white/10" />}>
                   <BookingCard roomTypes={kos.roomTypes} deposit={kos.defaultDeposit} whatsapp={kos.whatsapp} kosName={kos.name} slug={kos.slug} />
@@ -273,19 +310,21 @@ export default async function KosPage({ params }: PageProps<"/[slug]">) {
         )}
       </main>
 
-      <Suspense>
-        <MobileBookingBar
-          roomTypes={kos.roomTypes}
-          deposit={kos.defaultDeposit}
-          whatsapp={kos.whatsapp}
-          kosName={kos.name}
-          slug={kos.slug}
-          minPrice={minPrice}
-        />
-      </Suspense>
+      {!kos.comingSoon && (
+        <Suspense>
+          <MobileBookingBar
+            roomTypes={kos.roomTypes}
+            deposit={kos.defaultDeposit}
+            whatsapp={kos.whatsapp}
+            kosName={kos.name}
+            slug={kos.slug}
+            minPrice={minPrice}
+          />
+        </Suspense>
+      )}
 
       <SiteFooter />
-      <WhatsAppFab phone={kos.whatsapp ?? undefined} message={"Halo, saya mau tanya tentang " + kos.name + "."} raised />
+      <WhatsAppFab phone={kos.whatsapp ?? undefined} message={"Halo, saya mau tanya tentang " + kos.name + "."} raised={!kos.comingSoon} />
     </div>
   );
 }

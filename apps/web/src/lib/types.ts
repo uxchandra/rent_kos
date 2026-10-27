@@ -10,6 +10,12 @@ export type KosSummary = {
   address: string;
   gender: KosGender;
   coverImage: string | null;
+  /** Nama daerah + foto landmark-nya, untuk kartu cabang di beranda. */
+  area: string | null;
+  areaImage: string | null;
+  areaImageCredit: string | null;
+  /** Tampil di website, tapi belum bisa disewa. */
+  comingSoon: boolean;
   facilities: string[] | null;
   latitude: number | null;
   longitude: number | null;

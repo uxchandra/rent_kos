@@ -24,7 +24,7 @@ import { Glow } from "@/components/landing/glow";
 import { HOUSE_CLIP, HouseBadge, HouseFrame } from "@/components/landing/house-frame";
 import { RevealObserver } from "@/components/landing/reveal-observer";
 import { getKosList, getRoomListings } from "@/lib/public-api";
-import { genderLabel, price, waLink } from "@/lib/format";
+import { price, waLink } from "@/lib/format";
 import { site } from "@/lib/site";
 
 // Fasilitas umum yang tercatat di data cabang (lihat menu Cabang di admin).
@@ -61,7 +61,9 @@ export default async function HomePage() {
   const [rooms, kosList] = await Promise.all([getRoomListings(), getKosList()]);
   const featured = [...rooms].sort((a, b) => b.availableRooms - a.availableRooms);
   const showcase = featured.find((r) => r.photos.length) ?? featured[0];
-  const heroPhoto = kosList.find((k) => k.coverImage)?.coverImage ?? "/uploads/seed/about-room.jpg";
+  const openKos = kosList.filter((k) => !k.comingSoon);
+  const comingSoon = kosList.filter((k) => k.comingSoon);
+  const heroPhoto = openKos.find((k) => k.coverImage)?.coverImage ?? "/uploads/seed/about-room.jpg";
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-night">
@@ -88,7 +90,7 @@ export default async function HomePage() {
                 </a>
               </div>
               <ul data-reveal style={delay(320)} className="mx-auto mt-8 grid max-w-md grid-cols-3 gap-2 sm:gap-3 lg:mx-0">
-                {kosList.slice(0, 3).map((k) => (
+                {openKos.slice(0, 3).map((k) => (
                   <li key={k.slug}>
                     <Link href={`/${k.slug}`} className="block rounded-2xl border border-white/10 bg-white/4 p-3 transition hover:border-lime/50">
                       <span className="block text-xs text-white/55">{k.city}</span>
@@ -127,34 +129,27 @@ export default async function HomePage() {
             </div>
 
             {/* HP: geser ke samping; md ke atas: grid */}
-            <div data-reveal style={delay(100)} className="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 pt-1 md:mx-0 md:mt-10 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 lg:grid-cols-3">
-              {kosList.map((k) => (
+            <div data-reveal style={delay(100)} className={`no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 pt-1 md:mx-0 md:mt-10 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 ${openKos.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+              {openKos.map((k) => (
                 <Link
                   key={k.slug}
                   href={`/${k.slug}`}
                   className="group flex w-[80%] shrink-0 snap-center flex-col rounded-[1.75rem] bg-night-2 p-3 ring-1 ring-white/8 transition duration-300 hover:-translate-y-1 hover:ring-lime/40 md:w-auto"
                 >
                   <div className="relative aspect-5/4 overflow-hidden rounded-b-[1.4rem]" style={{ clipPath: HOUSE_CLIP }}>
-                    <img src={k.coverImage ?? ""} alt={k.name} className="size-full object-cover transition duration-500 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-linear-to-t from-night-2/70 via-transparent to-transparent" />
-                    <span className="absolute bottom-3 left-3 rounded-full bg-night/80 px-3 py-1 text-xs font-semibold ring-1 ring-white/15 backdrop-blur">{genderLabel[k.gender]}</span>
+                    {/* Foto landmark daerah; cabang tanpa foto daerah memakai foto cover */}
+                    <img src={k.areaImage ?? k.coverImage ?? ""} alt={k.area ?? k.city} className="size-full object-cover transition duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-linear-to-t from-night-2/80 via-transparent to-transparent" />
                   </div>
-                  <div className="flex flex-1 flex-col px-2 pb-1 pt-4">
-                    <div className="flex items-center justify-between gap-3 text-sm">
-                      <p className="flex items-center gap-1 text-lime">
-                        <MapPin className="size-3.5" /> {k.city}
-                      </p>
-                      <span className="text-xs text-white/50">{k.availableRooms > 0 ? `${k.availableRooms} kamar kosong` : "Penuh"}</span>
-                    </div>
-                    <h3 className="mt-1 text-xl font-bold">{k.name}</h3>
-                    {k.tagline && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-white/55">{k.tagline}</p>}
-                    <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-                      <p className="w-full border-t border-dashed border-white/12 pt-4">
-                        <span className="block text-xs text-white/50">Mulai dari</span>
-                        <span className="text-lg font-bold text-lime">{k.minPrice ? price(k.minPrice) : "-"}</span>
-                        <span className="text-sm text-white/50">/bln</span>
-                      </p>
-                      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/8 transition group-hover:bg-lime group-hover:text-night">
+                  {k.areaImage && k.areaImageCredit && <p className="mt-1.5 px-2 text-[10px] leading-snug text-white/35">{k.areaImageCredit}</p>}
+                  <div className="flex flex-1 flex-col px-2 pb-1 pt-3">
+                    <h3 className="text-2xl font-bold tracking-tight">{k.area ?? k.city}</h3>
+                    <p className="mt-2 flex gap-1.5 text-sm leading-relaxed text-white/60">
+                      <MapPin className="mt-0.5 size-4 shrink-0 text-lime" /> {k.address}
+                    </p>
+                    <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+                      <span className="w-full border-t border-dashed border-white/12 pt-4 text-sm font-semibold text-white/80 transition group-hover:text-lime">Lihat cabang</span>
+                      <span className="mt-4 grid size-11 shrink-0 place-items-center rounded-full bg-white/8 transition group-hover:bg-lime group-hover:text-night">
                         <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
                       </span>
                     </div>
@@ -162,6 +157,38 @@ export default async function HomePage() {
                 </Link>
               ))}
             </div>
+
+            {/* Cabang yang sedang disiapkan: kartu ringkas */}
+            {comingSoon.length > 0 && (
+              <div data-reveal style={delay(160)} className="mt-12">
+                <h3 className="text-center text-lg font-semibold md:text-left">
+                  Segera <Lime>hadir</Lime>
+                </h3>
+                <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {comingSoon.map((k) => (
+                    <li key={k.slug}>
+                      <Link
+                        href={`/${k.slug}`}
+                        className="group flex items-center gap-4 rounded-2xl border border-dashed border-white/15 p-3 pr-4 transition hover:border-lime/50"
+                      >
+                        {(k.areaImage ?? k.coverImage) ? (
+                          <img src={k.areaImage ?? k.coverImage ?? ""} alt="" className="size-16 shrink-0 rounded-xl object-cover opacity-70 grayscale-[40%] transition group-hover:opacity-100" />
+                        ) : (
+                          <span className="size-16 shrink-0 rounded-xl bg-white/5" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold">{k.area ?? k.name.replace("SmartKos ", "")}</p>
+                          <p className="flex items-center gap-1 truncate text-sm text-white/55">
+                            <MapPin className="size-3.5 shrink-0" /> <span className="truncate">{k.address}</span>
+                          </p>
+                        </div>
+                        <ArrowRight className="size-4 shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-lime" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </section>
 

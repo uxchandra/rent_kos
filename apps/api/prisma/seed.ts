@@ -15,192 +15,287 @@ type SeedRoomType = {
   rooms: { number: string; floor: number; status?: "AVAILABLE" | "OCCUPIED" | "MAINTENANCE" }[];
 };
 
-const kosData = [
+/**
+ * Nomor kamar berurutan per lantai (101–110, 201–...). `start` untuk melanjutkan nomor dari tipe sebelumnya,
+ * `occupied` = berapa kamar pertama yang sudah terisi.
+ */
+const rooms = (count: number, { start = 1, occupied = 0 } = {}): SeedRoomType["rooms"] =>
+  Array.from({ length: count }, (_, i) => {
+    const n = start + i;
+    const floor = Math.floor((n - 1) / 10) + 1;
+    return { number: `${floor}${String(((n - 1) % 10) + 1).padStart(2, "0")}`, floor, status: i < occupied ? ("OCCUPIED" as const) : ("AVAILABLE" as const) };
+  });
+
+const commonFacilities = ["WiFi 24 jam", "Parkir motor", "CCTV 24 jam", "Dapur bersama", "Ruang tamu", "Penjaga kos"];
+const commonRules =
+  "Tamu lawan jenis hanya sampai ruang tamu.\nTamu menginap wajib izin pengelola.\nDilarang merokok di dalam kamar.\nMenjaga kebersihan area bersama setelah dipakai.";
+
+// Data cabang SmartKos (jumlah kamar sesuai data owner, 27 Okt 2026).
+// Alamat lengkap, koordinat peta, harga, dan foto masih sementara: lengkapi lewat admin panel.
+const kosData: {
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  address: string;
+  city: string;
+  province: string | null;
+  gender: "PUTRA" | "PUTRI" | "CAMPUR";
+  whatsapp: string;
+  defaultDeposit: number;
+  coverImage: string;
+  /** Judul kartu cabang di beranda + foto landmark daerahnya. */
+  area: string;
+  areaImage?: string;
+  areaImageCredit?: string;
+  comingSoon?: boolean;
+  photos: { url: string; caption: string }[];
+  facilities: string[];
+  rules: string;
+  admin?: { name: string; email: string; phone: string };
+  types: SeedRoomType[];
+}[] = [
+  {
+    slug: "cikarang",
+    name: "SmartKos Meadow Lippo Cikarang",
+    tagline: "Kos di kawasan Meadow, Lippo Cikarang",
+    description: "SmartKos Meadow Lippo Cikarang punya 11 kamar di kawasan Lippo Cikarang, Kabupaten Bekasi.",
+    address: "Meadow, Lippo Cikarang, Kabupaten Bekasi",
+    city: "Cikarang",
+    province: "Jawa Barat",
+    gender: "CAMPUR",
+    whatsapp: "6281200000003",
+    defaultDeposit: 500_000,
+    coverImage: img("bandung-cover"),
+    area: "Lippo Cikarang",
+    areaImage: img("area-lippo-cikarang"),
+    areaImageCredit: "Foto: Medelam, CC BY-SA 4.0, Wikimedia Commons (dipotong)",
+    photos: [
+      { url: img("bandung-living"), caption: "Ruang bersama" },
+      { url: img("bandung-kitchen"), caption: "Dapur bersama" },
+      { url: img("bandung-dlx-1"), caption: "Kamar" },
+    ],
+    facilities: commonFacilities,
+    rules: commonRules,
+    admin: { name: "Dimas Prasetyo", email: "admin.cikarang@smartkos.id", phone: "6281200000003" },
+    types: [
+      {
+        name: "Standar",
+        description: "Kamar dengan kasur, lemari, dan meja.",
+        monthlyPrice: 1_200_000,
+        size: "3 x 3 m",
+        facilities: ["Kasur", "Lemari", "Meja & kursi", "Kipas angin"],
+        photos: [img("bandung-std-1"), img("bandung-std-2")],
+        rooms: rooms(6, { occupied: 4 }),
+      },
+      {
+        name: "AC",
+        description: "Kamar dengan AC dan kamar mandi dalam.",
+        monthlyPrice: 1_600_000,
+        size: "3 x 4 m",
+        facilities: ["AC", "Kamar mandi dalam", "Kasur", "Lemari", "Meja & kursi"],
+        photos: [img("bandung-dlx-1"), img("bandung-dlx-2")],
+        rooms: rooms(5, { start: 7, occupied: 3 }),
+      },
+    ],
+  },
   {
     slug: "jogja",
-    name: "SmartKos Seturan",
-    tagline: "Kos putri tenang di Seturan, dekat UGM, UNY, dan Ambarrukmo",
-    description:
-      "SmartKos Seturan berada di gang yang tenang, tapi cuma beberapa menit dari Jl. Seturan Raya. Bangunan dua lantai dengan 7 kamar, ruang bersama yang terang, dan dapur yang bisa dipakai bersama. Cocok untuk mahasiswi atau karyawati yang ingin tempat tinggal bersih tanpa ribet.\n\nPengelola tinggal di lokasi, jadi kalau ada keperluan atau kerusakan bisa langsung ditangani.",
-    address: "Jl. Seturan II Gg. Kenanga No. 12, Caturtunggal, Depok, Sleman",
+    name: "SmartKos Danunegaran",
+    tagline: "Kos di Danunegaran, Yogyakarta",
+    description: "SmartKos Danunegaran punya 19 kamar di daerah Danunegaran, Mantrijeron, Kota Yogyakarta.",
+    address: "Danunegaran, Mantrijeron, Kota Yogyakarta",
     city: "Yogyakarta",
     province: "DI Yogyakarta",
-    latitude: -7.7712,
-    longitude: 110.4105,
-    gender: "PUTRI" as const,
+    gender: "CAMPUR",
     whatsapp: "6281200000002",
     defaultDeposit: 500_000,
     coverImage: img("jogja-cover"),
+    area: "Yogyakarta",
+    areaImage: img("area-yogyakarta"),
+    areaImageCredit: "Foto: Chainwit., CC BY 4.0, Wikimedia Commons (dipotong)",
     photos: [
       { url: img("jogja-lounge"), caption: "Ruang bersama" },
       { url: img("jogja-kitchen"), caption: "Dapur bersama" },
       { url: img("jogja-bath"), caption: "Kamar mandi" },
-      { url: img("jogja-prem-1"), caption: "Kamar tipe Premium" },
     ],
-    facilities: ["WiFi 100 Mbps", "Dapur bersama", "Parkir motor", "CCTV 24 jam", "Mesin cuci", "Air galon gratis", "Penjaga kos", "Ruang tamu"],
-    rules:
-      "Khusus putri, tamu laki-laki hanya sampai ruang tamu.\nJam malam pukul 23.00, setelahnya akses dengan kunci pribadi.\nDilarang merokok di dalam kamar.\nTamu menginap wajib izin pengelola, maksimal 2 malam.\nMenjaga kebersihan dapur setelah dipakai.",
-    nearby: [
-      { name: "Universitas Gadjah Mada", distance: "3,2 km" },
-      { name: "Universitas Negeri Yogyakarta", distance: "1,8 km" },
-      { name: "Plaza Ambarrukmo", distance: "2,1 km" },
-      { name: "Indomaret Seturan", distance: "200 m" },
-      { name: "RS Panti Rapih", distance: "4 km" },
-    ],
+    facilities: commonFacilities,
+    rules: commonRules,
     admin: { name: "Rina Wulandari", email: "admin.jogja@smartkos.id", phone: "6281200000002" },
     types: [
       {
         name: "Standar",
-        description: "Kamar ringkas dengan kamar mandi luar yang dibersihkan setiap hari. Pas untuk yang lebih banyak beraktivitas di luar.",
+        description: "Kamar dengan kasur, lemari, dan meja. Kamar mandi luar.",
         monthlyPrice: 900_000,
         size: "3 x 3 m",
-        facilities: ["Kasur 120x200", "Lemari 2 pintu", "Meja & kursi belajar", "Kipas angin", "Kamar mandi luar"],
+        facilities: ["Kasur", "Lemari", "Meja & kursi", "Kipas angin", "Kamar mandi luar"],
         photos: [img("jogja-std-1"), img("jogja-std-2")],
-        rooms: [
-          { number: "101", floor: 1, status: "OCCUPIED" },
-          { number: "102", floor: 1 },
-          { number: "103", floor: 1 },
-          { number: "104", floor: 1, status: "OCCUPIED" },
-        ],
+        rooms: rooms(11, { occupied: 8 }),
       },
       {
         name: "Premium",
-        description: "Kamar lebih luas di lantai 2 dengan AC, kamar mandi dalam, dan water heater. Jendela menghadap taman.",
+        description: "Kamar lebih luas dengan AC dan kamar mandi dalam.",
         monthlyPrice: 1_400_000,
         size: "3 x 4 m",
-        facilities: ["Kasur 160x200", "AC", "Kamar mandi dalam", "Water heater", "Lemari 3 pintu", "Meja rias"],
+        facilities: ["AC", "Kamar mandi dalam", "Kasur", "Lemari", "Meja & kursi"],
         photos: [img("jogja-prem-1"), img("jogja-prem-2"), img("jogja-prem-3")],
-        rooms: [
-          { number: "201", floor: 2 },
-          { number: "202", floor: 2, status: "OCCUPIED" },
-          { number: "203", floor: 2 },
-        ],
+        rooms: rooms(8, { start: 12, occupied: 6 }),
       },
-    ] satisfies SeedRoomType[],
+    ],
   },
   {
-    slug: "jakarta",
-    name: "SmartKos Kebayoran",
-    tagline: "Kos eksekutif 5 menit jalan kaki ke MRT Blok M",
-    description:
-      "Hunian eksekutif untuk profesional muda di Kebayoran Baru. Akses kartu di setiap lantai, housekeeping mingguan, dan lounge di lantai atas untuk kerja atau santai sepulang kantor.\n\nLokasinya dekat MRT Blok M dan halte TransJakarta, jadi perjalanan ke SCBD atau Sudirman tidak perlu lewat macet.",
-    address: "Jl. Wijaya I No. 8, Petogogan, Kebayoran Baru, Jakarta Selatan",
-    city: "Jakarta",
-    province: "DKI Jakarta",
-    latitude: -6.2443,
-    longitude: 106.8048,
-    gender: "CAMPUR" as const,
-    whatsapp: "6281200000003",
-    defaultDeposit: 1_000_000,
-    coverImage: img("jakarta-cover"),
-    photos: [
-      { url: img("jakarta-lounge"), caption: "Lounge lantai atas" },
-      { url: img("jakarta-lobby"), caption: "Lobi" },
-      { url: img("jakarta-pantry"), caption: "Pantry bersama" },
-      { url: img("jakarta-corridor"), caption: "Koridor" },
-    ],
-    facilities: ["WiFi 200 Mbps", "Akses kartu", "Lounge & coworking", "Parkir mobil", "Housekeeping mingguan", "CCTV 24 jam", "Laundry", "Lift"],
-    rules:
-      "Tidak diperbolehkan membawa hewan peliharaan.\nTamu menginap wajib lapor ke resepsionis.\nDilarang merokok di seluruh area dalam gedung.\nKartu akses tidak boleh dipinjamkan.",
-    nearby: [
-      { name: "Stasiun MRT Blok M", distance: "450 m" },
-      { name: "Blok M Plaza", distance: "800 m" },
-      { name: "SCBD", distance: "3,5 km" },
-      { name: "Taman Literasi Martha Tiahahu", distance: "600 m" },
-      { name: "RS Pertamina Pusat", distance: "1,2 km" },
-    ],
-    admin: { name: "Dimas Prasetyo", email: "admin.jakarta@smartkos.id", phone: "6281200000003" },
-    types: [
-      {
-        name: "Executive",
-        description: "Kamar siap huni dengan kasur queen, smart TV, dan kamar mandi dalam. Listrik termasuk hingga 150 kWh per bulan.",
-        monthlyPrice: 2_500_000,
-        size: "3 x 4 m",
-        facilities: ["Kasur queen", "AC", "Kamar mandi dalam", "Water heater", "Smart TV", "Kulkas mini"],
-        photos: [img("jakarta-exec-1"), img("jakarta-exec-2"), img("jakarta-exec-3")],
-        rooms: [
-          { number: "A1", floor: 2, status: "OCCUPIED" },
-          { number: "A2", floor: 2 },
-          { number: "A3", floor: 2 },
-          { number: "A4", floor: 3, status: "OCCUPIED" },
-        ],
-      },
-      {
-        name: "Suite",
-        description: "Unit paling luas dengan pantry pribadi dan balkon. Cocok untuk yang sering kerja dari rumah.",
-        monthlyPrice: 3_800_000,
-        size: "4 x 5 m",
-        facilities: ["Kasur queen", "AC", "Kamar mandi dalam", "Pantry pribadi", "Balkon", "Smart TV", "Meja kerja"],
-        photos: [img("jakarta-suite-1"), img("jakarta-suite-2"), img("jakarta-suite-3")],
-        rooms: [
-          { number: "B1", floor: 4 },
-          { number: "B2", floor: 4, status: "OCCUPIED" },
-        ],
-      },
-    ] satisfies SeedRoomType[],
-  },
-  {
-    slug: "bandung",
-    name: "SmartKos Dago",
-    tagline: "Kos campur berhawa sejuk di Dago, dekat ITB dan Unpad Dipatiukur",
-    description:
-      "Rumah dua lantai yang diubah menjadi kos, dengan halaman depan dan ruang keluarga yang luas. Udara Dago yang sejuk bikin betah, dan banyak kafe serta tempat makan di sekitar.\n\nLantai satu untuk penghuni putra, lantai dua untuk penghuni putri, dengan akses tangga terpisah.",
-    address: "Jl. Tubagus Ismail VIII No. 21, Sekeloa, Coblong, Bandung",
-    city: "Bandung",
+    slug: "jababeka",
+    name: "SmartKos Merak Jababeka",
+    tagline: "Kos di kawasan Merak, Jababeka",
+    description: "SmartKos Merak Jababeka punya 6 kamar di kawasan Jababeka, Cikarang, Kabupaten Bekasi.",
+    address: "Merak, Kota Jababeka, Cikarang, Kabupaten Bekasi",
+    city: "Cikarang",
     province: "Jawa Barat",
-    latitude: -6.8848,
-    longitude: 107.6185,
-    gender: "CAMPUR" as const,
-    whatsapp: "6281200000004",
-    defaultDeposit: 750_000,
-    coverImage: img("bandung-cover"),
+    gender: "CAMPUR",
+    whatsapp: "6281200000003",
+    defaultDeposit: 500_000,
+    coverImage: img("jakarta-cover"),
+    area: "Jababeka",
+    areaImage: img("area-jababeka"),
+    areaImageCredit: "Foto: Bureau of Marketing President University, CC BY 4.0, Wikimedia Commons (dipotong)",
     photos: [
-      { url: img("bandung-living"), caption: "Ruang keluarga" },
-      { url: img("bandung-kitchen"), caption: "Dapur" },
-      { url: img("bandung-dlx-1"), caption: "Kamar Deluxe" },
-      { url: img("bandung-std-1"), caption: "Kamar Standar" },
+      { url: img("jakarta-lounge"), caption: "Ruang bersama" },
+      { url: img("jakarta-pantry"), caption: "Dapur bersama" },
     ],
-    facilities: ["WiFi 100 Mbps", "Dapur bersama", "Parkir motor & mobil", "CCTV", "Ruang keluarga", "Jemuran rooftop", "Air galon gratis"],
-    rules:
-      "Lantai 1 putra, lantai 2 putri.\nJam bertamu sampai pukul 22.00.\nDilarang merokok di dalam ruangan.\nSampah dibuang ke tempat yang disediakan setiap pagi.",
-    nearby: [
-      { name: "Institut Teknologi Bandung", distance: "1,4 km" },
-      { name: "Unpad Dipatiukur", distance: "1,9 km" },
-      { name: "Jalan Dago (Ir. H. Juanda)", distance: "900 m" },
-      { name: "Superindo Dago", distance: "1,1 km" },
-      { name: "RS Borromeus", distance: "2,3 km" },
-    ],
-    admin: { name: "Asep Hidayat", email: "admin.bandung@smartkos.id", phone: "6281200000004" },
+    facilities: commonFacilities,
+    rules: commonRules,
+    admin: { name: "Dimas Prasetyo", email: "admin.cikarang@smartkos.id", phone: "6281200000003" },
     types: [
       {
         name: "Standar",
-        description: "Kamar dengan jendela besar, kamar mandi luar berbagi untuk 2 kamar.",
-        monthlyPrice: 1_050_000,
-        size: "3 x 3,5 m",
-        facilities: ["Kasur 120x200", "Lemari", "Meja belajar", "Kamar mandi luar"],
-        photos: [img("bandung-std-1"), img("bandung-std-2")],
-        rooms: [
-          { number: "1A", floor: 1 },
-          { number: "1B", floor: 1, status: "OCCUPIED" },
-          { number: "2A", floor: 2 },
-          { number: "2B", floor: 2, status: "MAINTENANCE" },
-        ],
+        description: "Kamar dengan kasur, lemari, dan meja.",
+        monthlyPrice: 1_100_000,
+        size: "3 x 3 m",
+        facilities: ["Kasur", "Lemari", "Meja & kursi", "Kipas angin"],
+        photos: [img("jakarta-exec-1"), img("jakarta-exec-2")],
+        rooms: rooms(6, { occupied: 4 }),
       },
-      {
-        name: "Deluxe",
-        description: "Kamar luas dengan kamar mandi dalam dan water heater, pas untuk udara Bandung yang dingin.",
-        monthlyPrice: 1_650_000,
-        size: "3,5 x 4 m",
-        facilities: ["Kasur 160x200", "Kamar mandi dalam", "Water heater", "Lemari 3 pintu", "Meja kerja", "Smart TV"],
-        photos: [img("bandung-dlx-1"), img("bandung-dlx-2"), img("bandung-dlx-3")],
-        rooms: [
-          { number: "1C", floor: 1, status: "OCCUPIED" },
-          { number: "2C", floor: 2 },
-          { number: "2D", floor: 2 },
-        ],
-      },
-    ] satisfies SeedRoomType[],
+    ],
   },
+  {
+    slug: "madiun",
+    name: "SmartKos Jl. Bangka Madiun",
+    tagline: "Kos di Jl. Bangka, Kota Madiun",
+    description: "SmartKos Jl. Bangka punya 5 kamar di Kota Madiun.",
+    address: "Jl. Bangka, Kota Madiun",
+    city: "Madiun",
+    province: "Jawa Timur",
+    gender: "CAMPUR",
+    whatsapp: "6281200000004",
+    defaultDeposit: 500_000,
+    coverImage: img("about-room"),
+    area: "Madiun",
+    areaImage: img("area-madiun"),
+    areaImageCredit: "Foto: Indonesiagood, CC BY 4.0, Wikimedia Commons (dipotong)",
+    photos: [
+      { url: img("about-lounge"), caption: "Ruang bersama" },
+      { url: img("about-kitchen"), caption: "Dapur bersama" },
+    ],
+    facilities: commonFacilities,
+    rules: commonRules,
+    admin: { name: "Asep Hidayat", email: "admin.madiun@smartkos.id", phone: "6281200000004" },
+    types: [
+      {
+        name: "Standar",
+        description: "Kamar dengan kasur, lemari, dan meja.",
+        monthlyPrice: 800_000,
+        size: "3 x 3 m",
+        facilities: ["Kasur", "Lemari", "Meja & kursi", "Kipas angin"],
+        photos: [img("jogja-std-2"), img("jogja-std-1")],
+        rooms: rooms(5, { occupied: 3 }),
+      },
+    ],
+  },
+
+  // Segera hadir (tahap 1 dan 2): tampil di website, tapi belum bisa diajukan sewa.
+  ...[
+    {
+      slug: "tamsos-blok-i",
+      name: "SmartKos Tamsos Blok I",
+      count: 32,
+      cover: "jakarta-corridor",
+      area: "Taman Sentosa Blok I",
+      address: "Perumahan Taman Sentosa Blok I, Cikarang, Kabupaten Bekasi",
+      city: "Cikarang",
+    },
+    {
+      slug: "pocin",
+      name: "SmartKos Pocin",
+      count: 18,
+      cover: "hero-living",
+      area: "Pondok Cina",
+      address: "Pondok Cina, Beji, Kota Depok",
+      city: "Depok",
+      areaImage: img("area-pondok-cina"),
+      areaImageCredit: "Foto: Ilham Kuniawan Gumilang, CC BY-SA 4.0, Wikimedia Commons (dipotong)",
+    },
+    {
+      slug: "tamsos-blok-a",
+      name: "SmartKos Tamsos Blok A",
+      count: 32,
+      cover: "jakarta-lobby",
+      area: "Taman Sentosa Blok A",
+      address: "Perumahan Taman Sentosa Blok A, Cikarang, Kabupaten Bekasi",
+      city: "Cikarang",
+    },
+  ].map(
+    ({
+      slug,
+      name,
+      count,
+      cover,
+      area,
+      address,
+      city,
+      areaImage,
+      areaImageCredit,
+    }: {
+      slug: string;
+      name: string;
+      count: number;
+      cover: string;
+      area: string;
+      address: string;
+      city: string;
+      areaImage?: string;
+      areaImageCredit?: string;
+    }) => ({
+      slug,
+      name,
+      tagline: `${count} kamar, segera dibuka`,
+      description: `${name} sedang disiapkan dan akan punya ${count} kamar.`,
+      address,
+      city,
+      province: "Jawa Barat",
+      area,
+      areaImage,
+      areaImageCredit,
+      gender: "CAMPUR" as const,
+      whatsapp: "6281200000001",
+      defaultDeposit: 500_000,
+      coverImage: img(cover),
+      comingSoon: true,
+      photos: [],
+      facilities: commonFacilities,
+      rules: commonRules,
+      types: [
+        {
+          name: "Standar",
+          description: "Detail kamar menyusul.",
+          monthlyPrice: 1_000_000,
+          size: "3 x 3 m",
+          facilities: [],
+          photos: [],
+          rooms: rooms(count),
+        },
+      ],
+    }),
+  ),
 ];
 
 async function main() {
@@ -224,7 +319,11 @@ async function main() {
   await prisma.staffRole.upsert({
     where: { name: "Staf Kamar" },
     update: {},
-    create: { name: "Staf Kamar", description: "Memperbarui status kamar dan melihat booking.", permissions: ["dashboard.view", "rooms.view", "rooms.update", "bookings.view"] },
+    create: {
+      name: "Staf Kamar",
+      description: "Memperbarui status kamar dan melihat booking.",
+      permissions: ["dashboard.view", "rooms.view", "rooms.update", "bookings.view"],
+    },
   });
 
   const owner = await prisma.user.upsert({
@@ -233,23 +332,36 @@ async function main() {
     create: { name: "Owner SmartKos", email: "owner@smartkos.id", phone: "6281200000001", passwordHash: hash, role: "OWNER" },
   });
 
+  // Cabang contoh lama yang tidak ada di daftar dihapus, selama belum punya data sewa.
+  const oldKos = await prisma.kos.findMany({
+    where: { slug: { notIn: kosData.map((k) => k.slug) }, roomTypes: { none: { rooms: { some: { tenancies: { some: {} } } } } } },
+    select: { id: true },
+  });
+  for (const { id } of oldKos) {
+    await prisma.booking.deleteMany({ where: { kosId: id } });
+    await prisma.room.deleteMany({ where: { roomType: { kosId: id } } });
+    await prisma.kos.delete({ where: { id } });
+  }
+
   for (const { admin, types, photos, ...k } of kosData) {
-    const data = { ...k, isPublished: true };
+    const data = { comingSoon: false, areaImage: null, areaImageCredit: null, ...k, isPublished: true };
     const kos = await prisma.kos.upsert({ where: { slug: k.slug }, update: data, create: data });
 
     await prisma.kosPhoto.deleteMany({ where: { kosId: kos.id } });
     await prisma.kosPhoto.createMany({ data: photos.map((p, i) => ({ ...p, kosId: kos.id, sortOrder: i })) });
 
-    const adminUser = await prisma.user.upsert({
-      where: { email: admin.email },
-      update: { name: admin.name },
-      create: { ...admin, passwordHash: hash, role: "ADMIN", staffRoleId: adminRole.id },
-    });
-    await prisma.kosAdmin.upsert({
-      where: { userId_kosId: { userId: adminUser.id, kosId: kos.id } },
-      update: {},
-      create: { userId: adminUser.id, kosId: kos.id },
-    });
+    if (admin) {
+      const adminUser = await prisma.user.upsert({
+        where: { email: admin.email },
+        update: { name: admin.name },
+        create: { ...admin, passwordHash: hash, role: "ADMIN", staffRoleId: adminRole.id },
+      });
+      await prisma.kosAdmin.upsert({
+        where: { userId_kosId: { userId: adminUser.id, kosId: kos.id } },
+        update: {},
+        create: { userId: adminUser.id, kosId: kos.id },
+      });
+    }
 
     // Tipe kamar & kamar hanya dibuat ulang selama belum ada data sewa.
     const hasTenancy = await prisma.tenancy.count({ where: { room: { roomType: { kosId: kos.id } } } });

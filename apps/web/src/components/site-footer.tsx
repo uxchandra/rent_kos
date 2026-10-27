@@ -27,13 +27,15 @@ export async function SiteFooter() {
         <div>
           <h3 className="font-semibold text-white">Cabang</h3>
           <ul className="mt-4 space-y-2.5">
-            {kosList.map((k) => (
-              <li key={k.slug}>
-                <Link href={`/${k.slug}`} className="hover:text-white">
-                  {k.name}
-                </Link>
-              </li>
-            ))}
+            {kosList
+              .filter((k) => !k.comingSoon)
+              .map((k) => (
+                <li key={k.slug}>
+                  <Link href={`/${k.slug}`} className="hover:text-white">
+                    {k.name}
+                  </Link>
+                </li>
+              ))}
           </ul>
         </div>
         <div>

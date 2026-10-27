@@ -10,11 +10,12 @@ const router = Router();
 
 const toNumber = (v: { toString(): string } | null) => (v === null ? null : Number(v.toString()));
 
-/** Daftar semua cabang kos yang sudah dipublikasikan (untuk halaman utama). */
+/** Daftar semua cabang kos yang sudah dipublikasikan (untuk halaman utama). Cabang "segera hadir" di urutan akhir. */
 router.get("/kos", async (_req, res) => {
   const list = await prisma.kos.findMany({
     where: { isPublished: true },
-    orderBy: { city: "asc" },
+    // Cabang yang sudah buka urut kota; yang "segera hadir" urut waktu dibuat (= urutan tahap pembukaan).
+    orderBy: [{ comingSoon: "asc" }, { city: "asc" }, { name: "asc" }],
     select: {
       id: true,
       slug: true,
@@ -24,6 +25,10 @@ router.get("/kos", async (_req, res) => {
       address: true,
       gender: true,
       coverImage: true,
+      area: true,
+      areaImage: true,
+      areaImageCredit: true,
+      comingSoon: true,
       facilities: true,
       latitude: true,
       longitude: true,
@@ -37,8 +42,11 @@ router.get("/kos", async (_req, res) => {
     },
   });
 
+  const opening = list.filter((k) => !k.comingSoon);
+  const upcoming = list.filter((k) => k.comingSoon).sort((x, y) => x.id - y.id);
+
   res.json({
-    data: list.map(({ roomTypes, latitude, longitude, ...kos }) => ({
+    data: [...opening, ...upcoming].map(({ roomTypes, latitude, longitude, ...kos }) => ({
       ...kos,
       latitude: toNumber(latitude),
       longitude: toNumber(longitude),
@@ -52,7 +60,8 @@ router.get("/kos", async (_req, res) => {
 /** Semua tipe kamar dari semua cabang, untuk listing ala marketplace di halaman utama. */
 router.get("/rooms", async (_req, res) => {
   const types = await prisma.roomType.findMany({
-    where: { isActive: true, kos: { isPublished: true } },
+    // Kamar di cabang "segera hadir" belum dipasarkan.
+    where: { isActive: true, kos: { isPublished: true, comingSoon: false } },
     orderBy: [{ kos: { city: "asc" } }, { monthlyPrice: "asc" }],
     include: {
       photos: { orderBy: { sortOrder: "asc" }, select: { id: true, url: true } },
@@ -134,7 +143,7 @@ const DAY = 24 * 60 * 60 * 1000;
 /** Pengajuan sewa dari website cabang. Pengelola memproses di menu Booking. */
 router.post("/kos/:slug/bookings", async (req, res) => {
   const { website, ...data } = bookingSchema.parse(req.body);
-  const kos = await prisma.kos.findFirst({ where: { slug: req.params.slug, isPublished: true }, select: { id: true } });
+  const kos = await prisma.kos.findFirst({ where: { slug: req.params.slug, isPublished: true, comingSoon: false }, select: { id: true } });
   if (!kos) throw notFound("Kos tidak ditemukan");
   if (website) {
     res.status(201).json({ data: { code: bookingCode() } });

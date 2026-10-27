@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { PhotoCarousel } from "./photo-carousel";
-import { genderShort, price } from "@/lib/format";
+import { price } from "@/lib/format";
 import { facilityIcon } from "@/lib/icons";
 import { tierOf } from "@/lib/tiers";
 import type { RoomListing } from "@/lib/types";
@@ -12,7 +12,7 @@ export function RoomCard({ room, className = "" }: { room: RoomListing; classNam
   const tier = tierOf(room.monthlyPrice);
   const district = kos.address.split(",").slice(-2, -1).join("").trim() || kos.city;
   const photos = room.photos.length ? room.photos.map((p) => p.url) : kos.coverImage ? [kos.coverImage] : [];
-  const tags = [genderShort[kos.gender], ...(room.facilities ?? [])].slice(0, 5);
+  const tags = (room.facilities ?? []).slice(0, 5);
 
   return (
     <Link

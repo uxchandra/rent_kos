@@ -11,6 +11,8 @@ export type KosFormValues = {
   name: string;
   slug: string;
   tagline: string;
+  area: string;
+  areaImageCredit: string;
   description: string;
   address: string;
   city: string;
@@ -25,12 +27,15 @@ export type KosFormValues = {
   defaultDeposit: string;
   billingDueDays: string;
   isPublished: boolean;
+  comingSoon: boolean;
 };
 
 export const emptyKos: KosFormValues = {
   name: "",
   slug: "",
   tagline: "",
+  area: "",
+  areaImageCredit: "",
   description: "",
   address: "",
   city: "",
@@ -45,6 +50,7 @@ export const emptyKos: KosFormValues = {
   defaultDeposit: "0",
   billingDueDays: "7",
   isPublished: false,
+  comingSoon: false,
 };
 
 export function kosToForm(k: AdminKosDetail): KosFormValues {
@@ -52,6 +58,8 @@ export function kosToForm(k: AdminKosDetail): KosFormValues {
     name: k.name,
     slug: k.slug,
     tagline: k.tagline ?? "",
+    area: k.area ?? "",
+    areaImageCredit: k.areaImageCredit ?? "",
     description: k.description ?? "",
     address: k.address,
     city: k.city,
@@ -66,6 +74,7 @@ export function kosToForm(k: AdminKosDetail): KosFormValues {
     defaultDeposit: String(k.defaultDeposit),
     billingDueDays: String(k.billingDueDays),
     isPublished: k.isPublished,
+    comingSoon: k.comingSoon,
   };
 }
 
@@ -176,6 +185,12 @@ export function KosForm({
           <Field label="Tagline" error={errors.tagline} hint="Satu kalimat singkat yang muncul di bawah nama." className="sm:col-span-2">
             <Input value={v.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="Kos putri tenang dekat UGM & UNY" />
           </Field>
+          <Field label="Nama daerah" error={errors.area} hint="Judul kartu cabang di beranda. Kosongkan untuk memakai nama kota.">
+            <Input value={v.area} onChange={(e) => set("area", e.target.value)} placeholder="Madiun" />
+          </Field>
+          <Field label="Kredit foto daerah" error={errors.areaImageCredit} hint="Wajib diisi jika foto daerah dari Wikimedia atau sumber lain.">
+            <Input value={v.areaImageCredit} onChange={(e) => set("areaImageCredit", e.target.value)} placeholder="Foto: Nama, CC BY 4.0, via Wikimedia Commons" />
+          </Field>
           <Field label="Deskripsi" error={errors.description} className="sm:col-span-2">
             <Textarea value={v.description} onChange={(e) => set("description", e.target.value)} rows={5} />
           </Field>
@@ -275,6 +290,10 @@ export function KosForm({
           <div className="mt-6 rounded-xl bg-subtle p-4">
             <Switch checked={v.isPublished} onChange={(c) => set("isPublished", c)} label="Tayangkan di website" />
             <p className="mt-1 pl-14 text-xs text-ink-soft">Jika mati, cabang tidak muncul di website publik.</p>
+            <div className="mt-4 border-t border-line pt-4">
+              <Switch checked={v.comingSoon} onChange={(c) => set("comingSoon", c)} label="Segera hadir" />
+              <p className="mt-1 pl-14 text-xs text-ink-soft">Cabang tampil dengan label &quot;Segera hadir&quot;, tapi kamarnya belum bisa dicari atau diajukan sewa.</p>
+            </div>
           </div>
         )}
       </Card>

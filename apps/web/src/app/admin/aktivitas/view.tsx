@@ -22,6 +22,7 @@ function metaText(meta: ActivityEntry["meta"]) {
     if (k === "status" && typeof v === "string") return `status: ${statusWords[v] ?? v.toLowerCase()}`;
     if ((k === "amount" || k === "monthlyPrice") && typeof v === "number") return price(v);
     if (k === "isActive" || k === "isPublished") return v ? (k === "isPublished" ? "tayang" : "aktif") : k === "isPublished" ? "draf" : "nonaktif";
+    if (k === "comingSoon") return v ? "segera hadir" : "sudah buka";
     if (k === "year" || k === "month") return `${k === "year" ? "tahun" : "bulan"} ${v}`;
     return String(v);
   });

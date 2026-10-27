@@ -108,7 +108,7 @@ async function describeTarget(resource: string, id: number): Promise<string | nu
 }
 
 // Field body yang aman & berguna untuk dicatat.
-const META_FIELDS = ["status", "reason", "note", "amount", "monthlyPrice", "isActive", "isPublished", "year", "month"];
+const META_FIELDS = ["status", "reason", "note", "amount", "monthlyPrice", "isActive", "isPublished", "comingSoon", "year", "month"];
 
 function pickMeta(req: Request) {
   const body = (req.body ?? {}) as Record<string, unknown>;

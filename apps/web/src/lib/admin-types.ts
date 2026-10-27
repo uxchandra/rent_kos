@@ -22,6 +22,7 @@ export type AdminKosSummary = {
   gender: KosGender;
   coverImage: string | null;
   isPublished: boolean;
+  comingSoon: boolean;
   roomTypeCount: number;
   totalRooms: number;
   availableRooms: number;
@@ -54,6 +55,9 @@ export type AdminKosDetail = {
   slug: string;
   name: string;
   tagline: string | null;
+  area: string | null;
+  areaImage: string | null;
+  areaImageCredit: string | null;
   description: string | null;
   address: string;
   city: string;
@@ -69,6 +73,7 @@ export type AdminKosDetail = {
   defaultDeposit: number;
   billingDueDays: number;
   isPublished: boolean;
+  comingSoon: boolean;
   photos: { id: number; url: string; caption: string | null }[];
   admins: { id: number; name: string; email: string; phone: string | null }[];
   roomTypes: AdminRoomType[];

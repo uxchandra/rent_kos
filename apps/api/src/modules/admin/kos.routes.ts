@@ -22,6 +22,8 @@ const kosSchema = z.object({
   name: z.string().trim().min(3, "Nama kos minimal 3 karakter").max(100),
   slug: slugSchema,
   tagline: optionalText(200),
+  area: optionalText(80),
+  areaImageCredit: optionalText(200),
   description: optionalText(5000),
   address: z.string().trim().min(5, "Alamat wajib diisi").max(255),
   city: z.string().trim().min(2, "Kota wajib diisi").max(80),
@@ -45,10 +47,11 @@ const kosSchema = z.object({
   defaultDeposit: z.coerce.number().int().min(0).max(100_000_000),
   billingDueDays: z.coerce.number().int().min(1).max(28).default(7),
   isPublished: z.boolean().default(false),
+  comingSoon: z.boolean().default(false),
 });
 
 // Kolom yang hanya boleh diubah Owner.
-const OWNER_ONLY = ["slug", "isPublished"] as const;
+const OWNER_ONLY = ["slug", "isPublished", "comingSoon"] as const;
 
 async function assertSlugFree(slug: string, exceptId?: number) {
   const existing = await prisma.kos.findUnique({ where: { slug }, select: { id: true } });
@@ -56,7 +59,7 @@ async function assertSlugFree(slug: string, exceptId?: number) {
 }
 
 async function getKos(id: number) {
-  const kos = await prisma.kos.findUnique({ where: { id }, select: { id: true, slug: true, coverImage: true } });
+  const kos = await prisma.kos.findUnique({ where: { id }, select: { id: true, slug: true, coverImage: true, areaImage: true } });
   if (!kos) throw notFound("Kos tidak ditemukan");
   return kos;
 }
@@ -75,6 +78,7 @@ router.get("/", async (req, res) => {
       gender: true,
       coverImage: true,
       isPublished: true,
+      comingSoon: true,
       roomTypes: { select: { id: true, rooms: { select: { status: true } } } },
     },
   });
@@ -168,7 +172,7 @@ router.delete("/:id", requireRole("OWNER"), async (req, res) => {
     prisma.room.deleteMany({ where: { roomType: { kosId: id } } }),
     prisma.kos.delete({ where: { id } }),
   ]);
-  await Promise.all([kos.coverImage, ...photos.map((p) => p.url), ...typePhotos.map((p) => p.url)].map(deleteImage));
+  await Promise.all([kos.coverImage, kos.areaImage, ...photos.map((p) => p.url), ...typePhotos.map((p) => p.url)].map(deleteImage));
   revalidatePublic(kos.slug);
   res.json({ message: "Kos dihapus" });
 });
@@ -186,6 +190,30 @@ router.post("/:id/cover", imageUpload.single("photo"), async (req, res) => {
   await deleteImage(kos.coverImage);
   revalidatePublic(kos.slug);
   res.json({ data: { coverImage: url } });
+});
+
+/** Foto ikon daerah (landmark kota) untuk kartu cabang di beranda. */
+router.post("/:id/area-image", imageUpload.single("photo"), async (req, res) => {
+  const id = Number(req.params.id);
+  await assertKosAccess(req.user!, id);
+  const kos = await getKos(id);
+  const [file] = uploadedFiles(req);
+
+  const url = await saveImage(file, `kos/${id}`);
+  await prisma.kos.update({ where: { id }, data: { areaImage: url } });
+  await deleteImage(kos.areaImage);
+  revalidatePublic(kos.slug);
+  res.json({ data: { areaImage: url } });
+});
+
+router.delete("/:id/area-image", async (req, res) => {
+  const id = Number(req.params.id);
+  await assertKosAccess(req.user!, id);
+  const kos = await getKos(id);
+  await prisma.kos.update({ where: { id }, data: { areaImage: null, areaImageCredit: null } });
+  await deleteImage(kos.areaImage);
+  revalidatePublic(kos.slug);
+  res.json({ message: "Foto daerah dihapus" });
 });
 
 router.post("/:id/photos", imageUpload.array("photos", 10), async (req, res) => {

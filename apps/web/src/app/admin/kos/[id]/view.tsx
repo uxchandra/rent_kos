@@ -61,7 +61,13 @@ export default function KosDetailPage() {
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{kos.name}</h1>
           <p className="mt-1 text-sm text-ink-soft">
             {kos.city} ·{" "}
-            {kos.isPublished ? <span className="font-medium text-mint-ink">Tayang di website</span> : <span className="font-medium text-amber-600">Draf</span>}
+            {!kos.isPublished ? (
+              <span className="font-medium text-amber-600">Draf</span>
+            ) : kos.comingSoon ? (
+              <span className="font-medium text-brand-700">Segera hadir di website</span>
+            ) : (
+              <span className="font-medium text-mint-ink">Tayang di website</span>
+            )}
           </p>
         </div>
         {kos.isPublished && (
