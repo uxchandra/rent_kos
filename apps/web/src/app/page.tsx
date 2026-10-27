@@ -21,7 +21,7 @@ import { Faq } from "@/components/faq";
 import { Phone, TenantScreen } from "@/components/landing/phone";
 import { Ornament } from "@/components/landing/ornament";
 import { Glow } from "@/components/landing/glow";
-import { HOUSE_CLIP, HouseBadge, HouseFrame } from "@/components/landing/house-frame";
+import { HouseBadge, HouseFrame } from "@/components/landing/house-frame";
 import { RevealObserver } from "@/components/landing/reveal-observer";
 import { getKosList, getRoomListings } from "@/lib/public-api";
 import { price, waLink } from "@/lib/format";
@@ -131,29 +131,18 @@ export default async function HomePage() {
             {/* HP: geser ke samping; md ke atas: grid */}
             <div data-reveal style={delay(100)} className={`no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 pt-1 md:mx-0 md:mt-10 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 ${openKos.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
               {openKos.map((k) => (
-                <Link
-                  key={k.slug}
-                  href={`/${k.slug}`}
-                  className="group flex w-[80%] shrink-0 snap-center flex-col rounded-[1.75rem] bg-night-2 p-3 ring-1 ring-white/8 transition duration-300 hover:-translate-y-1 hover:ring-lime/40 md:w-auto"
-                >
-                  <div className="relative aspect-5/4 overflow-hidden rounded-b-[1.4rem]" style={{ clipPath: HOUSE_CLIP }}>
-                    {/* Foto landmark daerah; cabang tanpa foto daerah memakai foto cover */}
+                <Link key={k.slug} href={`/${k.slug}`} className="group block w-[80%] shrink-0 snap-center md:w-auto">
+                  {/* Foto landmark daerah dengan nama daerah di atasnya; cabang tanpa foto daerah memakai foto cover */}
+                  <div className="relative aspect-4/3 overflow-hidden rounded-2xl ring-1 ring-white/8 transition group-hover:ring-lime/50">
                     <img src={k.areaImage ?? k.coverImage ?? ""} alt={k.area ?? k.city} className="size-full object-cover transition duration-500 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-linear-to-t from-night-2/80 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-night/35 transition group-hover:bg-night/20" />
+                    <h3 className="absolute inset-0 grid place-items-center px-4 text-center text-2xl font-bold tracking-tight text-white decoration-lime decoration-2 underline-offset-8 [text-shadow:0_2px_12px_rgb(0_0_0/0.55)] group-hover:underline sm:text-[1.7rem]">
+                      {k.area ?? k.city}
+                    </h3>
                   </div>
-                  {k.areaImage && k.areaImageCredit && <p className="mt-1.5 px-2 text-[10px] leading-snug text-white/35">{k.areaImageCredit}</p>}
-                  <div className="flex flex-1 flex-col px-2 pb-1 pt-3">
-                    <h3 className="text-2xl font-bold tracking-tight">{k.area ?? k.city}</h3>
-                    <p className="mt-2 flex gap-1.5 text-sm leading-relaxed text-white/60">
-                      <MapPin className="mt-0.5 size-4 shrink-0 text-lime" /> {k.address}
-                    </p>
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-                      <span className="w-full border-t border-dashed border-white/12 pt-4 text-sm font-semibold text-white/80 transition group-hover:text-lime">Lihat cabang</span>
-                      <span className="mt-4 grid size-11 shrink-0 place-items-center rounded-full bg-white/8 transition group-hover:bg-lime group-hover:text-night">
-                        <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
-                      </span>
-                    </div>
-                  </div>
+                  <p className="mt-2.5 flex gap-1.5 px-1 text-xs leading-relaxed text-white/60">
+                    <MapPin className="mt-px size-3.5 shrink-0 text-lime" /> {k.address}
+                  </p>
                 </Link>
               ))}
             </div>
