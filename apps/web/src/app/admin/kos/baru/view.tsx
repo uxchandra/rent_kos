@@ -17,7 +17,7 @@ export default function NewKosPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/admin/kos" className="mb-3 inline-flex items-center gap-1 text-sm text-ink-soft hover:text-ink">
+      <Link href="/admin/kos" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="size-4" /> Cabang
       </Link>
       <PageHeader title="Tambah cabang" description="Foto, tipe kamar, dan kamar bisa ditambahkan setelah cabang disimpan." />

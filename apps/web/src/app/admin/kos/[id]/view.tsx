@@ -12,6 +12,7 @@ import { KosForm, kosToForm } from "../kos-form";
 import { PhotosTab } from "./photos-tab";
 import { RoomsTab } from "./rooms-tab";
 import { AdminsTab } from "./admins-tab";
+import { buttonVariants } from "@/components/ui/button";
 
 const tabs = [
   { id: "info", label: "Info" },
@@ -53,31 +54,31 @@ export default function KosDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/admin/kos" className="mb-3 inline-flex items-center gap-1 text-sm text-ink-soft hover:text-ink">
+      <Link href="/admin/kos" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="size-4" /> Cabang
       </Link>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{kos.name}</h1>
-          <p className="mt-1 text-sm text-ink-soft">
+          <p className="mt-1 text-sm text-muted-foreground">
             {kos.city} ·{" "}
             {!kos.isPublished ? (
               <span className="font-medium text-amber-600">Draf</span>
             ) : kos.comingSoon ? (
-              <span className="font-medium text-brand-700">Segera hadir di website</span>
+              <span className="font-medium text-foreground">Segera hadir di website</span>
             ) : (
-              <span className="font-medium text-mint-ink">Tayang di website</span>
+              <span className="font-medium text-emerald-700">Tayang di website</span>
             )}
           </p>
         </div>
         {kos.isPublished && (
-          <a href={`/${kos.slug}`} target="_blank" className="flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold hover:border-ink">
+          <a href={`/${kos.slug}`} target="_blank" className={buttonVariants({ variant: "outline" })}>
             <ExternalLink className="size-4" /> Lihat halaman
           </a>
         )}
       </div>
 
-      <div className="no-scrollbar sticky top-14 z-20 -mx-4 mb-5 flex gap-1 overflow-x-auto border-b border-line bg-background px-4 md:mx-0 md:px-0">
+      <div className="no-scrollbar sticky top-14 z-20 -mx-4 mb-5 flex gap-1 overflow-x-auto border-b border-border bg-background px-4 md:mx-0 md:px-0">
         {tabs
           .filter((t) => !t.ownerOnly || isOwner)
           .map((t) => (
@@ -87,7 +88,7 @@ export default function KosDetailPage() {
               scroll={false}
               replace
               className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-                tab === t.id ? "border-brand-600 text-brand-700" : "border-transparent text-ink-soft hover:text-ink"
+                tab === t.id ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {t.label}
@@ -96,7 +97,7 @@ export default function KosDetailPage() {
       </div>
 
       {!canEdit && (
-        <p className="mb-4 rounded-xl bg-subtle px-4 py-3 text-sm text-ink-soft">Peran Anda hanya bisa melihat data cabang ini. Perubahan dilakukan oleh Owner atau admin dengan izin ubah cabang.</p>
+        <p className="mb-4 rounded-xl bg-muted px-4 py-3 text-sm text-muted-foreground">Peran Anda hanya bisa melihat data cabang ini. Perubahan dilakukan oleh Owner atau admin dengan izin ubah cabang.</p>
       )}
       {/* Tanpa izin ubah cabang: semua isian & tombol di dalam fieldset otomatis nonaktif. */}
       <fieldset disabled={!canEdit} className="min-w-0">
@@ -115,7 +116,7 @@ export default function KosDetailPage() {
             {isOwner && (
               <Card className="mt-8 border-red-200">
                 <h2 className="font-bold text-red-700">Hapus cabang</h2>
-                <p className="mb-4 mt-1 text-sm text-ink-soft">Hanya bisa dilakukan jika cabang belum pernah punya penyewa.</p>
+                <p className="mb-4 mt-1 text-sm text-muted-foreground">Hanya bisa dilakukan jika cabang belum pernah punya penyewa.</p>
                 <Button variant="danger" onClick={remove}>
                   Hapus {kos.name}
                 </Button>

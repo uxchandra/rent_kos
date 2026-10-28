@@ -161,8 +161,8 @@ export function KosForm({
             error={errors.slug}
             hint={isOwner ? "Huruf kecil, angka, dan strip. Mengubah slug akan mengubah link cabang." : "Hanya Owner yang bisa mengubah."}
           >
-            <div className="flex items-center rounded-xl border border-line bg-subtle focus-within:border-brand-600">
-              <span className="pl-3.5 text-sm text-ink-soft">smartkos.com/</span>
+            <div className="flex items-center rounded-xl border border-border bg-muted focus-within:border-primary">
+              <span className="pl-3.5 text-sm text-muted-foreground">smartkos.com/</span>
               <input
                 value={v.slug}
                 disabled={!isOwner}
@@ -170,7 +170,7 @@ export function KosForm({
                   setSlugTouched(true);
                   set("slug", e.target.value.toLowerCase());
                 }}
-                className="w-full bg-transparent py-2.5 pr-3.5 text-base outline-none disabled:text-ink-soft sm:text-sm"
+                className="w-full bg-transparent py-2.5 pr-3.5 text-base outline-none disabled:text-muted-foreground sm:text-sm"
                 required
               />
             </div>
@@ -216,11 +216,11 @@ export function KosForm({
             className="sm:col-span-2"
           >
             <div className="flex items-center gap-2">
-              <MapPin className="size-5 shrink-0 text-brand-600" />
+              <MapPin className="size-5 shrink-0 text-foreground" />
               <Input value={coords} onChange={(e) => applyCoords(e.target.value)} placeholder="-7.7712, 110.4105" />
             </div>
             {v.latitude && v.longitude && (
-              <span className="mt-1.5 block text-xs text-mint-ink">
+              <span className="mt-1.5 block text-xs text-emerald-700">
                 Tersimpan: {v.latitude}, {v.longitude} ·{" "}
                 <a href={`https://www.google.com/maps?q=${v.latitude},${v.longitude}`} target="_blank" className="underline">
                   cek di peta
@@ -248,7 +248,7 @@ export function KosForm({
               <button
                 type="button"
                 onClick={() => set("nearby", v.nearby.filter((_, j) => j !== i))}
-                className="shrink-0 rounded-xl px-2 text-ink-soft hover:bg-subtle hover:text-red-600"
+                className="shrink-0 rounded-xl px-2 text-muted-foreground hover:bg-muted hover:text-red-600"
                 aria-label="Hapus"
               >
                 <Trash2 className="size-4" />
@@ -287,12 +287,12 @@ export function KosForm({
           </Field>
         </div>
         {isOwner && (
-          <div className="mt-6 rounded-xl bg-subtle p-4">
+          <div className="mt-6 rounded-xl bg-muted p-4">
             <Switch checked={v.isPublished} onChange={(c) => set("isPublished", c)} label="Tayangkan di website" />
-            <p className="mt-1 pl-14 text-xs text-ink-soft">Jika mati, cabang tidak muncul di website publik.</p>
-            <div className="mt-4 border-t border-line pt-4">
+            <p className="mt-1 pl-14 text-xs text-muted-foreground">Jika mati, cabang tidak muncul di website publik.</p>
+            <div className="mt-4 border-t border-border pt-4">
               <Switch checked={v.comingSoon} onChange={(c) => set("comingSoon", c)} label="Segera hadir" />
-              <p className="mt-1 pl-14 text-xs text-ink-soft">Cabang tampil dengan label &quot;Segera hadir&quot;, tapi kamarnya belum bisa dicari atau diajukan sewa.</p>
+              <p className="mt-1 pl-14 text-xs text-muted-foreground">Cabang tampil dengan label &quot;Segera hadir&quot;, tapi kamarnya belum bisa dicari atau diajukan sewa.</p>
             </div>
           </div>
         )}
@@ -300,7 +300,7 @@ export function KosForm({
 
       {formError && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{formError}</p>}
 
-      <div className="fixed inset-x-0 bottom-[calc(3.9rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-white/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
+      <div className="fixed inset-x-0 bottom-[calc(3.9rem+env(safe-area-inset-bottom))] z-20 border-t border-border bg-card/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
         <Button type="submit" loading={saving} className="w-full md:w-auto">
           {isNew ? "Simpan cabang" : "Simpan perubahan"}
         </Button>

@@ -12,6 +12,8 @@ import type { AdminBooking } from "@/lib/admin-types";
 import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Tab = "PENDING" | "APPROVED" | "CLOSED";
 
@@ -71,7 +73,7 @@ function ReasonDialog({ booking, mode, onClose, onSaved }: { booking: AdminBooki
       {reject && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {rejectReasons.map((r) => (
-            <button key={r} type="button" onClick={() => setReason(r)} className="rounded-full border border-line px-3 py-1 text-xs hover:border-ink">
+            <button key={r} type="button" onClick={() => setReason(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:border-foreground">
               {r}
             </button>
           ))}
@@ -84,31 +86,31 @@ function ReasonDialog({ booking, mode, onClose, onSaved }: { booking: AdminBooki
 function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (action: "approve" | "reject" | "cancel") => void; approving: boolean }) {
   const canManage = useAuth().can("bookings.manage");
   return (
-    <div className="rounded-2xl border border-line bg-white p-4 sm:p-5">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-semibold">{b.name}</p>
-          <p className="text-sm text-ink-soft">
+          <p className="text-sm text-muted-foreground">
             {b.kos.name} · {b.roomType.name} · {price(b.roomType.monthlyPrice)}
           </p>
         </div>
-        <span className="rounded-md bg-subtle px-2 py-0.5 font-mono text-xs font-semibold">{b.code}</span>
+        <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-semibold">{b.code}</span>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
         <span className="flex items-center gap-1.5">
-          <CalendarDays className="size-4 text-ink-soft" /> Masuk {dateShort(b.moveInDate)}
+          <CalendarDays className="size-4 text-muted-foreground" /> Masuk {dateShort(b.moveInDate)}
         </span>
-        {b.occupation && <span className="text-ink-soft">{b.occupation}</span>}
+        {b.occupation && <span className="text-muted-foreground">{b.occupation}</span>}
         {canManage && b.status === "PENDING" && (
-          <span className={b.roomType.availableRooms ? "text-mint-ink" : "font-semibold text-amber-700"}>
+          <span className={b.roomType.availableRooms ? "text-emerald-700" : "font-semibold text-amber-700"}>
             {b.roomType.availableRooms ? `${b.roomType.availableRooms} kamar kosong di tipe ini` : "Tipe ini sedang penuh"}
           </span>
         )}
       </div>
-      {b.message && <p className="mt-3 rounded-xl bg-subtle px-3 py-2 text-sm">&ldquo;{b.message}&rdquo;</p>}
+      {b.message && <p className="mt-3 rounded-xl bg-muted px-3 py-2 text-sm">&ldquo;{b.message}&rdquo;</p>}
       {b.status !== "PENDING" && (
-        <p className="mt-3 text-xs text-ink-soft">
+        <p className="mt-3 text-xs text-muted-foreground">
           {b.status === "APPROVED" ? "Disetujui" : b.status === "REJECTED" ? "Ditolak" : "Dibatalkan"}
           {b.handledBy && ` oleh ${b.handledBy.name}`}
           {b.handledAt && `, ${sentAt(b.handledAt)}`}
@@ -116,14 +118,14 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
         </p>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
-        <a href={waLink(b.phone, waText(b))} target="_blank" rel="noopener" className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-sm font-semibold hover:border-ink">
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+        <a href={waLink(b.phone, waText(b))} target="_blank" rel="noopener" className={buttonVariants({ variant: "outline" })}>
           <MessageCircle className="size-4" /> WhatsApp
         </a>
-        <a href={`mailto:${b.email}`} className="rounded-full p-2.5 text-ink-soft hover:bg-subtle hover:text-ink" aria-label={`Email ${b.name}`} title={b.email}>
+        <a href={`mailto:${b.email}`} className="rounded-full p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label={`Email ${b.name}`} title={b.email}>
           <Mail className="size-4" />
         </a>
-        <span className="ml-auto text-xs text-ink-soft">Masuk {sentAt(b.createdAt)}</span>
+        <span className="ml-auto text-xs text-muted-foreground">Masuk {sentAt(b.createdAt)}</span>
         {canManage && b.status === "PENDING" && (
           <div className="flex w-full gap-2 sm:w-auto">
             <Button variant="secondary" onClick={() => onAction("reject")} className="flex-1 py-2! sm:flex-none">
@@ -141,13 +143,13 @@ function BookingCard({ b, onAction, approving }: { b: AdminBooking; onAction: (a
             </Button>
             <Link
               href={`/admin/penghuni?booking=${b.id}`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-700 sm:flex-none"
+              className={cn(buttonVariants(), "flex-1 sm:flex-none")}
             >
               <UserPlus className="size-4" /> Daftarkan penghuni
             </Link>
           </div>
         )}
-        {b.tenancyId && <span className="rounded-md bg-mint px-2 py-1 text-xs font-semibold text-mint-ink">Sudah jadi penghuni</span>}
+        {b.tenancyId && <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">Sudah jadi penghuni</span>}
       </div>
     </div>
   );
@@ -189,7 +191,7 @@ export default function BookingPage() {
           <button
             key={t.value}
             onClick={() => setTab(t.value)}
-            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${tab === t.value ? "border-ink bg-ink font-semibold text-white" : "border-line bg-white"}`}
+            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${tab === t.value ? "border-foreground bg-primary font-semibold text-primary-foreground" : "border-border bg-card"}`}
           >
             {t.label}
             {t.value === "PENDING" && !!pending?.data.length && (
@@ -250,7 +252,7 @@ export default function BookingPage() {
                   <TableCell className="max-w-56">
                     {b.status === "PENDING" ? (
                       b.roomType.availableRooms ? (
-                        <Badge variant="secondary" className="bg-mint text-mint-ink">
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                           {b.roomType.availableRooms} kamar kosong
                         </Badge>
                       ) : (
@@ -259,7 +261,7 @@ export default function BookingPage() {
                         </Badge>
                       )
                     ) : b.tenancyId ? (
-                      <Badge variant="secondary" className="bg-mint text-mint-ink">
+                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                         Sudah jadi penghuni
                       </Badge>
                     ) : (
@@ -307,7 +309,7 @@ export default function BookingPage() {
                           </Button>
                           <Link
                             href={`/admin/penghuni?booking=${b.id}`}
-                            className="flex items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-brand-700"
+                            className={buttonVariants({ size: "sm" })}
                           >
                             <UserPlus className="size-4" /> Daftarkan
                           </Link>

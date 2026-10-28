@@ -62,7 +62,7 @@ export default function AktivitasPage() {
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_auto_auto]">
         <label className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-soft" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={query} onChange={(e) => reset(setQuery)(e.target.value)} placeholder="Cari aksi, nama kamar, penghuni" className="pl-10" />
         </label>
         <Select value={userId} onChange={(e) => reset(setUserId)(e.target.value)}>
@@ -83,7 +83,7 @@ export default function AktivitasPage() {
         <EmptyState title="Belum ada aktivitas" text={params.size > 1 ? "Coba ubah filter." : "Aktivitas akan tercatat saat ada data yang diubah di admin panel."} />
       ) : (
         <>
-          <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+          <MobileList className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {data.data.map((a) => {
               const t = when(a.createdAt);
               return (
@@ -91,9 +91,9 @@ export default function AktivitasPage() {
                   <p className="text-sm">
                     <b>{a.userName}</b> {a.label.charAt(0).toLowerCase() + a.label.slice(1)}
                   </p>
-                  {a.target && <p className="mt-0.5 text-sm text-ink-soft">{a.target}</p>}
-                  {metaText(a.meta) && <p className="mt-0.5 text-xs text-ink-soft">{metaText(a.meta)}</p>}
-                  <p className="mt-1 text-xs text-ink-soft">
+                  {a.target && <p className="mt-0.5 text-sm text-muted-foreground">{a.target}</p>}
+                  {metaText(a.meta) && <p className="mt-0.5 text-xs text-muted-foreground">{metaText(a.meta)}</p>}
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {t.date}, {t.time}
                   </p>
                 </div>
@@ -133,7 +133,7 @@ export default function AktivitasPage() {
             </TableBody>
           </DesktopTable>
 
-          <div className="mt-4 flex items-center justify-between text-sm text-ink-soft">
+          <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
             <span>
               {data.meta.total.toLocaleString("id-ID")} aktivitas · halaman {data.meta.page} dari {data.meta.pages}
             </span>
@@ -141,7 +141,7 @@ export default function AktivitasPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="rounded-full border border-line bg-white p-2 disabled:opacity-40"
+                className="rounded-full border border-border bg-card p-2 disabled:opacity-40"
                 aria-label="Halaman sebelumnya"
               >
                 <ChevronLeft className="size-4" />
@@ -149,7 +149,7 @@ export default function AktivitasPage() {
               <button
                 onClick={() => setPage((p) => Math.min(data.meta.pages, p + 1))}
                 disabled={page >= data.meta.pages}
-                className="rounded-full border border-line bg-white p-2 disabled:opacity-40"
+                className="rounded-full border border-border bg-card p-2 disabled:opacity-40"
                 aria-label="Halaman berikutnya"
               >
                 <ChevronRight className="size-4" />

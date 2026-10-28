@@ -182,7 +182,7 @@ function AddRoomsDialog({ type, onClose, reload }: { type: AdminRoomType | null;
         {parsed.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {parsed.map((n) => (
-              <span key={n} className="rounded-lg bg-mint px-2.5 py-1 text-sm font-semibold text-mint-ink">
+              <span key={n} className="rounded-lg bg-emerald-100 px-2.5 py-1 text-sm font-semibold text-emerald-700">
                 {n}
               </span>
             ))}
@@ -304,7 +304,7 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-ink-soft">
+        <p className="text-sm text-muted-foreground">
           {kos.roomTypes.length} tipe · {kos.roomTypes.reduce((s, t) => s + t.rooms.length, 0)} kamar
         </p>
         <Button onClick={() => setTypeDialog({ open: true, type: null })}>
@@ -321,24 +321,24 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
       )}
 
       {kos.roomTypes.map((t) => (
-        <section key={t.id} className="overflow-hidden rounded-2xl border border-line bg-white">
+        <section key={t.id} className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex items-start justify-between gap-3 p-5">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-lg font-bold">{t.name}</h3>
                 {!t.isActive && (
-                  <span className="flex items-center gap-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">
+                  <span className="flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                     <EyeOff className="size-3" /> Disembunyikan
                   </span>
                 )}
               </div>
-              <p className="text-sm text-ink-soft">
-                <span className="font-semibold text-brand-700">{price(t.monthlyPrice)}</span>/bulan{t.size && ` · ${t.size}`}
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">{price(t.monthlyPrice)}</span>/bulan{t.size && ` · ${t.size}`}
               </p>
-              {t.facilities && t.facilities.length > 0 && <p className="mt-1 line-clamp-2 text-xs text-ink-soft">{t.facilities.join(" · ")}</p>}
+              {t.facilities && t.facilities.length > 0 && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{t.facilities.join(" · ")}</p>}
             </div>
             <div className="flex shrink-0 gap-1">
-              <button onClick={() => setTypeDialog({ open: true, type: t })} className="rounded-full p-2 hover:bg-subtle" aria-label="Edit tipe">
+              <button onClick={() => setTypeDialog({ open: true, type: t })} className="rounded-full p-2 hover:bg-muted" aria-label="Edit tipe">
                 <Pencil className="size-4" />
               </button>
               <button
@@ -366,12 +366,12 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
             {t.photos.map((p, i) => (
               <div key={p.id} className="relative shrink-0">
                 <img src={p.url} alt="" className="h-24 w-32 rounded-lg object-cover" />
-                {i === 0 && <span className="absolute left-1.5 top-1.5 rounded bg-white/90 px-1.5 text-[10px] font-bold">UTAMA</span>}
+                {i === 0 && <span className="absolute left-1.5 top-1.5 rounded bg-card/90 px-1.5 text-[10px] font-bold">UTAMA</span>}
                 <div className="absolute bottom-1.5 right-1.5 flex gap-1">
                   {i > 0 && (
                     <button
                       onClick={() => act(() => api(`/admin/room-types/${t.id}/photos/${p.id}/primary`, { method: "POST" }), "Foto utama diperbarui")}
-                      className="grid size-6 place-items-center rounded-full bg-white/90"
+                      className="grid size-6 place-items-center rounded-full bg-card/90"
                       aria-label="Jadikan foto utama"
                     >
                       <Star className="size-3" />
@@ -382,7 +382,7 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
                       if (await confirm({ title: "Hapus foto?", text: "Foto dihapus dari tipe kamar ini.", confirmLabel: "Hapus", danger: true }))
                         act(() => api(`/admin/room-types/${t.id}/photos/${p.id}`, { method: "DELETE" }), "Foto dihapus");
                     }}
-                    className="grid size-6 place-items-center rounded-full bg-white/90 text-red-600"
+                    className="grid size-6 place-items-center rounded-full bg-card/90 text-red-600"
                     aria-label="Hapus foto"
                   >
                     <Trash2 className="size-3" />
@@ -396,25 +396,25 @@ export function RoomsTab({ kos, reload }: { kos: AdminKosDetail; reload: Reload 
                 fileInput.current?.click();
               }}
               disabled={uploadingFor === t.id}
-              className="grid h-24 w-32 shrink-0 place-items-center rounded-lg border-2 border-dashed border-line text-xs text-ink-soft hover:border-brand-400 disabled:opacity-50"
+              className="grid h-24 w-32 shrink-0 place-items-center rounded-lg border-2 border-dashed border-border text-xs text-muted-foreground hover:border-primary/50 disabled:opacity-50"
             >
               <span className="flex flex-col items-center gap-1">
-                <ImagePlus className="size-5 text-brand-400" />
+                <ImagePlus className="size-5 text-muted-foreground" />
                 {uploadingFor === t.id ? "Mengupload…" : "Tambah foto"}
               </span>
             </button>
           </div>
 
           {/* Kamar */}
-          <div className="border-t border-line bg-subtle/60 p-5">
+          <div className="border-t border-border bg-muted/60 p-5">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-semibold">Kamar ({t.rooms.length})</p>
-              <button onClick={() => setAddRoomsFor(t)} className="flex items-center gap-1 text-sm font-semibold text-brand-600">
+              <button onClick={() => setAddRoomsFor(t)} className="flex items-center gap-1 text-sm font-semibold text-foreground">
                 <Plus className="size-4" /> Tambah kamar
               </button>
             </div>
             {t.rooms.length === 0 ? (
-              <p className="text-sm text-ink-soft">Belum ada kamar. Tambahkan nomor kamar agar bisa disewakan.</p>
+              <p className="text-sm text-muted-foreground">Belum ada kamar. Tambahkan nomor kamar agar bisa disewakan.</p>
             ) : (
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
                 {t.rooms.map((r) => (

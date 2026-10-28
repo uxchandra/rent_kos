@@ -1,35 +1,53 @@
 "use client";
 
-import { createContext, use, useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Loader2, X, XCircle } from "lucide-react";
+import { createContext, use, useCallback, useState } from "react";
+import { Loader2, X } from "lucide-react";
+import { toast as sonner } from "sonner";
+import { cn } from "@/lib/utils";
 import { ApiError } from "@/lib/client-api";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import { Switch as UiSwitch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Toaster } from "@/components/ui/sonner";
+import {
+  Dialog as UiDialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+// Kit admin: pembungkus tipis komponen shadcn/ui dengan API lama, supaya halaman tidak perlu diubah satu per satu.
 
 // ---------- Tombol ----------
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
-const buttonStyles: Record<ButtonVariant, string> = {
-  primary: "bg-brand-600 text-white hover:bg-brand-700",
-  secondary: "border border-line bg-white text-ink hover:border-ink",
-  danger: "bg-red-600 text-white hover:bg-red-700",
-  ghost: "text-ink-soft hover:bg-subtle hover:text-ink",
-};
+const buttonVariant = { primary: "default", secondary: "outline", danger: "destructive", ghost: "ghost" } as const;
 
 export function Button({
   variant = "primary",
   loading = false,
-  className = "",
   children,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; loading?: boolean }) {
   return (
-    <button
-      {...props}
-      disabled={loading || props.disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${buttonStyles[variant]} ${className}`}
-    >
-      {loading && <Loader2 className="size-4 animate-spin" />}
+    <UiButton {...props} variant={buttonVariant[variant]} disabled={loading || props.disabled}>
+      {loading && <Loader2 className="animate-spin" />}
       {children}
-    </button>
+    </UiButton>
   );
 }
 
@@ -50,28 +68,35 @@ export function Field({
 }) {
   const message = Array.isArray(error) ? error[0] : error;
   return (
-    <label className={`block ${className}`}>
-      <span className="mb-1.5 block text-sm font-medium">{label}</span>
+    <label className={cn("grid gap-2", className)}>
+      <Label asChild>
+        <span>{label}</span>
+      </Label>
       {children}
-      {message ? <span className="mt-1 block text-xs text-red-600">{message}</span> : hint && <span className="mt-1 block text-xs text-ink-soft">{hint}</span>}
+      {message ? <span className="text-xs text-destructive">{message}</span> : hint && <span className="text-xs text-muted-foreground">{hint}</span>}
     </label>
   );
 }
 
-// text-base di HP agar iOS tidak auto-zoom saat input difokus.
-const inputClass =
-  "w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-base outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100 sm:text-sm";
-
 export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={`${inputClass} ${props.className ?? ""}`} />;
+  return <UiInput {...props} />;
 }
 
 export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea rows={4} {...props} className={`${inputClass} ${props.className ?? ""}`} />;
+  return <UiTextarea rows={4} {...props} />;
 }
 
-export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={`${inputClass} ${props.className ?? ""}`} />;
+/** Select bawaan browser bergaya input shadcn (dipakai dengan <option>). */
+export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      {...props}
+      className={cn(
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        className,
+      )}
+    />
+  );
 }
 
 /** Input daftar teks (fasilitas, dll): ketik lalu Enter atau koma. */
@@ -86,15 +111,15 @@ export function TagInput({ value, onChange, placeholder }: { value: string[]; on
     setDraft("");
   };
   return (
-    <div className="rounded-xl border border-line bg-white p-2 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
+    <div className="rounded-lg border border-input p-1.5 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
       <div className="flex flex-wrap gap-1.5">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-lavender py-1 pl-3 pr-1.5 text-sm text-brand-800">
+          <Badge key={tag} variant="secondary" className="gap-1 pr-1">
             {tag}
-            <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="rounded-full p-0.5 hover:bg-brand-200" aria-label={`Hapus ${tag}`}>
-              <X className="size-3.5" />
+            <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="rounded-full hover:text-foreground" aria-label={`Hapus ${tag}`}>
+              <X className="size-3" />
             </button>
-          </span>
+          </Badge>
         ))}
         <input
           value={draft}
@@ -109,7 +134,7 @@ export function TagInput({ value, onChange, placeholder }: { value: string[]; on
           }}
           onBlur={add}
           placeholder={value.length ? "" : placeholder}
-          className="min-w-32 flex-1 bg-transparent px-1.5 py-1 text-base outline-none sm:text-sm"
+          className="min-w-32 flex-1 bg-transparent px-1 py-0.5 text-base outline-none placeholder:text-muted-foreground md:text-sm"
         />
       </div>
     </div>
@@ -118,19 +143,10 @@ export function TagInput({ value, onChange, placeholder }: { value: string[]; on
 
 export function Switch({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
   return (
-    <label className={`flex items-center gap-3 ${disabled ? "opacity-50" : "cursor-pointer"}`}>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        disabled={disabled}
-        onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-brand-600" : "bg-line"}`}
-      >
-        <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${checked ? "left-5.5" : "left-0.5"}`} />
-      </button>
-      <span className="text-sm">{label}</span>
-    </label>
+    <Label className={cn("font-normal", disabled ? "opacity-50" : "cursor-pointer")}>
+      <UiSwitch checked={checked} onCheckedChange={onChange} disabled={disabled} />
+      {label}
+    </Label>
   );
 }
 
@@ -140,37 +156,38 @@ export function PageHeader({ title, description, actions }: { title: string; des
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-        {description && <p className="mt-1 text-ink-soft">{description}</p>}
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
   );
 }
 
+/** Kartu berisi bebas (tanpa header/footer); untuk kartu bertingkat pakai `@/components/ui/card`. */
 export function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-2xl border border-line bg-white p-5 sm:p-6 ${className}`}>{children}</div>;
+  return <div className={cn("rounded-xl bg-card p-4 text-sm text-card-foreground ring-1 ring-foreground/10 sm:p-6", className)}>{children}</div>;
 }
 
 export function Spinner() {
   return (
     <div className="grid place-items-center py-20">
-      <Loader2 className="size-7 animate-spin text-brand-500" />
+      <Loader2 className="size-6 animate-spin text-muted-foreground" />
     </div>
   );
 }
 
 export function EmptyState({ title, text, action }: { title: string; text?: string; action?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-cream/50 px-6 py-14 text-center">
-      <p className="font-semibold">{title}</p>
-      {text && <p className="mt-1 text-sm text-ink-soft">{text}</p>}
+    <div className="rounded-xl border border-dashed px-6 py-14 text-center">
+      <p className="font-medium">{title}</p>
+      {text && <p className="mt-1 text-sm text-muted-foreground">{text}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
 
-// ---------- Dialog (bottom sheet di HP, modal di desktop) ----------
+// ---------- Dialog ----------
 
 export function Dialog({
   open,
@@ -187,64 +204,39 @@ export function Dialog({
   footer?: React.ReactNode;
   size?: "md" | "lg";
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [open, onClose]);
-
-  if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal aria-label={title}>
-      <button className="absolute inset-0 bg-black/40" onClick={onClose} aria-label="Tutup" />
-      <div
-        className={`relative flex max-h-[92dvh] w-full flex-col rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl ${size === "lg" ? "sm:max-w-2xl" : "sm:max-w-lg"}`}
-      >
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <p className="font-semibold">{title}</p>
-          <button onClick={onClose} className="-mr-2 rounded-full p-2 hover:bg-subtle" aria-label="Tutup">
-            <X className="size-5" />
-          </button>
-        </div>
+    <UiDialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className={cn("flex max-h-[92dvh] flex-col gap-0 p-0", size === "lg" ? "sm:max-w-2xl" : "sm:max-w-lg")}>
+        <DialogHeader className="border-b px-5 py-4">
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
         <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
-        {footer && (
-          <div className="flex justify-end gap-2 border-t border-line px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:pb-4">{footer}</div>
-        )}
-      </div>
-    </div>
+        {footer && <DialogFooter className="m-0 px-5 py-4">{footer}</DialogFooter>}
+      </DialogContent>
+    </UiDialog>
   );
 }
 
 // ---------- Konfirmasi & toast ----------
 
-type Toast = { id: number; type: "success" | "error"; message: string };
 type ConfirmState = { title: string; text: string; confirmLabel: string; danger: boolean; resolve: (ok: boolean) => void } | null;
 
 const FeedbackContext = createContext<{
-  toast: (message: string, type?: Toast["type"]) => void;
+  toast: (message: string, type?: "success" | "error") => void;
   confirm: (opts: { title: string; text: string; confirmLabel?: string; danger?: boolean }) => Promise<boolean>;
 } | null>(null);
 
 export function FeedbackProvider({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmState, setConfirmState] = useState<ConfirmState>(null);
 
-  const toast = useCallback((message: string, type: Toast["type"] = "success") => {
-    const id = Date.now() + Math.random();
-    setToasts((t) => [...t, { id, type, message }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
+  const toast = useCallback((message: string, type: "success" | "error" = "success") => {
+    if (type === "error") sonner.error(message);
+    else sonner.success(message);
   }, []);
 
   const confirm = useCallback(
     (opts: { title: string; text: string; confirmLabel?: string; danger?: boolean }) =>
-      new Promise<boolean>((resolve) =>
-        setConfirmState({ confirmLabel: "Ya, lanjutkan", danger: false, ...opts, resolve }),
-      ),
+      new Promise<boolean>((resolve) => setConfirmState({ confirmLabel: "Ya, lanjutkan", danger: false, ...opts, resolve })),
     [],
   );
 
@@ -256,31 +248,21 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
   return (
     <FeedbackContext value={{ toast, confirm }}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 top-4 z-[60] flex flex-col items-center gap-2 px-4">
-        {toasts.map((t) => (
-          <div key={t.id} className="pointer-events-auto flex max-w-sm items-center gap-2.5 rounded-xl bg-ink px-4 py-3 text-sm text-white shadow-lg">
-            {t.type === "success" ? <CheckCircle2 className="size-4 shrink-0 text-emerald-400" /> : <XCircle className="size-4 shrink-0 text-red-400" />}
-            {t.message}
-          </div>
-        ))}
-      </div>
-      <Dialog
-        open={!!confirmState}
-        onClose={() => close(false)}
-        title={confirmState?.title ?? ""}
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => close(false)}>
-              Batal
-            </Button>
-            <Button variant={confirmState?.danger ? "danger" : "primary"} onClick={() => close(true)}>
+      <Toaster theme="light" position="top-center" richColors />
+      <AlertDialog open={!!confirmState} onOpenChange={(o) => !o && close(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmState?.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmState?.text}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => close(false)}>Batal</AlertDialogCancel>
+            <AlertDialogAction variant={confirmState?.danger ? "destructive" : "default"} onClick={() => close(true)}>
               {confirmState?.confirmLabel}
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm leading-relaxed text-ink-soft">{confirmState?.text}</p>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </FeedbackContext>
   );
 }

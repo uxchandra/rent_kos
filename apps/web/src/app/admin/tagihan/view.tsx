@@ -95,37 +95,37 @@ function InvoiceDialog({ invoice, today, onClose, onSaved }: { invoice: Invoice;
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-semibold">{invoice.tenant.name}</p>
-          <p className="text-sm text-ink-soft">
+          <p className="text-sm text-muted-foreground">
             Kamar {invoice.roomNumber} · {invoice.kos.name}
           </p>
-          <p className="mt-1 font-mono text-xs text-ink-soft">{invoice.number}</p>
+          <p className="mt-1 font-mono text-xs text-muted-foreground">{invoice.number}</p>
         </div>
         <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-semibold ${invoiceStatusStyle[invoice.status]}`}>{invoiceStatusLabel[invoice.status]}</span>
       </div>
 
-      <dl className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-subtle p-4 text-sm">
+      <dl className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-muted p-4 text-sm">
         <div>
-          <dt className="text-ink-soft">Nominal</dt>
+          <dt className="text-muted-foreground">Nominal</dt>
           <dd className="text-lg font-bold">{price(invoice.amount)}</dd>
         </div>
         <div>
-          <dt className="text-ink-soft">Jatuh tempo</dt>
+          <dt className="text-muted-foreground">Jatuh tempo</dt>
           <dd className={`font-semibold ${isOverdue(invoice, today) ? "text-red-600" : ""}`}>{dateShort(invoice.dueDate)}</dd>
         </div>
         {invoice.paidAt && (
           <div>
-            <dt className="text-ink-soft">Dibayar</dt>
+            <dt className="text-muted-foreground">Dibayar</dt>
             <dd className="font-semibold">{dateShort(invoice.paidAt)}</dd>
           </div>
         )}
         {invoice.reminderSentAt && (
           <div>
-            <dt className="text-ink-soft">Pengingat terakhir</dt>
+            <dt className="text-muted-foreground">Pengingat terakhir</dt>
             <dd className="font-semibold">{new Date(invoice.reminderSentAt).toLocaleDateString("id-ID", { dateStyle: "medium" })}</dd>
           </div>
         )}
       </dl>
-      {invoice.tenancyEnded && <p className="mt-3 text-xs text-ink-soft">Penghuni ini sudah tidak menyewa.</p>}
+      {invoice.tenancyEnded && <p className="mt-3 text-xs text-muted-foreground">Penghuni ini sudah tidak menyewa.</p>}
       {invoice.status === "WAITING_VERIFICATION" && (
         <Link href="/admin/pembayaran" className="mt-3 flex items-center justify-between rounded-xl bg-sky-50 px-3 py-2 text-sm text-sky-800">
           Penghuni sudah mengirim bukti transfer. Periksa sekarang <ChevronRight className="size-4" />
@@ -238,7 +238,7 @@ export default function TagihanPage() {
       <PageHeader title="Tagihan" description="Tagihan sewa bulanan dan deposit penghuni." />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-full border border-line bg-white p-1">
+        <div className="flex rounded-full border border-border bg-card p-1">
           {(["period", "outstanding"] as const).map((v) => (
             <button
               key={v}
@@ -246,19 +246,19 @@ export default function TagihanPage() {
                 setView(v);
                 setStatus(null);
               }}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${view === v ? "bg-ink text-white" : "text-ink-soft hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {v === "period" ? "Per bulan" : "Semua belum lunas"}
             </button>
           ))}
         </div>
         {view === "period" && current && (
-          <div className="flex items-center gap-1 rounded-full border border-line bg-white p-1">
-            <button onClick={() => setPeriod(shiftMonth(current, -1))} className="rounded-full p-1.5 hover:bg-subtle" aria-label="Bulan sebelumnya">
+          <div className="flex items-center gap-1 rounded-full border border-border bg-card p-1">
+            <button onClick={() => setPeriod(shiftMonth(current, -1))} className="rounded-full p-1.5 hover:bg-muted" aria-label="Bulan sebelumnya">
               <ChevronLeft className="size-4" />
             </button>
             <span className="min-w-36 text-center text-sm font-semibold">{monthName(current.year, current.month)}</span>
-            <button onClick={() => setPeriod(shiftMonth(current, 1))} className="rounded-full p-1.5 hover:bg-subtle" aria-label="Bulan berikutnya">
+            <button onClick={() => setPeriod(shiftMonth(current, 1))} className="rounded-full p-1.5 hover:bg-muted" aria-label="Bulan berikutnya">
               <ChevronRight className="size-4" />
             </button>
           </div>
@@ -270,8 +270,8 @@ export default function TagihanPage() {
       ) : (
         <>
           {view === "period" && canManage && meta!.unbilled > 0 && (
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-lavender px-4 py-3">
-              <p className="text-sm text-brand-800">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-accent px-4 py-3">
+              <p className="text-sm text-accent-foreground">
                 <span className="font-semibold">{meta!.unbilled} penghuni</span> belum ditagih untuk {monthName(meta!.year, meta!.month)}.
               </p>
               <Button loading={generating} onClick={generate} className="py-2!">
@@ -281,11 +281,11 @@ export default function TagihanPage() {
           )}
 
           <div className="mb-4 grid grid-cols-3 gap-2">
-            <div className="rounded-xl border border-line bg-white px-3 py-2.5">
+            <div className="rounded-xl border border-border bg-card px-3 py-2.5">
               <span className="block text-lg font-bold sm:text-xl">{priceCompact(sum(active))}</span>
-              <span className="text-xs text-ink-soft">{active.length} tagihan</span>
+              <span className="text-xs text-muted-foreground">{active.length} tagihan</span>
             </div>
-            <div className="rounded-xl border border-mint-ink/20 bg-mint px-3 py-2.5 text-mint-ink">
+            <div className="rounded-xl border border-emerald-600/20 bg-emerald-100 px-3 py-2.5 text-emerald-700">
               <span className="block text-lg font-bold sm:text-xl">{priceCompact(sum(paid))}</span>
               <span className="text-xs font-semibold">Lunas</span>
             </div>
@@ -302,7 +302,7 @@ export default function TagihanPage() {
                   key={id ?? "all"}
                   onClick={() => setKosFilter(id)}
                   className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${
-                    kosFilter === id ? "border-ink bg-ink font-semibold text-white" : "border-line bg-white"
+                    kosFilter === id ? "border-foreground bg-primary font-semibold text-primary-foreground" : "border-border bg-card"
                   }`}
                 >
                   {id === null ? "Semua cabang" : kosList.find((k) => k.id === id)!.name}
@@ -319,7 +319,7 @@ export default function TagihanPage() {
                   key={f.value ?? "all"}
                   onClick={() => setStatus(f.value)}
                   className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition ${
-                    status === f.value ? "border-brand-600 bg-brand-600 font-semibold text-white" : "border-line bg-white"
+                    status === f.value ? "border-primary bg-primary font-semibold text-primary-foreground" : "border-border bg-card"
                   }`}
                 >
                   {f.label} <span className="opacity-70">{f.count}</span>
@@ -334,13 +334,13 @@ export default function TagihanPage() {
             />
           ) : (
             <>
-            <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+            <MobileList className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
               {filtered.map((i) => (
-                <button key={i.id} onClick={() => setSelected(i)} className="flex w-full items-center gap-4 p-4 text-left hover:bg-subtle/60">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lavender text-sm font-bold text-brand-700">{i.roomNumber}</span>
+                <button key={i.id} onClick={() => setSelected(i)} className="flex w-full items-center gap-4 p-4 text-left hover:bg-muted/60">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-foreground">{i.roomNumber}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{i.tenant.name}</p>
-                    <p className="truncate text-sm text-ink-soft">
+                    <p className="truncate text-sm text-muted-foreground">
                       {invoiceTitle(i)} · {i.kos.name}
                     </p>
                   </div>
@@ -376,7 +376,7 @@ export default function TagihanPage() {
                   return (
                     <TableRow key={i.id} onClick={() => setSelected(i)} className="cursor-pointer">
                       <TableCell>
-                        <span className="inline-grid min-w-10 place-items-center rounded-lg bg-lavender px-2 py-1 text-sm font-bold text-brand-700">{i.roomNumber}</span>
+                        <span className="inline-grid min-w-10 place-items-center rounded-lg bg-accent px-2 py-1 text-sm font-bold text-foreground">{i.roomNumber}</span>
                       </TableCell>
                       <TableCell>
                         <CellStack title={i.tenant.name} sub={i.kos.name} />

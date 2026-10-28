@@ -43,14 +43,14 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <h2 className="font-bold">Foto cover</h2>
-            <p className="text-sm text-ink-soft">Foto utama di website dan kartu cabang. Disarankan foto bangunan dari depan.</p>
+            <p className="text-sm text-muted-foreground">Foto utama di website dan kartu cabang. Disarankan foto bangunan dari depan.</p>
           </div>
         </div>
-        <div className="relative overflow-hidden rounded-xl bg-subtle">
+        <div className="relative overflow-hidden rounded-xl bg-muted">
           {kos.coverImage ? (
             <img src={kos.coverImage} alt="Cover" className="aspect-video w-full object-cover" />
           ) : (
-            <div className="grid aspect-video place-items-center text-sm text-ink-soft">Belum ada cover</div>
+            <div className="grid aspect-video place-items-center text-sm text-muted-foreground">Belum ada cover</div>
           )}
           <Button
             variant="secondary"
@@ -67,15 +67,15 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
       <Card>
         <div className="mb-4">
           <h2 className="font-bold">Foto ikon daerah</h2>
-          <p className="text-sm text-ink-soft">
+          <p className="text-sm text-muted-foreground">
             Landmark kota atau daerah (misal Tugu Jogja) untuk kartu cabang di beranda. Kalau kosong, kartu memakai foto cover. Isi kredit fotonya di tab Info.
           </p>
         </div>
-        <div className="relative overflow-hidden rounded-xl bg-subtle">
+        <div className="relative overflow-hidden rounded-xl bg-muted">
           {kos.areaImage ? (
             <img src={kos.areaImage} alt="Foto daerah" className="aspect-5/4 w-full object-cover sm:aspect-video" />
           ) : (
-            <div className="grid aspect-video place-items-center text-sm text-ink-soft">Belum ada foto daerah</div>
+            <div className="grid aspect-video place-items-center text-sm text-muted-foreground">Belum ada foto daerah</div>
           )}
           <div className="absolute bottom-3 right-3 flex gap-2">
             {kos.areaImage && (
@@ -104,7 +104,7 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-bold">Galeri</h2>
-            <p className="text-sm text-ink-soft">Ruang bersama, dapur, kamar mandi, dan sudut lain. Urutan sesuai waktu upload.</p>
+            <p className="text-sm text-muted-foreground">Ruang bersama, dapur, kamar mandi, dan sudut lain. Urutan sesuai waktu upload.</p>
           </div>
           <Button loading={busy === "gallery"} onClick={() => galleryInput.current?.click()}>
             <ImagePlus className="size-4" /> Tambah foto
@@ -115,27 +115,27 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         {kos.photos.length === 0 ? (
           <button
             onClick={() => galleryInput.current?.click()}
-            className="grid w-full place-items-center rounded-xl border-2 border-dashed border-line py-14 text-sm text-ink-soft hover:border-brand-400"
+            className="grid w-full place-items-center rounded-xl border-2 border-dashed border-border py-14 text-sm text-muted-foreground hover:border-primary/50"
           >
-            <ImagePlus className="mb-2 size-8 text-brand-400" />
+            <ImagePlus className="mb-2 size-8 text-muted-foreground" />
             Ketuk untuk menambah foto
           </button>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {kos.photos.map((p) => (
-              <div key={p.id} className="group relative overflow-hidden rounded-xl bg-subtle">
+              <div key={p.id} className="group relative overflow-hidden rounded-xl bg-muted">
                 <img src={p.url} alt={p.caption ?? ""} className="aspect-4/3 w-full object-cover" />
                 {busy === `p${p.id}` && (
-                  <div className="absolute inset-0 grid place-items-center bg-white/60">
-                    <Loader2 className="size-6 animate-spin text-brand-600" />
+                  <div className="absolute inset-0 grid place-items-center bg-card/60">
+                    <Loader2 className="size-6 animate-spin text-foreground" />
                   </div>
                 )}
-                <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-linear-to-t from-black/60 to-transparent p-2">
+                <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-borderar-to-t from-black/60 to-transparent p-2">
                   <button
                     onClick={() =>
                       run(`p${p.id}`, () => api(`/admin/kos/${kos.id}/photos/${p.id}/cover`, { method: "POST" }), "Dijadikan cover")
                     }
-                    className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold"
+                    className="flex items-center gap-1 rounded-full bg-card/90 px-2.5 py-1 text-xs font-semibold"
                   >
                     <Star className="size-3.5" /> Cover
                   </button>
@@ -144,7 +144,7 @@ export function PhotosTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
                       if (await confirm({ title: "Hapus foto?", text: "Foto akan dihapus dari website.", confirmLabel: "Hapus", danger: true }))
                         run(`p${p.id}`, () => api(`/admin/kos/${kos.id}/photos/${p.id}`, { method: "DELETE" }), "Foto dihapus");
                     }}
-                    className="grid size-7 place-items-center rounded-full bg-white/90 text-red-600"
+                    className="grid size-7 place-items-center rounded-full bg-card/90 text-red-600"
                     aria-label="Hapus foto"
                   >
                     <Trash2 className="size-3.5" />

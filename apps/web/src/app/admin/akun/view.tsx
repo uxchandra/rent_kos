@@ -33,7 +33,7 @@ export default function AkunPage() {
       <PageHeader title="Akun saya" />
       <Card className="mb-5">
         <p className="font-semibold">{user.name}</p>
-        <p className="text-sm text-ink-soft">{user.email}</p>
+        <p className="text-sm text-muted-foreground">{user.email}</p>
         <p className="mt-2 text-sm">{user.role === "OWNER" ? "Owner · semua cabang" : `Admin · ${user.kos.map((k) => k.name).join(", ")}`}</p>
       </Card>
       <Card>

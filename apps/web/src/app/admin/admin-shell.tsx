@@ -24,6 +24,7 @@ import type { AdminKosSummary } from "@/lib/admin-types";
 import { useAuth } from "@/components/auth-provider";
 import { allowed, pageAccess } from "@/lib/access";
 import { ShieldAlertIcon } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 
 const segmentLabel: Record<string, string> = {
   kamar: "Papan kamar",
@@ -111,7 +112,7 @@ function PageGuard({ children }: { children: React.ReactNode }) {
       {open.length > 0 && (
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {open.map((s) => (
-            <Link key={s.href} href={s.href} className="rounded-full border border-border px-4 py-1.5 text-sm font-medium hover:border-primary hover:text-primary">
+            <Link key={s.href} href={s.href} className={buttonVariants({ variant: "outline", size: "sm" })}>
               {s.label}
             </Link>
           ))}

@@ -9,6 +9,8 @@ import { Button, Dialog, EmptyState, PageHeader, Spinner, useFeedback } from "@/
 import { api, ApiError } from "@/lib/client-api";
 import { price } from "@/lib/format";
 import { roomStatusLabel, roomStatusStyle, type RoomBoard, type RoomStatus } from "@/lib/admin-types";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Room = RoomBoard[number]["roomTypes"][number]["rooms"][number];
 type Selected = Room & { kosName: string; typeName: string };
@@ -60,7 +62,7 @@ export default function RoomBoardPage() {
                 key={id ?? "all"}
                 onClick={() => setKosFilter(id)}
                 className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${
-                  kosFilter === id ? "border-ink bg-ink font-semibold text-white" : "border-line bg-white"
+                  kosFilter === id ? "border-foreground bg-primary font-semibold text-primary-foreground" : "border-border bg-card"
                 }`}
               >
                 {id === null ? "Semua cabang" : board.find((k) => k.id === id)!.name}
@@ -86,9 +88,9 @@ export default function RoomBoardPage() {
             {board
               .filter((k) => !kosFilter || k.id === kosFilter)
               .map((k) => (
-                <section key={k.id} className="rounded-2xl border border-line bg-white p-4 sm:p-5">
+                <section key={k.id} className="rounded-xl border border-border bg-card p-4 sm:p-5">
                   <h2 className="font-bold">
-                    {k.name} <span className="font-normal text-ink-soft">· {k.city}</span>
+                    {k.name} <span className="font-normal text-muted-foreground">· {k.city}</span>
                   </h2>
                   <div className="mt-4 space-y-5">
                     {k.roomTypes.map((t) => {
@@ -97,7 +99,7 @@ export default function RoomBoardPage() {
                       return (
                         <div key={t.id}>
                           <p className="mb-2 text-sm">
-                            <span className="font-semibold">{t.name}</span> <span className="text-ink-soft">· {price(t.monthlyPrice)}</span>
+                            <span className="font-semibold">{t.name}</span> <span className="text-muted-foreground">· {price(t.monthlyPrice)}</span>
                           </p>
                           <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
                             {rooms.map((r) => (
@@ -124,26 +126,26 @@ export default function RoomBoardPage() {
       <Dialog open={!!selected} onClose={() => setSelected(null)} title={selected ? `Kamar ${selected.number}` : ""}>
         {selected && (
           <>
-            <p className="text-sm text-ink-soft">
+            <p className="text-sm text-muted-foreground">
               {selected.kosName} · Tipe {selected.typeName}
               {selected.floor !== null && ` · Lantai ${selected.floor}`}
             </p>
             {selected.tenantName ? (
-              <Link href="/admin/penghuni" className="mt-3 flex items-center justify-between rounded-xl bg-lavender px-3 py-2 text-sm text-brand-800">
+              <Link href="/admin/penghuni" className="mt-3 flex items-center justify-between rounded-xl bg-accent px-3 py-2 text-sm text-accent-foreground">
                 Dihuni oleh {selected.tenantName} <ChevronRight className="size-4" />
               </Link>
             ) : (
               selected.status !== "MAINTENANCE" && (
                 <Link
                   href={`/admin/penghuni?kamar=${selected.id}`}
-                  className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-600 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+                  className={cn(buttonVariants(), "mt-4 w-full")}
                 >
                   <UserPlus className="size-4" /> Daftarkan penghuni
                 </Link>
               )
             )}
             {!canEdit ? (
-              <p className="mt-5 rounded-xl bg-subtle px-3 py-2 text-sm text-ink-soft">Peran Anda hanya bisa melihat status kamar.</p>
+              <p className="mt-5 rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">Peran Anda hanya bisa melihat status kamar.</p>
             ) : (
               <>
                 <p className="mb-3 mt-5 text-sm font-semibold">Ubah status</p>

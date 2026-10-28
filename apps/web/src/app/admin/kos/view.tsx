@@ -11,6 +11,7 @@ import { genderLabel } from "@/lib/format";
 import type { AdminKosSummary } from "@/lib/admin-types";
 import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-table";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function AdminKosListPage() {
   const { user } = useAuth();
@@ -19,7 +20,7 @@ export default function AdminKosListPage() {
   const isOwner = user.role === "OWNER";
 
   const addButton = isOwner && (
-    <Link href="/admin/kos/baru" className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
+    <Link href="/admin/kos/baru" className={buttonVariants()}>
       <Plus className="size-4" /> Tambah cabang
     </Link>
   );
@@ -33,31 +34,31 @@ export default function AdminKosListPage() {
         <EmptyState title="Belum ada cabang" text={isOwner ? "Tambahkan cabang pertama SmartKos." : "Anda belum ditugaskan ke cabang mana pun."} action={addButton} />
       ) : (
         <>
-        <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+        <MobileList className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {data.data.map((k) => (
-            <Link key={k.id} href={`/admin/kos/${k.id}`} className="flex items-center gap-4 p-4 transition hover:bg-subtle">
+            <Link key={k.id} href={`/admin/kos/${k.id}`} className="flex items-center gap-4 p-4 transition hover:bg-muted">
               {k.coverImage ? (
                 <img src={k.coverImage} alt="" className="size-16 shrink-0 rounded-xl object-cover sm:size-20" />
               ) : (
-                <span className="size-16 shrink-0 rounded-xl bg-subtle sm:size-20" />
+                <span className="size-16 shrink-0 rounded-xl bg-muted sm:size-20" />
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold">{k.name}</p>
                   <span
-                    className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${!k.isPublished ? "bg-amber-50 text-amber-700" : k.comingSoon ? "bg-lavender text-brand-700" : "bg-mint text-mint-ink"}`}
+                    className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${!k.isPublished ? "bg-amber-50 text-amber-700" : k.comingSoon ? "bg-accent text-foreground" : "bg-emerald-100 text-emerald-700"}`}
                   >
                     {!k.isPublished ? "Draf" : k.comingSoon ? "Segera hadir" : "Tayang"}
                   </span>
                 </div>
-                <p className="text-sm text-ink-soft">
+                <p className="text-sm text-muted-foreground">
                   {k.city} · {genderLabel[k.gender]} · smartkos.com/{k.slug}
                 </p>
                 <p className="mt-1 text-sm">
-                  {k.roomTypeCount} tipe · {k.totalRooms} kamar · <span className="text-mint-ink">{k.availableRooms} kosong</span>
+                  {k.roomTypeCount} tipe · {k.totalRooms} kamar · <span className="text-emerald-700">{k.availableRooms} kosong</span>
                 </p>
               </div>
-              <ChevronRight className="size-5 shrink-0 text-ink-soft" />
+              <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
             </Link>
           ))}
         </MobileList>
@@ -83,7 +84,7 @@ export default function AdminKosListPage() {
                     {k.coverImage ? (
                       <img src={k.coverImage} alt="" className="size-10 shrink-0 rounded-lg object-cover" />
                     ) : (
-                      <span className="size-10 shrink-0 rounded-lg bg-subtle" />
+                      <span className="size-10 shrink-0 rounded-lg bg-muted" />
                     )}
                     <CellStack title={<Link href={`/admin/kos/${k.id}`}>{k.name}</Link>} sub={k.city} />
                   </div>
@@ -93,9 +94,9 @@ export default function AdminKosListPage() {
                 <TableCell className="text-right tabular-nums">{k.roomTypeCount}</TableCell>
                 <TableCell className="text-right tabular-nums">{k.totalRooms}</TableCell>
                 <TableCell className="text-right tabular-nums">{k.occupiedRooms}</TableCell>
-                <TableCell className="text-right font-semibold tabular-nums text-mint-ink">{k.availableRooms}</TableCell>
+                <TableCell className="text-right font-semibold tabular-nums text-emerald-700">{k.availableRooms}</TableCell>
                 <TableCell>
-                  <span className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${!k.isPublished ? "bg-amber-50 text-amber-700" : k.comingSoon ? "bg-lavender text-brand-700" : "bg-mint text-mint-ink"}`}>
+                  <span className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${!k.isPublished ? "bg-amber-50 text-amber-700" : k.comingSoon ? "bg-accent text-foreground" : "bg-emerald-100 text-emerald-700"}`}>
                     {!k.isPublished ? "Draf" : k.comingSoon ? "Segera hadir" : "Tayang"}
                   </span>
                 </TableCell>

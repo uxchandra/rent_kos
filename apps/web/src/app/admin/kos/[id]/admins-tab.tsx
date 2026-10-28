@@ -41,28 +41,28 @@ export function AdminsTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
   return (
     <Card>
       <h2 className="font-bold">Pengelola cabang</h2>
-      <p className="mb-5 text-sm text-ink-soft">Admin yang dipilih bisa mengelola kamar, booking, dan tagihan di {kos.name}.</p>
+      <p className="mb-5 text-sm text-muted-foreground">Admin yang dipilih bisa mengelola kamar, booking, dan tagihan di {kos.name}.</p>
       {admins.length === 0 ? (
         <EmptyState
           title="Belum ada akun admin"
           action={
-            <Link href="/admin/pengguna" className="text-sm font-semibold text-brand-600 underline">
+            <Link href="/admin/pengguna" className="text-sm font-semibold text-foreground underline">
               Buat akun admin
             </Link>
           }
         />
       ) : (
-        <div className="divide-y divide-line rounded-xl border border-line">
+        <div className="divide-y divide-border rounded-xl border border-border">
           {admins.map((a) => (
-            <button key={a.id} onClick={() => toggle(a.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-subtle">
+            <button key={a.id} onClick={() => toggle(a.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted">
               <span
-                className={`grid size-5 shrink-0 place-items-center rounded-md border ${selected.has(a.id) ? "border-brand-600 bg-brand-600 text-white" : "border-line"}`}
+                className={`grid size-5 shrink-0 place-items-center rounded-md border ${selected.has(a.id) ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
               >
                 {selected.has(a.id) && <Check className="size-3.5" strokeWidth={3} />}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-medium">{a.name}</span>
-                <span className="block truncate text-xs text-ink-soft">
+                <span className="block truncate text-xs text-muted-foreground">
                   {a.email}
                   {a.kos.length > 0 && ` · ${a.kos.map((k) => k.name).join(", ")}`}
                 </span>
@@ -72,7 +72,7 @@ export function AdminsTab({ kos, reload }: { kos: AdminKosDetail; reload: () => 
         </div>
       )}
       <div className="mt-5 flex items-center justify-between gap-3">
-        <Link href="/admin/pengguna" className="text-sm font-semibold text-brand-600">
+        <Link href="/admin/pengguna" className="text-sm font-semibold text-foreground">
           Kelola akun & peran →
         </Link>
         <Button loading={saving} onClick={save}>

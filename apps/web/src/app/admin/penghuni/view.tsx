@@ -13,11 +13,11 @@ import { CellStack, DesktopTable, MobileList } from "@/components/admin/data-tab
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const depositBadge: Record<DepositStatus, string> = {
-  NONE: "bg-subtle text-ink-soft",
+  NONE: "bg-muted text-muted-foreground",
   UNPAID: "bg-amber-50 text-amber-700",
-  HELD: "bg-mint text-mint-ink",
-  REFUNDED: "bg-subtle text-ink-soft",
-  PARTIAL_REFUNDED: "bg-subtle text-ink-soft",
+  HELD: "bg-emerald-100 text-emerald-700",
+  REFUNDED: "bg-muted text-muted-foreground",
+  PARTIAL_REFUNDED: "bg-muted text-muted-foreground",
   FORFEITED: "bg-red-50 text-red-700",
 };
 
@@ -104,7 +104,7 @@ function CheckInDialog({
       ) : (
         <div className="space-y-6">
           {booking && (
-            <p className="rounded-xl bg-lavender px-3 py-2 text-sm text-brand-800">
+            <p className="rounded-xl bg-accent px-3 py-2 text-sm text-accent-foreground">
               Dari booking <span className="font-mono font-semibold">{booking.code}</span> · {booking.kos.name}, {booking.roomType.name}
             </p>
           )}
@@ -165,7 +165,7 @@ function CheckInDialog({
               </Field>
             </div>
             {Number(depositAmount) > 0 && (
-              <div className="mt-4 rounded-xl bg-subtle p-4">
+              <div className="mt-4 rounded-xl bg-muted p-4">
                 <Switch checked={v.depositPaid} onChange={(c) => setV({ ...v, depositPaid: c })} label="Deposit sudah dibayar" />
               </div>
             )}
@@ -295,8 +295,8 @@ function CheckOutDialog({ tenancy, onClose, onSaved }: { tenancy: Tenancy; onClo
       }
     >
       <div className="space-y-5">
-        <p className="text-sm text-ink-soft">
-          <span className="font-semibold text-ink">{tenancy.tenant.name}</span> keluar dari kamar {tenancy.room.number} ({tenancy.kos.name}). Kamar akan
+        <p className="text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">{tenancy.tenant.name}</span> keluar dari kamar {tenancy.room.number} ({tenancy.kos.name}). Kamar akan
           kembali berstatus kosong.
         </p>
         {tenancy.unpaidInvoices > 0 && (
@@ -308,15 +308,15 @@ function CheckOutDialog({ tenancy, onClose, onSaved }: { tenancy: Tenancy; onClo
         {held && (
           <div>
             <p className="mb-2 text-sm font-medium">Deposit {price(tenancy.depositAmount)}</p>
-            <div className="divide-y divide-line rounded-xl border border-line">
+            <div className="divide-y divide-border rounded-xl border border-border">
               {choices.map((c) => (
-                <label key={c.value} className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm hover:bg-subtle">
+                <label key={c.value} className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm hover:bg-muted">
                   <input
                     type="radio"
                     name="deposit"
                     checked={v.depositStatus === c.value}
                     onChange={() => setV({ ...v, depositStatus: c.value })}
-                    className="size-4 accent-brand-600"
+                    className="size-4 accent-primary"
                   />
                   {c.label}
                 </label>
@@ -350,7 +350,7 @@ function TenantActions({ t, onEdit, onEnd, className = "" }: { t: Tenancy; onEdi
           href={waLink(t.tenant.phone, `Halo ${t.tenant.name},`)}
           target="_blank"
           rel="noopener"
-          className="rounded-full p-2.5 hover:bg-subtle"
+          className="rounded-full p-2.5 hover:bg-muted"
           aria-label={`WhatsApp ${t.tenant.name}`}
           title="WhatsApp"
         >
@@ -358,7 +358,7 @@ function TenantActions({ t, onEdit, onEnd, className = "" }: { t: Tenancy; onEdi
         </a>
       )}
       {can("tenants.update") && (
-        <button onClick={() => onEdit(t)} className="rounded-full p-2.5 hover:bg-subtle" aria-label={`Edit ${t.tenant.name}`} title="Edit ketentuan sewa">
+        <button onClick={() => onEdit(t)} className="rounded-full p-2.5 hover:bg-muted" aria-label={`Edit ${t.tenant.name}`} title="Edit ketentuan sewa">
           <Pencil className="size-4" />
         </button>
       )}
@@ -415,19 +415,19 @@ export default function PenghuniPage() {
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-full border border-line bg-white p-1">
+        <div className="flex rounded-full border border-border bg-card p-1">
           {(["ACTIVE", "ENDED"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setTab(s)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === s ? "bg-ink text-white" : "text-ink-soft hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === s ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {s === "ACTIVE" ? "Aktif" : "Riwayat"}
             </button>
           ))}
         </div>
         <label className="relative min-w-48 flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-soft" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari nama, kamar, no. HP" className="pl-10" />
         </label>
       </div>
@@ -439,7 +439,7 @@ export default function PenghuniPage() {
               key={id ?? "all"}
               onClick={() => setKosFilter(id)}
               className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${
-                kosFilter === id ? "border-ink bg-ink font-semibold text-white" : "border-line bg-white"
+                kosFilter === id ? "border-foreground bg-primary font-semibold text-primary-foreground" : "border-border bg-card"
               }`}
             >
               {id === null ? "Semua cabang" : kosList.find((k) => k.id === id)!.name}
@@ -457,16 +457,16 @@ export default function PenghuniPage() {
         />
       ) : (
         <>
-        <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+        <MobileList className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {filtered.map((t) => (
             <div key={t.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4">
-              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lavender font-bold text-brand-700">{t.room.number}</span>
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent font-bold text-foreground">{t.room.number}</span>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">{t.tenant.name}</p>
-                <p className="truncate text-sm text-ink-soft">
+                <p className="truncate text-sm text-muted-foreground">
                   {t.kos.name} · {t.room.typeName}
                 </p>
-                <p className="mt-0.5 text-xs text-ink-soft">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {t.status === "ACTIVE" ? `Sejak ${dateShort(t.startDate)} · tagihan tiap tgl ${t.billingDay}` : `${dateShort(t.startDate)} – ${dateShort(t.endDate!)}`}
                 </p>
               </div>
@@ -499,7 +499,7 @@ export default function PenghuniPage() {
             {filtered.map((t) => (
               <TableRow key={t.id}>
                 <TableCell>
-                  <span className="inline-grid min-w-10 place-items-center rounded-lg bg-lavender px-2 py-1 text-sm font-bold text-brand-700">{t.room.number}</span>
+                  <span className="inline-grid min-w-10 place-items-center rounded-lg bg-accent px-2 py-1 text-sm font-bold text-foreground">{t.room.number}</span>
                 </TableCell>
                 <TableCell>
                   <CellStack title={t.tenant.name} sub={t.tenant.phone ? localPhone(t.tenant.phone) : t.tenant.email} />

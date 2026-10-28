@@ -34,9 +34,9 @@ const axisLabel = (n: number) =>
 function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <Card className="p-4! sm:p-5!">
-      <p className="text-xs font-medium text-ink-soft sm:text-sm">{label}</p>
+      <p className="text-xs font-medium text-muted-foreground sm:text-sm">{label}</p>
       <p className="mt-1 truncate text-xl font-bold sm:text-2xl">{value}</p>
-      <p className="mt-0.5 truncate text-xs text-ink-soft">{sub}</p>
+      <p className="mt-0.5 truncate text-xs text-muted-foreground">{sub}</p>
     </Card>
   );
 }
@@ -49,7 +49,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-ink-soft">
+      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-muted-foreground">
         <span className="flex items-center gap-2">
           <span className="size-2.5 rounded-sm" style={{ background: COLOR_PAID }} /> Lunas
         </span>
@@ -61,8 +61,8 @@ function BillingChart({ months }: { months: Report["months"] }) {
         {/* Garis bantu & label sumbu Y */}
         {ticks.map((t) => (
           <div key={t} className="pointer-events-none absolute inset-x-0 flex items-center" style={{ bottom: h(t) }}>
-            <span className="w-12 translate-y-1/2 pr-2 text-right text-[11px] text-ink-soft">{axisLabel(t)}</span>
-            <span className="h-px flex-1 bg-line" />
+            <span className="w-12 translate-y-1/2 pr-2 text-right text-[11px] text-muted-foreground">{axisLabel(t)}</span>
+            <span className="h-px flex-1 bg-border" />
           </div>
         ))}
         <div className="absolute inset-y-0 left-12 right-0 flex">
@@ -78,7 +78,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
                 onBlur={() => setHover(null)}
                 onClick={() => setHover(hover === i ? null : i)}
                 aria-label={`${monthLong(m.month)}: ditagih ${price(m.billed)}, lunas ${price(m.collected)}`}
-                className={`relative flex flex-1 flex-col items-center justify-end rounded-md outline-none transition ${hover === i ? "bg-subtle" : ""}`}
+                className={`relative flex flex-1 flex-col items-center justify-end rounded-md outline-none transition ${hover === i ? "bg-muted" : ""}`}
               >
                 <span className="flex h-full w-full max-w-6 flex-col justify-end gap-0.5">
                   {open > 0 && <span className="w-full rounded-t-[4px]" style={{ height: h(open), background: COLOR_OPEN }} />}
@@ -91,23 +91,23 @@ function BillingChart({ months }: { months: Report["months"] }) {
           })}
           {active && (
             <div
-              className="pointer-events-none absolute top-0 z-10 w-48 rounded-xl border border-line bg-white p-3 text-xs shadow-lg"
+              className="pointer-events-none absolute top-0 z-10 w-48 rounded-xl border border-border bg-card p-3 text-xs shadow-lg"
               style={{ left: `${((hover! + 0.5) / 12) * 100}%`, transform: `translateX(${hover! > 6 ? "-100%" : "0"})` }}
             >
               <p className="mb-1.5 text-sm font-semibold">{monthLong(active.month)}</p>
               <p className="flex justify-between gap-3">
-                <span className="flex items-center gap-1.5 text-ink-soft">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
                   <span className="size-2 rounded-sm" style={{ background: COLOR_PAID }} /> Lunas
                 </span>
                 {price(active.collected)}
               </p>
               <p className="flex justify-between gap-3">
-                <span className="flex items-center gap-1.5 text-ink-soft">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
                   <span className="size-2 rounded-sm" style={{ background: COLOR_OPEN }} /> Belum lunas
                 </span>
                 {price(active.billed - active.collected)}
               </p>
-              <p className="mt-1.5 flex justify-between gap-3 border-t border-line pt-1.5 font-semibold">
+              <p className="mt-1.5 flex justify-between gap-3 border-t border-border pt-1.5 font-semibold">
                 <span>Ditagih</span>
                 {price(active.billed)}
               </p>
@@ -117,7 +117,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
       </div>
       <div className="flex pl-12">
         {months.map((m) => (
-          <span key={m.month} className="flex-1 pt-2 text-center text-[11px] text-ink-soft">
+          <span key={m.month} className="flex-1 pt-2 text-center text-[11px] text-muted-foreground">
             {monthShort(m.month)}
           </span>
         ))}
@@ -211,7 +211,7 @@ export default function LaporanPage() {
 
           <Card className="mt-6">
             <h2 className="font-bold">Tagihan sewa per bulan</h2>
-            <p className="mb-5 text-sm text-ink-soft">Berdasarkan periode tagihan. Ketuk atau arahkan kursor ke bulan untuk rinciannya.</p>
+            <p className="mb-5 text-sm text-muted-foreground">Berdasarkan periode tagihan. Ketuk atau arahkan kursor ke bulan untuk rinciannya.</p>
             {billed === 0 ? <EmptyState title={`Belum ada tagihan di ${r.year}`} /> : <BillingChart months={r.months} />}
           </Card>
 
@@ -258,7 +258,7 @@ export default function LaporanPage() {
                 </TableFooter>
               </Table>
             </div>
-            <p className="px-5 pb-5 pt-3 text-xs text-ink-soft sm:px-6">
+            <p className="px-5 pb-5 pt-3 text-xs text-muted-foreground sm:px-6">
               &ldquo;Kas&rdquo; dihitung dari tanggal bayar, sehingga bisa berbeda dari kolom lunas (misal tagihan Oktober yang dibayar di November).
             </p>
           </Card>
@@ -283,7 +283,7 @@ export default function LaporanPage() {
                         <TableCell className="px-5 py-2.5 font-medium sm:px-6">{k.name}</TableCell>
                         <TableCell className="px-3 py-2.5 text-right">
                           {pct(k.occupied, k.totalRooms)}{" "}
-                          <span className="text-ink-soft">
+                          <span className="text-muted-foreground">
                             ({k.occupied}/{k.totalRooms})
                           </span>
                         </TableCell>
@@ -304,16 +304,16 @@ export default function LaporanPage() {
             <EmptyState title="Tidak ada tunggakan" text="Semua tagihan yang lewat jatuh tempo sudah dibayar." />
           ) : (
             <>
-            <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+            <MobileList className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
               {r.arrears.map((a) => (
                 <div key={a.tenancyId} className="flex items-center gap-4 p-4">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-lavender text-sm font-bold text-brand-700">{a.roomNumber}</span>
+                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-foreground">{a.roomNumber}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">
                       {a.name}
-                      {a.ended && <span className="ml-2 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">Sudah keluar</span>}
+                      {a.ended && <span className="ml-2 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">Sudah keluar</span>}
                     </p>
-                    <p className="truncate text-sm text-ink-soft">
+                    <p className="truncate text-sm text-muted-foreground">
                       {a.kosName} · {a.count} tagihan · sejak {dateShort(a.oldestDue)}
                     </p>
                   </div>
@@ -326,7 +326,7 @@ export default function LaporanPage() {
                       )}
                       target="_blank"
                       rel="noopener"
-                      className="shrink-0 rounded-full p-2.5 hover:bg-subtle"
+                      className="shrink-0 rounded-full p-2.5 hover:bg-muted"
                       aria-label={`WhatsApp ${a.name}`}
                     >
                       <MessageCircle className="size-4" />
@@ -351,7 +351,7 @@ export default function LaporanPage() {
                 {r.arrears.map((a) => (
                   <TableRow key={a.tenancyId}>
                     <TableCell>
-                      <span className="inline-grid min-w-10 place-items-center rounded-lg bg-lavender px-2 py-1 text-sm font-bold text-brand-700">{a.roomNumber}</span>
+                      <span className="inline-grid min-w-10 place-items-center rounded-lg bg-accent px-2 py-1 text-sm font-bold text-foreground">{a.roomNumber}</span>
                     </TableCell>
                     <TableCell>
                       <CellStack title={a.name} sub={a.ended ? "Sudah keluar" : undefined} />
@@ -369,7 +369,7 @@ export default function LaporanPage() {
                           )}
                           target="_blank"
                           rel="noopener"
-                          className="inline-flex rounded-full p-2 hover:bg-subtle"
+                          className="inline-flex rounded-full p-2 hover:bg-muted"
                           aria-label={`WhatsApp ${a.name}`}
                         >
                           <MessageCircle className="size-4" />

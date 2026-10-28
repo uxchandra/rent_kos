@@ -13,10 +13,10 @@ function Checkbox({ checked, partial = false }: { checked: boolean; partial?: bo
   return (
     <span
       className={`grid size-5 shrink-0 place-items-center rounded-md border transition ${
-        checked || partial ? "border-brand-600 bg-brand-600 text-white" : "border-line bg-white"
+        checked || partial ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"
       }`}
     >
-      {checked ? <Check className="size-3.5" strokeWidth={3} /> : partial ? <span className="h-0.5 w-2.5 rounded bg-white" /> : null}
+      {checked ? <Check className="size-3.5" strokeWidth={3} /> : partial ? <span className="h-0.5 w-2.5 rounded bg-card" /> : null}
     </span>
   );
 }
@@ -61,7 +61,7 @@ function RoleDialog({ role, catalog, onClose, onSaved }: { role: StaffRole | nul
       title={role ? `Edit peran ${role.name}` : "Tambah peran"}
       footer={
         <>
-          <span className="mr-auto self-center text-sm text-ink-soft">{perms.size} izin dipilih</span>
+          <span className="mr-auto self-center text-sm text-muted-foreground">{perms.size} izin dipilih</span>
           <Button variant="secondary" onClick={onClose}>
             Batal
           </Button>
@@ -80,14 +80,14 @@ function RoleDialog({ role, catalog, onClose, onSaved }: { role: StaffRole | nul
         </Field>
       </div>
       {role && role.userCount > 0 && (
-        <p className="mt-3 rounded-xl bg-lavender px-3 py-2 text-sm text-brand-800">
+        <p className="mt-3 rounded-xl bg-accent px-3 py-2 text-sm text-accent-foreground">
           Perubahan izin langsung berlaku untuk {role.userCount} pengguna dengan peran ini.
         </p>
       )}
 
       <p className="mb-2 mt-6 text-sm font-medium">Izin</p>
       {errors.permissions && <p className="mb-2 text-xs text-red-600">{errors.permissions[0]}</p>}
-      <div className="divide-y divide-line rounded-xl border border-line">
+      <div className="divide-y divide-border rounded-xl border border-border">
         {catalog.groups.map((g) => {
           const keys = g.permissions.map((p) => p.key);
           const count = keys.filter((k) => perms.has(k)).length;
@@ -96,7 +96,7 @@ function RoleDialog({ role, catalog, onClose, onSaved }: { role: StaffRole | nul
               <button type="button" onClick={() => setGroup(keys, count < keys.length)} className="flex w-full items-center gap-3 text-left">
                 <Checkbox checked={count === keys.length} partial={count > 0 && count < keys.length} />
                 <span className="font-semibold">{g.label}</span>
-                <span className="ml-auto text-xs text-ink-soft">
+                <span className="ml-auto text-xs text-muted-foreground">
                   {count}/{keys.length}
                 </span>
               </button>
@@ -113,11 +113,11 @@ function RoleDialog({ role, catalog, onClose, onSaved }: { role: StaffRole | nul
         })}
       </div>
 
-      <div className="mt-5 rounded-xl bg-subtle p-4">
+      <div className="mt-5 rounded-xl bg-muted p-4">
         <p className="flex items-center gap-2 text-sm font-semibold">
           <Lock className="size-4" /> Selalu khusus Owner
         </p>
-        <ul className="mt-2 list-disc space-y-1 pl-9 text-sm text-ink-soft">
+        <ul className="mt-2 list-disc space-y-1 pl-9 text-sm text-muted-foreground">
           {catalog.ownerOnly.map((o) => (
             <li key={o}>{o}</li>
           ))}
@@ -152,7 +152,7 @@ export default function PeranPage() {
 
   const actions = (r: StaffRole) => (
     <div className="flex justify-end gap-1">
-      <button onClick={() => setEditing({ role: r })} className="rounded-full p-2 hover:bg-subtle" aria-label={`Edit ${r.name}`} title="Edit izin">
+      <button onClick={() => setEditing({ role: r })} className="rounded-full p-2 hover:bg-muted" aria-label={`Edit ${r.name}`} title="Edit izin">
         <Pencil className="size-4" />
       </button>
       {!r.isSystem && (
@@ -182,17 +182,17 @@ export default function PeranPage() {
         <>
           <MobileList className="space-y-3">
             {data.data.map((r) => (
-              <div key={r.id} className="rounded-2xl border border-line bg-white p-4">
+              <div key={r.id} className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-semibold">
-                      {r.name} {r.isSystem && <span className="ml-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">Bawaan</span>}
+                      {r.name} {r.isSystem && <span className="ml-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">Bawaan</span>}
                     </p>
-                    {r.description && <p className="text-sm text-ink-soft">{r.description}</p>}
+                    {r.description && <p className="text-sm text-muted-foreground">{r.description}</p>}
                   </div>
                   {actions(r)}
                 </div>
-                <p className="mt-2 text-xs text-ink-soft">
+                <p className="mt-2 text-xs text-muted-foreground">
                   {r.permissions.length} izin · {r.userCount} pengguna · {summary(r)}
                 </p>
               </div>
@@ -215,7 +215,7 @@ export default function PeranPage() {
                     <CellStack
                       title={
                         <>
-                          {r.name} {r.isSystem && <span className="ml-1 rounded-md bg-subtle px-1.5 py-0.5 text-[11px] font-semibold text-ink-soft">Bawaan</span>}
+                          {r.name} {r.isSystem && <span className="ml-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">Bawaan</span>}
                         </>
                       }
                       sub={r.description ?? undefined}

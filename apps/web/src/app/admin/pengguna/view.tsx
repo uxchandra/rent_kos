@@ -24,13 +24,13 @@ function roleText(u: AdminUser) {
 }
 
 function RoleBadge({ u }: { u: AdminUser }) {
-  const cls = u.role === "OWNER" ? "bg-brand-600 text-white" : u.role === "TENANT" ? "bg-subtle text-ink-soft" : "bg-lavender text-brand-700";
+  const cls = u.role === "OWNER" ? "bg-primary text-primary-foreground" : u.role === "TENANT" ? "bg-muted text-muted-foreground" : "bg-accent text-foreground";
   return <span className={`inline-block rounded-md px-1.5 py-0.5 text-xs font-semibold ${cls}`}>{roleText(u)}</span>;
 }
 
 function StatusBadge({ active }: { active: boolean }) {
   return (
-    <span className={`inline-block rounded-md px-1.5 py-0.5 text-xs font-semibold ${active ? "bg-mint text-mint-ink" : "bg-subtle text-ink-soft"}`}>
+    <span className={`inline-block rounded-md px-1.5 py-0.5 text-xs font-semibold ${active ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"}`}>
       {active ? "Aktif" : "Nonaktif"}
     </span>
   );
@@ -113,10 +113,10 @@ function StaffDialog({ user, roles, kosList, onClose, onSaved }: { user: AdminUs
             key={o.value}
             type="button"
             onClick={() => setV({ ...v, role: o.value })}
-            className={`rounded-xl border p-3 text-left transition ${v.role === o.value ? "border-brand-600 bg-lavender/60" : "border-line hover:border-ink"}`}
+            className={`rounded-xl border p-3 text-left transition ${v.role === o.value ? "border-primary bg-accent/60" : "border-border hover:border-foreground"}`}
           >
             <span className="block text-sm font-semibold">{o.title}</span>
-            <span className="mt-0.5 block text-xs text-ink-soft">{o.text}</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">{o.text}</span>
           </button>
         ))}
       </div>
@@ -134,16 +134,16 @@ function StaffDialog({ user, roles, kosList, onClose, onSaved }: { user: AdminUs
             </Select>
           </Field>
           <p className="mb-2 mt-5 text-sm font-medium">Cabang yang dikelola</p>
-          <div className="divide-y divide-line rounded-xl border border-line">
+          <div className="divide-y divide-border rounded-xl border border-border">
             {kosList.map((k) => (
-              <button key={k.id} type="button" onClick={() => toggleKos(k.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-subtle">
+              <button key={k.id} type="button" onClick={() => toggleKos(k.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted">
                 <span
-                  className={`grid size-5 shrink-0 place-items-center rounded-md border ${v.kosIds.includes(k.id) ? "border-brand-600 bg-brand-600 text-white" : "border-line"}`}
+                  className={`grid size-5 shrink-0 place-items-center rounded-md border ${v.kosIds.includes(k.id) ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
                 >
                   {v.kosIds.includes(k.id) && <Check className="size-3.5" strokeWidth={3} />}
                 </span>
                 <span className="text-sm">
-                  {k.name} <span className="text-ink-soft">· {k.city}</span>
+                  {k.name} <span className="text-muted-foreground">· {k.city}</span>
                 </span>
               </button>
             ))}
@@ -188,7 +188,7 @@ function TenantDialog({ user, onClose, onSaved }: { user: AdminUser; onClose: ()
         <Field label="No. HP / WhatsApp" error={errors.phone}>
           <Input value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} inputMode="tel" />
         </Field>
-        <p className="text-xs text-ink-soft">Ketentuan sewa (harga, tanggal tagihan, deposit) diubah dari menu Penghuni.</p>
+        <p className="text-xs text-muted-foreground">Ketentuan sewa (harga, tanggal tagihan, deposit) diubah dari menu Penghuni.</p>
       </div>
     </Dialog>
   );
@@ -285,16 +285,16 @@ export default function PenggunaPage() {
 
   const actions = (u: AdminUser, className = "") => (
     <div className={`flex gap-1 ${className}`}>
-      <button onClick={() => setEditing({ user: u })} className="rounded-full p-2 hover:bg-subtle" aria-label={`Edit ${u.name}`} title="Edit">
+      <button onClick={() => setEditing({ user: u })} className="rounded-full p-2 hover:bg-muted" aria-label={`Edit ${u.name}`} title="Edit">
         <Pencil className="size-4" />
       </button>
-      <button onClick={() => setResetting(u)} className="rounded-full p-2 hover:bg-subtle" aria-label={`Reset password ${u.name}`} title="Reset password">
+      <button onClick={() => setResetting(u)} className="rounded-full p-2 hover:bg-muted" aria-label={`Reset password ${u.name}`} title="Reset password">
         <KeyRound className="size-4" />
       </button>
       {u.id !== me.id && (
         <button
           onClick={() => toggleStatus(u)}
-          className={`rounded-full p-2 ${u.isActive ? "text-amber-600 hover:bg-amber-50" : "text-mint-ink hover:bg-mint"}`}
+          className={`rounded-full p-2 ${u.isActive ? "text-amber-600 hover:bg-amber-50" : "text-emerald-700 hover:bg-emerald-100"}`}
           aria-label={u.isActive ? `Nonaktifkan ${u.name}` : `Aktifkan ${u.name}`}
           title={u.isActive ? "Nonaktifkan" : "Aktifkan"}
         >
@@ -324,23 +324,23 @@ export default function PenggunaPage() {
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-full border border-line bg-white p-1">
+        <div className="flex rounded-full border border-border bg-card p-1">
           {(["staff", "tenant"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === t ? "bg-ink text-white" : "text-ink-soft hover:text-ink"}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {t === "staff" ? "Staf" : "Penghuni"}
             </button>
           ))}
         </div>
         <label className="relative min-w-48 flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-soft" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari nama, email, no. HP" className="pl-10" />
         </label>
         {tab === "staff" && (
-          <Link href="/admin/peran" className="text-sm font-semibold text-brand-600 hover:underline">
+          <Link href="/admin/peran" className="text-sm font-semibold text-foreground hover:underline">
             Atur peran & izin →
           </Link>
         )}
@@ -352,21 +352,21 @@ export default function PenggunaPage() {
         <EmptyState title={data.data.length ? "Tidak ada yang cocok" : tab === "staff" ? "Belum ada staf" : "Belum ada akun penghuni"} />
       ) : (
         <>
-          <MobileList className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+          <MobileList className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {rows.map((u) => (
               <div key={u.id} className={`p-4 ${u.isActive ? "" : "opacity-60"}`}>
                 <div className="flex items-start gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-lavender font-bold text-brand-700">{u.name[0]}</span>
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent font-bold text-foreground">{u.name[0]}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">
-                      {u.name} {u.id === me.id && <span className="text-xs font-normal text-ink-soft">(Anda)</span>}
+                      {u.name} {u.id === me.id && <span className="text-xs font-normal text-muted-foreground">(Anda)</span>}
                     </p>
-                    <p className="truncate text-sm text-ink-soft">{u.email}</p>
+                    <p className="truncate text-sm text-muted-foreground">{u.email}</p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       <RoleBadge u={u} />
                       {!u.isActive && <StatusBadge active={false} />}
                     </div>
-                    <p className="mt-1.5 truncate text-xs text-ink-soft">
+                    <p className="mt-1.5 truncate text-xs text-muted-foreground">
                       {u.role === "TENANT"
                         ? u.stay
                           ? `Kamar ${u.stay.roomNumber} · ${u.stay.kos.name}`
@@ -398,7 +398,7 @@ export default function PenggunaPage() {
                 <TableRow key={u.id} className={u.isActive ? undefined : "opacity-60"}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-lavender text-sm font-bold text-brand-700">{u.name[0]}</span>
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-foreground">{u.name[0]}</span>
                       <CellStack title={<>{u.name} {u.id === me.id && <span className="text-xs font-normal text-muted-foreground">(Anda)</span>}</>} sub={u.email} />
                     </div>
                   </TableCell>

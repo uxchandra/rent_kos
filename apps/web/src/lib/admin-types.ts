@@ -9,8 +9,8 @@ export const roomStatusLabel: Record<RoomStatus, string> = {
 };
 
 export const roomStatusStyle: Record<RoomStatus, string> = {
-  AVAILABLE: "bg-mint text-mint-ink border-mint-ink/20",
-  OCCUPIED: "bg-lavender text-brand-700 border-brand-300",
+  AVAILABLE: "bg-emerald-50 text-emerald-700 border-emerald-600/20",
+  OCCUPIED: "bg-accent text-foreground border-border",
   MAINTENANCE: "bg-amber-50 text-amber-700 border-amber-300",
 };
 
@@ -79,6 +79,18 @@ export type AdminKosDetail = {
   roomTypes: AdminRoomType[];
 };
 
+export type DashboardTrendPoint = {
+  year: number;
+  month: number;
+  billed: number;
+  collected: number;
+  cashIn: number;
+  bookings: number;
+  approved: number;
+  moveIns: number;
+  moveOuts: number;
+};
+
 export type Dashboard = {
   totals: {
     kos: number;
@@ -88,7 +100,46 @@ export type Dashboard = {
     maintenance: number;
     potentialRevenue: number;
     pendingBookings: number;
+    pendingPayments: number;
+    activeTenants: number;
+    overdueAmount: number;
+    overdueCount: number;
   };
+  /** Tagihan sewa periode bulan ini, dikelompokkan per status. */
+  thisMonth: {
+    billed: number;
+    paid: number;
+    paidCount: number;
+    waiting: number;
+    waitingCount: number;
+    unpaid: number;
+    unpaidCount: number;
+    overdue: number;
+    overdueCount: number;
+  };
+  /** 6 bulan terakhir, urut dari yang terlama. */
+  trend: DashboardTrendPoint[];
+  overdue: {
+    id: number;
+    number: string;
+    amount: number;
+    dueDate: string;
+    daysLate: number;
+    status: InvoiceStatus;
+    tenantName: string;
+    kosName: string;
+    roomNumber: string;
+  }[];
+  recentBookings: {
+    id: number;
+    code: string;
+    name: string;
+    status: BookingStatus;
+    createdAt: string;
+    moveInDate: string;
+    kosName: string;
+    roomTypeName: string;
+  }[];
   kos: {
     id: number;
     name: string;
@@ -206,8 +257,8 @@ export const invoiceStatusLabel: Record<InvoiceStatus, string> = {
 export const invoiceStatusStyle: Record<InvoiceStatus, string> = {
   UNPAID: "bg-amber-50 text-amber-700",
   WAITING_VERIFICATION: "bg-sky-50 text-sky-700",
-  PAID: "bg-mint text-mint-ink",
-  CANCELLED: "bg-subtle text-ink-soft",
+  PAID: "bg-emerald-50 text-emerald-700",
+  CANCELLED: "bg-muted text-muted-foreground",
 };
 
 export type Invoice = {
