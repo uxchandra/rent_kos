@@ -161,7 +161,7 @@ export default async function HomePage() {
                         className="group flex items-center gap-4 rounded-2xl border border-dashed border-white/15 p-3 pr-4 transition hover:border-lime/50"
                       >
                         {(k.areaImage ?? k.coverImage) ? (
-                          <img src={k.areaImage ?? k.coverImage ?? ""} alt="" className="size-16 shrink-0 rounded-xl object-cover opacity-70 grayscale-[40%] transition group-hover:opacity-100" />
+                          <img src={k.areaImage ?? k.coverImage ?? ""} alt="" className="size-16 shrink-0 rounded-xl object-cover" />
                         ) : (
                           <span className="size-16 shrink-0 rounded-xl bg-white/5" />
                         )}
