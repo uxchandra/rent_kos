@@ -20,8 +20,7 @@ import {
 } from "lucide-react"
 import { NavMain, type NavItem } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { useAuth } from "@/components/auth-provider"
 import { site } from "@/lib/site"
 import { waLink } from "@/lib/format"
@@ -29,7 +28,7 @@ import type { AdminKosSummary, Dashboard } from "@/lib/admin-types"
 import { allowed, pageAccess } from "@/lib/access"
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { user, logout, can, isOwner } = useAuth()
+  const { user, can, isOwner } = useAuth()
   const { data: kos } = useSWR<{ data: AdminKosSummary[] }>("/admin/kos")
   const { data: dashboard } = useSWR<{ data: Dashboard }>(can("dashboard.view") ? "/admin/dashboard" : null)
   const branches = kos?.data ?? []
@@ -108,9 +107,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         {akses.length > 0 && <NavMain label="Pengguna & akses" items={akses} />}
         <NavSecondary items={secondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={user} onLogout={logout} />
-      </SidebarFooter>
     </Sidebar>
   )
 }

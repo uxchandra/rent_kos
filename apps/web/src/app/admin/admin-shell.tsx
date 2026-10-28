@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import useSWR, { SWRConfig } from "swr";
 import { BedDoubleIcon, Building2Icon, LayoutDashboardIcon, MenuIcon, ReceiptTextIcon } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { NavUser } from "@/components/nav-user";
 import { isActivePath } from "@/components/nav-main";
 import {
   Breadcrumb,
@@ -157,6 +158,11 @@ function MobileTabBar() {
   );
 }
 
+function HeaderUser() {
+  const { user, logout } = useAuth();
+  return <NavUser user={user} onLogout={logout} />;
+}
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <SWRConfig value={{ fetcher: (path: string) => api(path), revalidateOnFocus: true }}>
@@ -169,6 +175,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
                 <AdminBreadcrumb />
+                <div className="ml-auto">
+                  <HeaderUser />
+                </div>
               </header>
               <main className="flex-1 px-4 pb-28 pt-5 sm:px-6 md:pb-10 lg:px-8 lg:pt-8">
                 <PageGuard>{children}</PageGuard>

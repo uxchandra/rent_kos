@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { ChevronsUpDownIcon, ExternalLinkIcon, KeyRoundIcon, LogOutIcon } from "lucide-react"
+import { ExternalLinkIcon, KeyRoundIcon, LogOutIcon } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
 
 const initials = (name: string) =>
   name
@@ -22,67 +22,53 @@ const initials = (name: string) =>
     .join("")
     .toUpperCase()
 
+/** Menu profil di kanan navbar admin: avatar sebagai tombol, isi dropdown akun & keluar. */
 export function NavUser({ user, onLogout }: { user: { name: string; email: string }; onLogout: () => void }) {
-  const { isMobile, setOpenMobile } = useSidebar()
-
   const avatar = (
-    <Avatar className="h-8 w-8 rounded-lg">
-      <AvatarFallback className="rounded-lg bg-primary/10 font-semibold text-primary">{initials(user.name)}</AvatarFallback>
+    <Avatar className="size-8 rounded-lg">
+      <AvatarFallback className="rounded-lg">{initials(user.name)}</AvatarFallback>
     </Avatar>
-  )
-  const identity = (
-    <div className="grid flex-1 text-left text-sm leading-tight">
-      <span className="truncate font-medium">{user.name}</span>
-      <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-    </div>
   )
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              {avatar}
-              {identity}
-              <ChevronsUpDownIcon className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                {avatar}
-                {identity}
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/admin/akun" onClick={() => setOpenMobile(false)}>
-                  <KeyRoundIcon />
-                  Akun saya
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href="/" target="_blank" rel="noopener">
-                  <ExternalLinkIcon />
-                  Lihat website
-                </a>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={onLogout}>
-              <LogOutIcon />
-              Keluar
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-auto gap-2 px-1.5 py-1" aria-label="Menu profil">
+          {avatar}
+          <span className="hidden max-w-40 truncate text-sm font-medium sm:inline">{user.name}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="min-w-56 rounded-lg" side="bottom" align="end" sideOffset={4}>
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            {avatar}
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link href="/admin/akun">
+              <KeyRoundIcon />
+              Akun saya
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a href="/" target="_blank" rel="noopener">
+              <ExternalLinkIcon />
+              Lihat website
+            </a>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onSelect={onLogout}>
+          <LogOutIcon />
+          Keluar
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
