@@ -77,7 +77,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
                 onFocus={() => setHover(i)}
                 onBlur={() => setHover(null)}
                 onClick={() => setHover(hover === i ? null : i)}
-                aria-label={`${monthLong(m.month)}: ditagih ${price(m.billed)}, lunas ${price(m.collected)}`}
+                aria-label={`${monthLong(m.month)}: total tagihan ${price(m.billed)}, lunas ${price(m.collected)}`}
                 className={`relative flex flex-1 flex-col items-center justify-end rounded-md outline-none transition ${hover === i ? "bg-muted" : ""}`}
               >
                 <span className="flex h-full w-full max-w-6 flex-col justify-end gap-0.5">
@@ -108,7 +108,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
                 {price(active.billed - active.collected)}
               </p>
               <p className="mt-1.5 flex justify-between gap-3 border-t border-border pt-1.5 font-semibold">
-                <span>Ditagih</span>
+                <span>Total tagihan</span>
                 {price(active.billed)}
               </p>
             </div>
@@ -127,7 +127,7 @@ function BillingChart({ months }: { months: Report["months"] }) {
 }
 
 function downloadCsv(report: Report, kosLabel: string) {
-  const header = ["Bulan", "Ditagih", "Lunas", "Belum lunas", "Kas masuk sewa", "Kas masuk deposit", "Penghuni masuk", "Penghuni keluar"];
+  const header = ["Bulan", "Total tagihan", "Lunas", "Belum lunas", "Kas masuk sewa", "Kas masuk deposit", "Penghuni masuk", "Penghuni keluar"];
   const rows = report.months.map((m) => [
     `${monthLong(m.month)} ${report.year}`,
     m.billed,
@@ -222,7 +222,7 @@ export default function LaporanPage() {
                 <TableHeader className="[&_th]:text-xs [&_th]:text-muted-foreground">
                   <TableRow>
                     <TableHead className="px-5 py-2 font-medium sm:px-6">Bulan</TableHead>
-                    <TableHead className="px-3 py-2 text-right font-medium">Ditagih</TableHead>
+                    <TableHead className="px-3 py-2 text-right font-medium">Total tagihan</TableHead>
                     <TableHead className="px-3 py-2 text-right font-medium">Lunas</TableHead>
                     <TableHead className="px-3 py-2 text-right font-medium">Belum lunas</TableHead>
                     <TableHead className="px-3 py-2 text-right font-medium">Kas sewa</TableHead>
@@ -272,7 +272,7 @@ export default function LaporanPage() {
                     <TableRow>
                       <TableHead className="px-5 py-2 font-medium sm:px-6">Cabang</TableHead>
                       <TableHead className="px-3 py-2 text-right font-medium">Okupansi kini</TableHead>
-                      <TableHead className="px-3 py-2 text-right font-medium">Ditagih</TableHead>
+                      <TableHead className="px-3 py-2 text-right font-medium">Total tagihan</TableHead>
                       <TableHead className="px-3 py-2 text-right font-medium">Lunas</TableHead>
                       <TableHead className="px-5 py-2 text-right font-medium sm:px-6">Penagihan</TableHead>
                     </TableRow>

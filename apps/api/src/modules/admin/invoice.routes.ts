@@ -90,7 +90,7 @@ router.post("/generate", async (req, res) => {
   const { year, month } = periodSchema.parse(req.body);
   const ids = await accessibleKosIds(req.user!);
   const count = await generateRentInvoices(ids, year, month);
-  res.status(201).json({ message: count ? `${count} tagihan diterbitkan` : "Semua penghuni sudah ditagih", count });
+  res.status(201).json({ message: count ? `${count} tagihan diterbitkan` : "Semua penghuni sudah punya tagihan", count });
 });
 
 const updateSchema = z.object({

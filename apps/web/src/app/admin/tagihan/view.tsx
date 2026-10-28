@@ -52,7 +52,7 @@ function InvoiceDialog({ invoice, today, onClose, onSaved }: { invoice: Invoice;
   async function cancel() {
     const ok = await confirm({
       title: "Batalkan tagihan?",
-      text: `${invoiceTitle(invoice)} untuk ${invoice.tenant.name} tidak akan ditagihkan lagi.`,
+      text: `${invoiceTitle(invoice)} untuk ${invoice.tenant.name} tidak akan muncul lagi sebagai tagihan.`,
       confirmLabel: "Batalkan tagihan",
       danger: true,
     });
@@ -272,7 +272,7 @@ export default function TagihanPage() {
           {view === "period" && canManage && meta!.unbilled > 0 && (
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-accent px-4 py-3">
               <p className="text-sm text-accent-foreground">
-                <span className="font-semibold">{meta!.unbilled} penghuni</span> belum ditagih untuk {monthName(meta!.year, meta!.month)}.
+                <span className="font-semibold">{meta!.unbilled} penghuni</span> belum punya tagihan untuk {monthName(meta!.year, meta!.month)}.
               </p>
               <Button loading={generating} onClick={generate} className="py-2!">
                 Terbitkan tagihan

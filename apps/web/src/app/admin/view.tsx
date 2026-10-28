@@ -154,8 +154,8 @@ function SummaryCards({ d }: { d: Dashboard }) {
 // ---------- Grafik ----------
 
 const revenueConfig = {
-  billed: { label: "Ditagih", color: "var(--chart-2)" },
-  collected: { label: "Terkumpul", color: "var(--chart-1)" },
+  billed: { label: "Total tagihan", color: "var(--chart-2)" },
+  collected: { label: "Lunas", color: "var(--chart-1)" },
 } satisfies ChartConfig;
 
 function RevenueChart({ d }: { d: Dashboard }) {
@@ -170,7 +170,7 @@ function RevenueChart({ d }: { d: Dashboard }) {
         <CardDescription>Tagihan sewa vs yang sudah lunas, 6 bulan terakhir</CardDescription>
         <CardAction className="text-right">
           <p className="text-lg font-semibold tabular-nums">{percent(totalCollected, totalBilled)}%</p>
-          <p className="text-xs text-muted-foreground">tingkat koleksi</p>
+          <p className="text-xs text-muted-foreground">sudah lunas</p>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -291,7 +291,7 @@ function InvoicesThisMonth({ d }: { d: Dashboard }) {
     <Card>
       <CardHeader>
         <CardTitle>Tagihan sewa {now ? monthShort(now.year, now.month) : "bulan ini"}</CardTitle>
-        <CardDescription>Total ditagih {price(m.billed)}</CardDescription>
+        <CardDescription>Total tagihan {price(m.billed)}</CardDescription>
         <CardAction className="text-right">
           <p className="text-lg font-semibold tabular-nums">{percent(m.paid, m.billed)}%</p>
           <p className="text-xs text-muted-foreground">sudah lunas</p>

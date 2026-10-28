@@ -10,6 +10,7 @@
     "dev:web": "npm run dev -w web",
     "db:migrate": "npm run db:migrate -w api",
     "db:seed": "npm run db:seed -w api",
+    "db:demo": "npm run db:demo -w api",
     "db:generate": "npm run db:generate -w api"
   },
   "devDependencies": {
