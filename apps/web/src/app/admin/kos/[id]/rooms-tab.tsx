@@ -173,8 +173,8 @@ function AddRoomsDialog({ type, onClose, reload }: { type: AdminRoomType | null;
       }
     >
       <div className="grid gap-4">
-        <Field label="Nomor kamar" error={errors.numbers} hint="Pisahkan dengan koma, atau pakai rentang: 101-105, A1-A4.">
-          <Input value={numbers} onChange={(e) => setNumbers(e.target.value)} placeholder="101-105" autoFocus />
+        <Field label="Nomor kamar" error={errors.numbers} hint="Pisahkan dengan koma, atau pakai rentang: 01-05, A1-A4.">
+          <Input value={numbers} onChange={(e) => setNumbers(e.target.value)} placeholder="01-05" autoFocus />
         </Field>
         <Field label="Lantai (opsional)" error={errors.floor}>
           <Input type="number" min={0} value={floor} onChange={(e) => setFloor(e.target.value)} inputMode="numeric" />

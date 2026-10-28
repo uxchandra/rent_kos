@@ -9,13 +9,15 @@ import { Button, Dialog, EmptyState, PageHeader, Spinner, useFeedback } from "@/
 import { api, ApiError } from "@/lib/client-api";
 import { price } from "@/lib/format";
 import { roomStatusLabel, roomStatusStyle, type RoomBoard, type RoomStatus } from "@/lib/admin-types";
-import { buttonVariants } from "@/components/ui/button";
+import { Button as UiButton, buttonVariants } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 type Room = RoomBoard[number]["roomTypes"][number]["rooms"][number];
 type Selected = Room & { kosName: string; typeName: string };
 
 const statuses: RoomStatus[] = ["AVAILABLE", "OCCUPIED", "MAINTENANCE"];
+const statusDot: Record<RoomStatus, string> = { AVAILABLE: "bg-emerald-500", OCCUPIED: "bg-foreground/40", MAINTENANCE: "bg-amber-500" };
 
 export default function RoomBoardPage() {
   const { can } = useAuth();
@@ -28,7 +30,8 @@ export default function RoomBoardPage() {
   const [saving, setSaving] = useState<RoomStatus | null>(null);
 
   const board = data?.data ?? [];
-  const allRooms = board.flatMap((k) => k.roomTypes.flatMap((t) => t.rooms));
+  // Jumlah per status mengikuti cabang yang dipilih.
+  const allRooms = board.filter((k) => !kosFilter || k.id === kosFilter).flatMap((k) => k.roomTypes.flatMap((t) => t.rooms));
   const count = (s: RoomStatus) => allRooms.filter((r) => r.status === s).length;
 
   async function setStatus(status: RoomStatus) {
@@ -56,32 +59,35 @@ export default function RoomBoardPage() {
         <EmptyState title="Belum ada kamar" />
       ) : (
         <>
-          <div className="no-scrollbar -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-            {[null, ...board.map((k) => k.id)].map((id) => (
-              <button
-                key={id ?? "all"}
-                onClick={() => setKosFilter(id)}
-                className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition ${
-                  kosFilter === id ? "border-foreground bg-primary font-semibold text-primary-foreground" : "border-border bg-card"
-                }`}
-              >
-                {id === null ? "Semua cabang" : board.find((k) => k.id === id)!.name}
-              </button>
-            ))}
-          </div>
-          <div className="mb-6 grid grid-cols-3 gap-2">
-            {statuses.map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(statusFilter === s ? null : s)}
-                className={`rounded-xl border px-3 py-2.5 text-left transition ${roomStatusStyle[s]} ${
-                  statusFilter && statusFilter !== s ? "opacity-40" : ""
-                }`}
-              >
-                <span className="block text-xl font-bold">{count(s)}</span>
-                <span className="text-xs font-semibold">{roomStatusLabel[s]}</span>
-              </button>
-            ))}
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            <Select value={kosFilter ? String(kosFilter) : "all"} onValueChange={(v) => setKosFilter(v === "all" ? null : Number(v))}>
+              <SelectTrigger className="w-full sm:w-64" aria-label="Pilih cabang">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua cabang</SelectItem>
+                {board.map((k) => (
+                  <SelectItem key={k.id} value={String(k.id)}>
+                    {k.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex gap-1.5 sm:ml-auto">
+              {statuses.map((s) => (
+                <UiButton
+                  key={s}
+                  size="sm"
+                  variant={statusFilter === s ? "secondary" : "ghost"}
+                  onClick={() => setStatusFilter(statusFilter === s ? null : s)}
+                  aria-pressed={statusFilter === s}
+                >
+                  <span className={`size-2 rounded-full ${statusDot[s]}`} />
+                  {roomStatusLabel[s]}
+                  <span className="tabular-nums text-muted-foreground">{count(s)}</span>
+                </UiButton>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-6">

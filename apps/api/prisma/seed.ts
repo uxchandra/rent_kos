@@ -16,14 +16,14 @@ type SeedRoomType = {
 };
 
 /**
- * Nomor kamar berurutan per lantai (101–110, 201–...). `start` untuk melanjutkan nomor dari tipe sebelumnya,
+ * Nomor kamar urut per cabang mulai 01 (10 kamar per lantai). `start` untuk melanjutkan nomor dari tipe sebelumnya,
  * `occupied` = berapa kamar pertama yang sudah terisi.
  */
 const rooms = (count: number, { start = 1, occupied = 0 } = {}): SeedRoomType["rooms"] =>
   Array.from({ length: count }, (_, i) => {
     const n = start + i;
     const floor = Math.floor((n - 1) / 10) + 1;
-    return { number: `${floor}${String(((n - 1) % 10) + 1).padStart(2, "0")}`, floor, status: i < occupied ? ("OCCUPIED" as const) : ("AVAILABLE" as const) };
+    return { number: String(n).padStart(2, "0"), floor, status: i < occupied ? ("OCCUPIED" as const) : ("AVAILABLE" as const) };
   });
 
 const commonFacilities = ["WiFi 24 jam", "Parkir motor", "CCTV 24 jam", "Dapur bersama", "Ruang tamu", "Penjaga kos"];
