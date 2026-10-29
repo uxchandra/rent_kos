@@ -110,7 +110,7 @@ export default async function HomePage() {
                 </Phone>
               )}
               <span className="absolute bottom-[14%] left-0 rounded-full bg-lime px-3.5 py-1.5 text-xs font-semibold text-night shadow-lg motion-safe:animate-pop motion-safe:[animation-delay:700ms] sm:bottom-[18%] sm:left-[6%] sm:px-4 sm:py-2 sm:text-sm">
-                Bayar sewa bisa dari HP
+                Simple Living, Better Living
               </span>
             </div>
           </div>
